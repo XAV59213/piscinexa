@@ -1,6 +1,6 @@
 {
   "name": "piscinexa",
   "content_in_root": false,
-  "homeassistant": "2023.6.0",
+  "homeassistant": "2025.4.0",
   "render_readme": true
 }
