@@ -1,0 +1,108 @@
+title: Piscine
+views:
+  - title: Gestion Piscines
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: markdown
+            content: "## Piscine Papa"
+          - type: gauge
+            entity: sensor.piscinexa_papa_ph
+            name: pH
+            min: 0
+            max: 14
+            needle: true
+            colors:
+              - color: red
+                value: 7.0
+              - color: green
+                value: 7.4
+              - color: red
+                value: 7.8
+          - type: gauge
+            entity: sensor.piscinexa_papa_chlore
+            name: Chlore
+            min: 0
+            max: 5
+            unit: mg/L
+            needle: true
+            colors:
+              - color: red
+                value: 1.0
+              - color: green
+                value: 2.0
+              - color: red
+                value: 3.0
+          - type: entities
+            entities:
+              - entity: sensor.piscinexa_papa_volume_eau
+                name: Volume
+              - entity: sensor.piscinexa_papa_temps_filtration
+                name: Temps de filtration
+              - entity: sensor.piscinexa_papa_ph_a_ajouter
+                name: pH à ajouter
+              - entity: sensor.piscinexa_papa_chlore_a_ajouter
+                name: Chlore à ajouter
+      - type: vertical-stack
+        cards:
+          - type: markdown
+            content: "## Piscine Cousin"
+          - type: gauge
+            entity: sensor.piscinexa_cousin_ph
+            name: pH
+            min: 0
+            max: 14
+            needle: true
+            colors:
+              - color: red
+                value: 7.0
+              - color: green
+                value: 7.4
+              - color: red
+                value: 7.8
+          - type: gauge
+            entity: sensor.piscinexa_cousin_chlore
+            name: Chlore
+            min: 0
+            max: 5
+            unit: mg/L
+            needle: true
+            colors:
+              - color: red
+                value: 1.0
+              - color: green
+                value: 2.0
+                value: 3.0
+          - type: entities
+            entities:
+              - entity: sensor.piscinexa_cousin_volume_eau
+                name: Volume
+              - entity: sensor.piscinexa_cousin_temps_filtration
+                name: Temps de filtration
+              - entity: sensor.piscinexa_cousin_ph_a_ajouter
+                name: pH à ajouter
+              - entity: sensor.piscinexa_cousin_chlore_a_ajouter
+                name: Chlore à ajouter
+      - type: history-graph
+        entities:
+          - entity: sensor.piscinexa_papa_ph
+          - entity: sensor.piscinexa_papa_chlore
+          - entity: sensor.piscinexa_cousin_ph
+          - entity: sensor.piscinexa_cousin_chlore
+        hours_to_show: 24
+        refresh_interval: 60
+      - type: entities
+        entities:
+          - entity: button.piscinexa_papa_test
+            name: Tester Piscine Papa
+          - entity: button.piscinexa_papa_reset
+            name: Réinitialiser Piscine Papa
+          - entity: button.piscinexa_cousin_test
+            name: Tester Piscine Cousin
+          - entity: button.piscinexa_cousin_reset
+            name: Réinitialiser Piscine Cousin
+      - type: logbook
+        entities:
+          - sensor.piscinexa_papa_log
+          - sensor.piscinexa_cousin_log
+        title: Journal des actions
