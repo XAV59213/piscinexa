@@ -79,7 +79,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         schema = {
             vol.Required("name", default="piscine"): str,
-            vol.Required("pool_type", default=POOL_TYPE_SQUARE): vol.In([POOL_TYPE_SQUARE, POOL_TYPE_ROUND]),
+            vol.Required("pool_type", default=POOL_TYPE_SQUARE): vol.In({
+                POOL_TYPE_SQUARE: "Carrée",
+                POOL_TYPE_ROUND: "Ronde"
+            }),
             vol.Required("ph_current", default=7.0): vol.Coerce(float),
             vol.Required("ph_target", default=7.4): vol.Coerce(float),
             vol.Required("chlore_current", default=1.0): vol.Coerce(float),
