@@ -3,22 +3,34 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configuration de Piscinexa",
-        "description": "Entrez les détails de votre piscine pour configurer l'intégration Piscinexa.",
+        "title": "Configuration de Piscinexa - Étape 1",
+        "description": "Entrez le nom et le type de votre piscine.",
         "data": {
           "name": "Nom de la piscine",
-          "pool_type": "Type de piscine",
+          "pool_type": "Type de piscine"
+        }
+      },
+      "dimensions": {
+        "title": "Configuration de Piscinexa - Dimensions",
+        "description": "Entrez les dimensions de votre piscine.",
+        "data": {
+          "length": "Longueur (m)",
+          "width": "Largeur (m)",
+          "depth": "Profondeur (m)",
+          "diameter": "Diamètre (m)"
+        }
+      },
+      "parameters": {
+        "title": "Configuration de Piscinexa - Paramètres",
+        "description": "Entrez les paramètres de qualité de l'eau et les capteurs optionnels.",
+        "data": {
           "ph_current": "pH actuel",
           "ph_target": "pH cible",
           "chlore_current": "Chlore actuel (mg/L)",
           "chlore_target": "Chlore cible (mg/L)",
           "temperature": "Température (°C)",
           "temperature_sensor": "Capteur de température (optionnel)",
-          "power_sensor_entity_id": "ID de l'entité du capteur de puissance (optionnel)",
-          "length": "Longueur (m)",
-          "width": "Largeur (m)",
-          "depth": "Profondeur (m)",
-          "diameter": "Diamètre (m)"
+          "power_sensor_entity_id": "ID de l'entité du capteur de puissance (optionnel)"
         }
       },
       "init": {
