@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from collections import deque
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -33,8 +34,8 @@ async def async_setup_entry(
         PiscinexaPhAjouterSensor(hass, entry, name),
         PiscinexaChloreSensor(hass, entry, name),
         PiscinexaChloreAjouterSensor(hass, entry, name),
-                PiscinexaPowerSensor(hass, entry, name),
-log_sensor,
+        PiscinexaPowerSensor(hass, entry, name),
+        log_sensor,
     ]
     async_add_entities(sensors, True)
 
@@ -185,17 +186,16 @@ class PiscinexaLogSensor(SensorEntity):
         self._attr_name = f"{DOMAIN}_{self._name}_log"
         self._attr_icon = "mdi:notebook"
         self._attr_unique_id = f"{entry.entry_id}_log"
-        self._state = []
+        self._state = deque(maxlen=10)
 
     def log_action(self, action: str):
         self._state.append(f"{datetime.now()}: {action}")
-        if len(self._state) > 10:
-            self._state.pop(0)
         self.async_write_ha_state()
 
     @property
     def native_value(self):
         return "\n".join(self._state) if self._state else "Aucune action"
+
 class PiscinexaPowerSensor(SensorEntity):
     """Capteur pour la puissance de la prise connectée à la piscine."""
 
@@ -211,7 +211,7 @@ class PiscinexaPowerSensor(SensorEntity):
     @property
     def state(self):
         try:
-            sensor_id = self._hass.data[DOMAIN][self._entry.entry_id].get("power_sensor_entity_id")
+            sensor_id = self._entry.data.get("power_sensor_entity_id")
             if sensor_id:
                 power_state = self._hass.states.get(sensor_id)
                 if power_state and power_state.state not in ("unknown", "unavailable"):
