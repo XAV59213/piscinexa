@@ -1,23 +1,27 @@
 
-"""Capteurs réels pour Piscinexa."""
+"""Capteurs pour Piscinexa."""
 import logging
+from datetime import datetime
 from math import pi as PI
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.components.sensor import SensorEntity
 from .const import DOMAIN, POOL_TYPE_SQUARE, POOL_TYPE_ROUND
 
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
     name = entry.data["name"]
-    async_add_entities([
+    sensors = [
         PiscinexaVolumeSensor(entry, name),
         PiscinexaTempsFiltrationSensor(entry, name),
         PiscinexaPhSensor(entry, name),
         PiscinexaChloreSensor(entry, name),
-    ])
+        PiscinexaLogSensor(name, entry.entry_id),
+    ]
+    async_add_entities(sensors)
+    hass.data[DOMAIN].setdefault("log", []).append(sensors[-1])
 
 class PiscinexaVolumeSensor(SensorEntity):
     def __init__(self, entry, name):
@@ -28,15 +32,15 @@ class PiscinexaVolumeSensor(SensorEntity):
 
     @property
     def native_value(self):
-        data = self._entry.data
         try:
+            data = self._entry.data
             if data["pool_type"] == POOL_TYPE_SQUARE:
                 return round(data["length"] * data["width"] * data["depth"], 2)
             else:
                 r = data["diameter"] / 2
                 return round(PI * r * r * data["depth"], 2)
         except Exception as e:
-            _LOGGER.error("Erreur calcul volume: %s", e)
+            _LOGGER.error("Erreur volume: %s", e)
             return None
 
 class PiscinexaTempsFiltrationSensor(SensorEntity):
@@ -51,7 +55,7 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
         try:
             return round(self._entry.data["temperature"] / 2, 1)
         except Exception as e:
-            _LOGGER.error("Erreur calcul filtration: %s", e)
+            _LOGGER.error("Erreur filtration: %s", e)
             return None
 
 class PiscinexaPhSensor(SensorEntity):
@@ -77,15 +81,12 @@ class PiscinexaChloreSensor(SensorEntity):
         return round(self._entry.data["chlore_current"], 2)
 
 class PiscinexaLogSensor(SensorEntity):
-    """Capteur de journal des actions."""
-
     def __init__(self, name, entry_id):
         self._attr_name = f"{DOMAIN}_{name}_log"
         self._attr_unique_id = f"{entry_id}_log"
         self._state = []
 
     def log(self, message):
-        from datetime import datetime
         self._state.append(f"{datetime.now().strftime('%H:%M:%S')} - {message}")
         if len(self._state) > 10:
             self._state.pop(0)
@@ -93,13 +94,8 @@ class PiscinexaLogSensor(SensorEntity):
 
     @property
     def native_value(self):
-        return "Aucune action"
-return "\n".join(self._state) if self._state else "Aucune action"
+        return "\n".join(self._state) if self._state else "Aucune action"
 
     @property
     def extra_state_attributes(self):
         return {"entries": self._state}
-
-
-    async_add_entities([PiscinexaLogSensor(name, entry.entry_id)])
-    hass.data[DOMAIN]["log"] = [e for e in hass.data[DOMAIN].get("log", []) if isinstance(e, SensorEntity)] + [e for e in async_add_entities.__self__._entities if isinstance(e, PiscinexaLogSensor)]
