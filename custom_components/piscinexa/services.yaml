@@ -1,0 +1,5 @@
+
+test_calcul:
+  description: "Lance le calcul des recommandations de traitement piscine"
+reset_valeurs:
+  description: "Réinitialise les valeurs de pH, chlore, dimensions"
