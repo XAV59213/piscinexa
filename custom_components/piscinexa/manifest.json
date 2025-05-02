@@ -1,9 +1,9 @@
 {
   "domain": "piscinexa",
-  "name": "Piscine",
-  "version": "1.0.0",
+  "name": "Piscinexa",
+  "version": "1.2.0",
   "documentation": "https://github.com/XAV59213/piscinexa",
-  "dependencies": [],
+  "dependencies": ["input_number"],
   "codeowners": ["@XAV59213"],
   "requirements": [],
   "config_flow": true,
