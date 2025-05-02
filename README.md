@@ -1,4 +1,4 @@
-# 💧 Intégration Piscinexa pour Home Assistant
+# 💧 Intégration Piscinexa pour Home Assistant (version améliorée)
 
 ![Logo](https://github.com/XAV59213/piscinexa/blob/main/images/logo.png)
 
@@ -7,8 +7,6 @@ Ce composant personnalisé Home Assistant vous permet de gérer la **qualité de
 ---
 
 ### ⚙️ Installation
-
-[![](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=piscinexa)
 
 1. Copiez le dossier `custom_components/piscinexa` dans le répertoire `config/custom_components/` de votre Home Assistant.
 2. Redémarrez Home Assistant.
@@ -28,40 +26,18 @@ Ce composant personnalisé Home Assistant vous permet de gérer la **qualité de
 - Services personnalisés :
   - `piscinexa.test_calcul`
   - `piscinexa.reset_valeurs`
-- Boutons dans l’intégration : tester, réinitialiser
+- Boutons intégrés à l’interface
+- Tableau de bord YAML prêt à l’emploi
 
 ---
 
-### 🧰 Entités créées
+### 🔄 Mise à jour
 
-| Entité | Description |
-|--------|-------------|
-| `sensor.piscinexa_volume_eau` | Volume calculé (m³) |
-| `sensor.piscinexa_temps_filtration` | Temps de filtration recommandé |
-| `sensor.piscinexa_ph_a_ajouter` | Dose à ajouter |
-| `sensor.piscinexa_chlore_a_ajouter` | Dose à ajouter |
-| `sensor.piscinexa_log` | Journal des actions |
-| `input_number.*` | Entrées pour dimensions, pH, chlore |
+Si vous installez manuellement, remplacez simplement le dossier `custom_components/piscinexa` par la nouvelle version, puis redémarrez Home Assistant.
 
 ---
 
 ### 📊 Exemple de tableau de bord
 
-Un fichier YAML est fourni ici : [`piscine_dashboard_custom_component.yaml`](./piscine_dashboard_custom_component.yaml)
-
+Un fichier YAML est fourni ici : `piscine_dashboard_custom_component.yaml`
 ![Dashboard piscine](./images/screenshot_dashboard.png)
-
----
-
-### 🧪 Automatisations possibles
-
-```yaml
-automation:
-  - alias: "Filtration matinale"
-    trigger:
-      platform: time
-      at: "07:00:00"
-    action:
-      service: switch.turn_on
-      entity_id: switch.pompe_piscine
-```
