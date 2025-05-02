@@ -93,7 +93,7 @@ class PiscinexaLogSensor(SensorEntity):
 
     @property
     def native_value(self):
-        return "
+        return "Aucune action"
 ".join(self._state) if self._state else "Aucune action"
 
     @property
