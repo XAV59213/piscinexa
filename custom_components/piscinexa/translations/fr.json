@@ -1,1 +1,36 @@
-{ "title": "Piscinexa" }
+{
+  "title": "Piscinexa",
+  "config": {
+    "error": {
+      "dimensions_invalid": "Les dimensions doivent être positives.",
+      "ph_invalid": "Le pH doit être entre 0 et 14.",
+      "chlore_invalid": "Le chlore ne peut pas être négatif.",
+      "temperature_invalid": "La température doit être entre 0 et 50°C.",
+      "invalid_number": "Veuillez entrer des nombres valides.",
+      "name_invalid": "Le nom de la piscine ne peut pas être vide."
+    },
+    "step": {
+      "user": {
+        "data": {
+          "name": "Nom de la piscine (ex. Piscine Papa)",
+          "pool_type": "Type de piscine",
+          "length": "Longueur (m)",
+          "width": "Largeur (m)",
+          "depth": "Profondeur (m)",
+          "diameter": "Diamètre (m)",
+          "ph_current": "pH actuel",
+          "ph_target": "pH cible",
+          "chlore_current": "Chlore actuel (mg/L)",
+          "chlore_target": "Chlore cible (mg/L)",
+          "temperature": "Température (°C, optionnel)"
+        },
+        "data_description": {
+          "pool_type": {
+            "square": "Carrée/Rectangulaire",
+            "round": "Ronde"
+          }
+        }
+      }
+    }
+  }
+}
