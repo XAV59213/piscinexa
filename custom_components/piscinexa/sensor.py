@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import UnitOfVolume, UnitOfTime
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -38,6 +37,34 @@ async def async_setup_entry(
     ]
     async_add_entities(sensors, True)
 
+class PiscinexaVolumeSensor(SensorEntity):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_volume_eau"
+        self._attr_unit_of_measurement = UNIT_CUBIC_METERS
+        self._attr_icon = "mdi:pool"
+        self._attr_unique_id = f"{entry.entry_id}_volume_eau"
+
+    @property
+    def native_value(self):
+        try:
+            pool_type = self._entry.data["pool_type"]
+            depth = float(self._entry.data["depth"])
+            if pool_type == POOL_TYPE_SQUARE:
+                length = float(self._entry.data["length"])
+                width = float(self._entry.data["width"])
+                volume = length * width * depth
+            else:
+                diameter = float(self._entry.data["diameter"])
+                radius = diameter / 2
+                volume = PI * radius * radius * depth
+            return round(volume, 2)
+        except Exception as e:
+            _LOGGER.error("Erreur calcul volume pour %s: %s", self._name, e)
+            return None
+
 class PiscinexaTempsFiltrationSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
@@ -62,6 +89,91 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
             return round(self._entry.data["temperature"] / 2, 1)
         except Exception as e:
             _LOGGER.error("Température par défaut invalide : %s", e)
+            return None
+
+class PiscinexaPhSensor(SensorEntity):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_ph"
+        self._attr_icon = "mdi:water-ph"
+        self._attr_unique_id = f"{entry.entry_id}_ph"
+
+    @property
+    def native_value(self):
+        try:
+            ph = float(self._entry.data["ph_current"])
+            return round(ph, 1)
+        except Exception as e:
+            _LOGGER.error("Erreur lecture pH: %s", e)
+            return None
+
+class PiscinexaPhAjouterSensor(SensorEntity):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_ph_a_ajouter"
+        self._attr_unit_of_measurement = UNIT_LITERS
+        self._attr_icon = "mdi:bottle-tonic-plus"
+        self._attr_unique_id = f"{entry.entry_id}_ph_a_ajouter"
+
+    @property
+    def native_value(self):
+        try:
+            ph_current = float(self._entry.data["ph_current"])
+            ph_target = float(self._entry.data["ph_target"])
+            volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
+            if volume:
+                volume_val = float(volume.state)
+                dose = abs(ph_target - ph_current) * volume_val * 10
+                return round(dose, 2)
+            return None
+        except Exception as e:
+            _LOGGER.error("Erreur calcul dose pH: %s", e)
+            return None
+
+class PiscinexaChloreSensor(SensorEntity):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_chlore"
+        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
+        self._attr_icon = "mdi:water-check"
+        self._attr_unique_id = f"{entry.entry_id}_chlore"
+
+    @property
+    def native_value(self):
+        try:
+            chlore = float(self._entry.data["chlore_current"])
+            return round(chlore, 1)
+        except Exception as e:
+            _LOGGER.error("Erreur lecture chlore: %s", e)
+            return None
+
+class PiscinexaChloreAjouterSensor(SensorEntity):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_chlore_a_ajouter"
+        self._attr_unit_of_measurement = UNIT_GRAMS
+        self._attr_icon = "mdi:bottle-tonic-plus"
+        self._attr_unique_id = f"{entry.entry_id}_chlore_a_ajouter"
+
+    @property
+    def native_value(self):
+        try:
+            chlore_current = float(self._entry.data["chlore_current"])
+            chlore_target = float(self._entry.data["chlore_target"])
+            volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
+            if volume:
+                volume_val = float(volume.state)
+                dose = (chlore_target - chlore_current) * volume_val * 10
+                return round(dose, 2) if dose > 0 else 0
+            return None
+        except Exception as e:
+            _LOGGER.error("Erreur calcul dose chlore: %s", e)
             return None
 
 class PiscinexaLogSensor(SensorEntity):
