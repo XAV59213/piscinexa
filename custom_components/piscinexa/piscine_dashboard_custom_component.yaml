@@ -1,1 +1,19 @@
-# YAML corrigé - placeholder
+
+title: Piscine
+views:
+  - title: Piscinexa
+    path: piscine
+    cards:
+      - type: entities
+        title: Infos piscine
+        entities:
+          - sensor.piscinexa_demo_volume_eau
+          - sensor.piscinexa_demo_temps_filtration
+          - sensor.piscinexa_demo_ph
+          - sensor.piscinexa_demo_chlore
+          - sensor.piscinexa_demo_log
+      - type: buttons
+        title: Commandes
+        entities:
+          - button.piscinexa_demo_test
+          - button.piscinexa_demo_reset

@@ -102,14 +102,23 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
-        return PiscinexaOptionsFlowHandler(config_entry)
+        return PiscinexaOptionsFlowHandler()
+
 
 
 class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
     """Gestionnaire des options pour Piscinexa."""
 
     async def async_step_init(self, user_input=None):
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        current = self.config_entry.options
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema({}),
+            data_schema=vol.Schema({
+                vol.Optional("ph_target", default=current.get("ph_target", 7.4)): vol.Coerce(float),
+                vol.Optional("chlore_target", default=current.get("chlore_target", 2.0)): vol.Coerce(float),
+                vol.Optional("temperature", default=current.get("temperature", 20.0)): vol.Coerce(float),
+            }),
         )
