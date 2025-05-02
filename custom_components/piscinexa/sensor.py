@@ -33,7 +33,8 @@ async def async_setup_entry(
         PiscinexaPhAjouterSensor(hass, entry, name),
         PiscinexaChloreSensor(hass, entry, name),
         PiscinexaChloreAjouterSensor(hass, entry, name),
-        log_sensor,
+                PiscinexaPowerSensor(hass, entry, name),
+log_sensor,
     ]
     async_add_entities(sensors, True)
 
@@ -195,3 +196,30 @@ class PiscinexaLogSensor(SensorEntity):
     @property
     def native_value(self):
         return "\n".join(self._state) if self._state else "Aucune action"
+class PiscinexaPowerSensor(SensorEntity):
+    """Capteur pour la puissance de la prise connectée à la piscine."""
+
+    def __init__(self, hass, entry, name):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_conso_puissance"
+        self._attr_icon = "mdi:flash"
+        self._attr_unit_of_measurement = "W"
+        self._attr_unique_id = f"{entry.entry_id}_conso_puissance"
+
+    @property
+    def state(self):
+        try:
+            sensor_id = self._hass.data[DOMAIN][self._entry.entry_id].get("power_sensor_entity_id")
+            if sensor_id:
+                power_state = self._hass.states.get(sensor_id)
+                if power_state and power_state.state not in ("unknown", "unavailable"):
+                    value = round(float(power_state.state), 2)
+                    log = self._hass.data[DOMAIN].get("log")
+                    if log:
+                        log.log_action(f"Conso {self._name} : {value} W")
+                    return value
+        except Exception as e:
+            _LOGGER.warning("Erreur lecture capteur puissance : %s", e)
+        return None

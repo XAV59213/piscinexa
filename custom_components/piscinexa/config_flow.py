@@ -71,12 +71,17 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     except ValueError:
                         errors[field] = "invalid_number"
 
-                if not errors:
+                
+                if "power_sensor_entity_id" in user_input:
+                    data["power_sensor_entity_id"] = user_input["power_sensor_entity_id"]
+if not errors:
                     return self.async_create_entry(title=f"Piscinexa {name}", data=data)
             except KeyError as e:
                 errors["base"] = f"missing_field: {e}"
 
         schema = {
+            vol.Optional("power_sensor_entity_id"): str,
+
             vol.Required("name", default="piscine"): str,
             vol.Required("pool_type", default=POOL_TYPE_SQUARE): vol.In([POOL_TYPE_SQUARE, POOL_TYPE_ROUND]),
             vol.Required("ph_current", default=7.0): vol.Coerce(float),
