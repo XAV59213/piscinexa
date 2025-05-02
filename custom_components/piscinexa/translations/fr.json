@@ -14,10 +14,10 @@
         "title": "Configuration de Piscinexa - Dimensions",
         "description": "Entrez les dimensions de votre piscine.",
         "data": {
-          "length": "Longueur (m)",
-          "width": "Largeur (m)",
-          "depth": "Profondeur (m)",
-          "diameter": "Diamètre (m)"
+          "length": "Longueur (mètres)",
+          "width": "Largeur (mètres)",
+          "depth": "Profondeur (mètres)",
+          "diameter": "Diamètre (mètres)"
         }
       },
       "parameters": {
@@ -29,7 +29,7 @@
           "chlore_current": "Chlore actuel (mg/L)",
           "chlore_target": "Chlore cible (mg/L)",
           "temperature": "Température (°C)",
-          "temperature_sensor": "Capteur de température (optionnel)",
+          "temperature_sensor": "Sélectionner un capteur de température (optionnel)",
           "power_sensor_entity_id": "ID de l'entité du capteur de puissance (optionnel)"
         }
       },
@@ -39,12 +39,13 @@
         "data": {
           "ph_target": "pH cible",
           "chlore_target": "Chlore cible (mg/L)",
-          "temperature_sensor": "Capteur de température (optionnel)"
+          "temperature_sensor": "Sélectionner un capteur de température (optionnel)"
         }
       }
     },
     "error": {
-      "name_invalid": "Nom invalide.",
+      "name_invalid": "Nom invalide (ne peut pas être vide).",
+      "name_duplicate": "Ce nom est déjà utilisé par une autre piscine.",
       "ph_invalid": "Valeur de pH invalide (doit être entre 0 et 14).",
       "chlore_invalid": "Valeur de chlore invalide (doit être supérieure ou égale à 0).",
       "temperature_invalid": "Température invalide (doit être entre 0 et 50 °C).",
