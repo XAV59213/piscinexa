@@ -1,4 +1,3 @@
-
 """Flux de configuration pour Piscinexa."""
 import voluptuous as vol
 from homeassistant import config_entries
@@ -38,8 +37,6 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         if not validator(value):
                             errors[field] = error_key
                         data[field] = value
-                        if field == 'temperature' and 'temperature_sensor' in user_input:
-                            data['temperature_sensor'] = user_input['temperature_sensor']
                     except ValueError:
                         errors[field] = "invalid_number"
 
@@ -66,24 +63,21 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         if not validator(value):
                             errors[field] = error_key
                         data[field] = value
-                        if field == 'temperature' and 'temperature_sensor' in user_input:
-                            data['temperature_sensor'] = user_input['temperature_sensor']
                     except ValueError:
                         errors[field] = "invalid_number"
 
-                
+                if "temperature_sensor" in user_input:
+                    data["temperature_sensor"] = user_input["temperature_sensor"]
                 if "power_sensor_entity_id" in user_input:
                     data["power_sensor_entity_id"] = user_input["power_sensor_entity_id"]
-if not errors:
-                    catch = Exception as e:
-                        errors['base'] = 'unexpected_error'
+
+                if not errors:
                     return self.async_create_entry(title=f"Piscinexa {name}", data=data)
-            except KeyError as e:
-                errors["base"] = f"missing_field: {e}"
+
+            except Exception as e:
+                errors["base"] = f"unexpected_error: {str(e)}"
 
         schema = {
-            vol.Optional("power_sensor_entity_id"): str,
-
             vol.Required("name", default="piscine"): str,
             vol.Required("pool_type", default=POOL_TYPE_SQUARE): vol.In([POOL_TYPE_SQUARE, POOL_TYPE_ROUND]),
             vol.Required("ph_current", default=7.0): vol.Coerce(float),
@@ -91,6 +85,8 @@ if not errors:
             vol.Required("chlore_current", default=1.0): vol.Coerce(float),
             vol.Required("chlore_target", default=2.0): vol.Coerce(float),
             vol.Optional("temperature", default=20.0): vol.Coerce(float),
+            vol.Optional("temperature_sensor", default=""): str,
+            vol.Optional("power_sensor_entity_id", default=""): str,
         }
         if user_input and user_input.get("pool_type") == POOL_TYPE_ROUND:
             schema.update({
@@ -114,8 +110,6 @@ if not errors:
     @callback
     def async_get_options_flow(config_entry):
         return PiscinexaOptionsFlowHandler()
-
-
 
 class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
     """Gestionnaire des options pour Piscinexa."""
