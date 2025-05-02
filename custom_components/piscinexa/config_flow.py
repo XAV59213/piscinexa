@@ -2,6 +2,7 @@
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
+from homeassistant.helpers import entity_registry as er
 from .const import DOMAIN, POOL_TYPE_SQUARE, POOL_TYPE_ROUND
 
 class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -17,9 +18,17 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 name = user_input["name"].strip().lower().replace(" ", "_")
-                self._data["name"] = name
-                self._data["pool_type"] = user_input["pool_type"]
-                return await self.async_step_dimensions()
+                # Vérifier si le nom est unique
+                for entry in self._async_current_entries():
+                    if entry.data.get("name") == name:
+                        errors["name"] = "name_duplicate"
+                        break
+                if not name:
+                    errors["name"] = "name_invalid"
+                if not errors:
+                    self._data["name"] = name
+                    self._data["pool_type"] = user_input["pool_type"]
+                    return await self.async_step_dimensions()
             except Exception as e:
                 errors["base"] = f"unexpected_error: {str(e)}"
 
@@ -123,13 +132,22 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if not errors:
                 return self.async_create_entry(title=f"Piscinexa {self._data['name']}", data=self._data)
 
+        # Récupérer les capteurs de température disponibles
+        temp_sensors = [""]  # Option vide pour rendre le champ optionnel
+        registry = er.async_get(self.hass)
+        for entity in registry.entities.values():
+            if entity.platform == "sensor":
+                state = self.hass.states.get(entity.entity_id)
+                if state and state.attributes.get("unit_of_measurement") in ("°C", "°F"):
+                    temp_sensors.append(entity.entity_id)
+
         schema = {
             vol.Required("ph_current", default=7.0): vol.Coerce(float),
             vol.Required("ph_target", default=7.4): vol.Coerce(float),
             vol.Required("chlore_current", default=1.0): vol.Coerce(float),
             vol.Required("chlore_target", default=2.0): vol.Coerce(float),
             vol.Optional("temperature", default=20.0): vol.Coerce(float),
-            vol.Optional("temperature_sensor", default=""): str,
+            vol.Optional("temperature_sensor", default=""): vol.In(temp_sensors),
             vol.Optional("power_sensor_entity_id", default=""): str,
         }
 
@@ -151,12 +169,21 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
+        # Récupérer les capteurs de température disponibles pour les options
+        temp_sensors = [""]  # Option vide pour rendre le champ optionnel
+        registry = er.async_get(self.hass)
+        for entity in registry.entities.values():
+            if entity.platform == "sensor":
+                state = self.hass.states.get(entity.entity_id)
+                if state and state.attributes.get("unit_of_measurement") in ("°C", "°F"):
+                    temp_sensors.append(entity.entity_id)
+
         current = self.config_entry.options
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema({
                 vol.Optional("ph_target", default=current.get("ph_target", 7.4)): vol.Coerce(float),
                 vol.Optional("chlore_target", default=current.get("chlore_target", 2.0)): vol.Coerce(float),
-                vol.Optional("temperature_sensor", default=current.get("temperature_sensor", "")): str,
+                vol.Optional("temperature_sensor", default=current.get("temperature_sensor", "")): vol.In(temp_sensors),
             }),
         )
