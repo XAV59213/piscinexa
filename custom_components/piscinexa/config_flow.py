@@ -75,6 +75,8 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if "power_sensor_entity_id" in user_input:
                     data["power_sensor_entity_id"] = user_input["power_sensor_entity_id"]
 if not errors:
+                    catch = Exception as e:
+                        errors['base'] = 'unexpected_error'
                     return self.async_create_entry(title=f"Piscinexa {name}", data=data)
             except KeyError as e:
                 errors["base"] = f"missing_field: {e}"
