@@ -1,6 +1,36 @@
 {
   "title": "Piscinexa",
   "config": {
+    "step": {
+      "user": {
+        "title": "Configuration de Piscinexa",
+        "description": "Entrez les détails de votre piscine pour configurer l'intégration Piscinexa.",
+        "data": {
+          "name": "Nom de la piscine",
+          "pool_type": "Type de piscine",
+          "ph_current": "pH actuel",
+          "ph_target": "pH cible",
+          "chlore_current": "Chlore actuel (mg/L)",
+          "chlore_target": "Chlore cible (mg/L)",
+          "temperature": "Température (°C)",
+          "temperature_sensor": "Capteur de température (optionnel)",
+          "power_sensor_entity_id": "ID de l'entité du capteur de puissance (optionnel)",
+          "length": "Longueur (m)",
+          "width": "Largeur (m)",
+          "depth": "Profondeur (m)",
+          "diameter": "Diamètre (m)"
+        }
+      },
+      "init": {
+        "title": "Options de Piscinexa",
+        "description": "Modifiez les paramètres cibles pour votre piscine.",
+        "data": {
+          "ph_target": "pH cible",
+          "chlore_target": "Chlore cible (mg/L)",
+          "temperature_sensor": "Capteur de température (optionnel)"
+        }
+      }
+    },
     "error": {
       "name_invalid": "Nom invalide.",
       "ph_invalid": "Valeur de pH invalide (doit être entre 0 et 14).",
