@@ -1,4 +1,3 @@
-
 """Initialisation du composant Piscinexa."""
 import logging
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -15,9 +14,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     async def handle_test_calcul(call: ServiceCall):
         name = hass.data[DOMAIN][entry.entry_id]["name"]
         _LOGGER.info("Service test_calcul appelé pour %s", name)
-        for ent in hass.data[DOMAIN].get("log", []):
-            if name in ent.name:
-                ent.log("Test de calcul déclenché")
+        log_sensor = hass.data[DOMAIN].get("log")
+        if log_sensor and name in log_sensor._name:
+            log_sensor.log_action("Test de calcul déclenché")
 
     async def handle_reset_valeurs(call: ServiceCall):
         name = hass.data[DOMAIN][entry.entry_id]["name"]
@@ -32,13 +31,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             "temperature": 20.0,
         }
         if data["pool_type"] == POOL_TYPE_SQUARE:
-            data.update({"length": 0, "width": 0, "depth": 0})
+            data.update({
+                "length": entry.data.get("length", 5.0),
+                "width": entry.data.get("width", 4.0),
+                "depth": entry.data.get("depth", 1.5)
+            })
         else:
-            data.update({"diameter": 0, "depth": 0})
+            data.update({
+                "diameter": entry.data.get("diameter", 4.0),
+                "depth": entry.data.get("depth", 1.5)
+            })
         hass.data[DOMAIN][entry.entry_id].update(data)
-        for ent in hass.data[DOMAIN].get("log", []):
-            if name in ent.name:
-                ent.log("Valeurs réinitialisées")
+        log_sensor = hass.data[DOMAIN].get("log")
+        if log_sensor and name in log_sensor._name:
+            log_sensor.log_action("Valeurs réinitialisées")
         await hass.config_entries.async_reload(entry.entry_id)
 
     hass.services.async_register(DOMAIN, "test_calcul", handle_test_calcul)
