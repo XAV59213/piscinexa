@@ -61,18 +61,20 @@ class PiscinexaVolumeSensor(SensorEntity):
                 length = float(self._hass.data[DOMAIN][self._entry.entry_id]["length"])
                 width = float(self._hass.data[DOMAIN][self._entry.entry_id]["width"])
                 if any(x <= 0 for x in [length, width, depth]):
-                    _LOGGER.error("Dimensions invalides: %s, %s, %s", length, width, depth)
+                    _LOGGER.error("Dimensions invalides (carrée): longueur=%s, largeur=%s, profondeur=%s", length, width, depth)
                     return None
-                return round(length * width * depth, 2)
+                volume = length * width * depth
             else:  # POOL_TYPE_ROUND
                 diameter = float(self._hass.data[DOMAIN][self._entry.entry_id]["diameter"])
                 if diameter <= 0 or depth <= 0:
-                    _LOGGER.error("Dimensions invalides: diamètre %s, profondeur %s", diameter, depth)
+                    _LOGGER.error("Dimensions invalides (ronde): diamètre=%s, profondeur=%s", diameter, depth)
                     return None
                 radius = diameter / 2
-                return round(PI * radius * radius * depth, 2)
+                volume = PI * radius * radius * depth
+            _LOGGER.debug("Volume calculé pour %s: %s m³", self._name, volume)
+            return round(volume, 2)
         except (KeyError, ValueError) as e:
-            _LOGGER.error("Erreur calcul volume: %s", e)
+            _LOGGER.error("Erreur calcul volume pour %s: %s", self._name, e)
             return None
 
 class PiscinexaTempsFiltrationSensor(SensorEntity):
