@@ -75,22 +75,22 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         schema = {
             vol.Required("name", default="piscine"): str,
             vol.Required("pool_type", default=POOL_TYPE_SQUARE): vol.In([POOL_TYPE_SQUARE, POOL_TYPE_ROUND]),
-            vol.Required("ph_current", default=7.0): vol.Any(str, float, int),
-            vol.Required("ph_target", default=7.4): vol.Any(str, float, int),
-            vol.Required("chlore_current", default=1.0): vol.Any(str, float, int),
-            vol.Required("chlore_target", default=2.0): vol.Any(str, float, int),
-            vol.Optional("temperature", default=20.0): vol.Any(str, float, int),
+            vol.Required("ph_current", default=7.0): vol.Coerce(float),
+            vol.Required("ph_target", default=7.4): vol.Coerce(float),
+            vol.Required("chlore_current", default=1.0): vol.Coerce(float),
+            vol.Required("chlore_target", default=2.0): vol.Coerce(float),
+            vol.Optional("temperature", default=20.0): vol.Coerce(float),
         }
         if user_input and user_input.get("pool_type") == POOL_TYPE_ROUND:
             schema.update({
-                vol.Required("diameter", default=4.0): vol.Any(str, float, int),
-                vol.Required("depth", default=1.5): vol.Any(str, float, int),
+                vol.Required("diameter", default=4.0): vol.Coerce(float),
+                vol.Required("depth", default=1.5): vol.Coerce(float),
             })
         else:
             schema.update({
-                vol.Required("length", default=5.0): vol.Any(str, float, int),
-                vol.Required("width", default=4.0): vol.Any(str, float, int),
-                vol.Required("depth", default=1.5): vol.Any(str, float, int),
+                vol.Required("length", default=5.0): vol.Coerce(float),
+                vol.Required("width", default=4.0): vol.Coerce(float),
+                vol.Required("depth", default=1.5): vol.Coerce(float),
             })
 
         return self.async_show_form(
