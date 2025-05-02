@@ -6,8 +6,10 @@
       "ph_invalid": "Le pH doit être entre 0 et 14.",
       "chlore_invalid": "Le chlore ne peut pas être négatif.",
       "temperature_invalid": "La température doit être entre 0 et 50°C.",
-      "invalid_number": "Veuillez entrer des nombres valides.",
-      "name_invalid": "Le nom de la piscine ne peut pas être vide."
+      "invalid_number": "Veuillez entrer un nombre valide (ex. 5.5, utilisez un point pour les décimales).",
+      "name_invalid": "Le nom de la piscine ne peut pas être vide.",
+      "required_field": "Ce champ est requis.",
+      "missing_field": "Champ manquant : {0}"
     },
     "step": {
       "user": {
