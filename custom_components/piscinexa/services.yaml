@@ -1,4 +1,12 @@
 test_calcul:
-  description: Teste le calcul
+  description: Teste le calcul pour une piscine spécifique
+  fields:
+    name:
+      description: Nom de la piscine
+      example: "papa"
 reset_valeurs:
-  description: Réinitialise
+  description: Réinitialise les valeurs pour une piscine spécifique
+  fields:
+    name:
+      description: Nom de la piscine
+      example: "papa"
