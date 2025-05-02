@@ -1,1 +1,31 @@
-{ "title": "Piscinexa", "config": { "error": { "name_invalid": "Nom invalide." } } }
+{
+  "title": "Piscinexa",
+  "config": {
+    "error": {
+      "name_invalid": "Nom invalide.",
+      "ph_invalid": "Valeur de pH invalide (doit être entre 0 et 14).",
+      "chlore_invalid": "Valeur de chlore invalide (doit être supérieure ou égale à 0).",
+      "temperature_invalid": "Température invalide (doit être entre 0 et 50 °C).",
+      "dimensions_invalid": "Dimensions invalides (doivent être supérieures à 0).",
+      "required_field": "Ce champ est requis.",
+      "invalid_number": "Valeur numérique invalide.",
+      "unexpected_error": "Erreur inattendue lors de la configuration."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "piscinexa_volume_eau": {"name": "Volume d'eau"},
+      "piscinexa_temps_filtration": {"name": "Temps de filtration"},
+      "piscinexa_ph": {"name": "pH"},
+      "piscinexa_ph_a_ajouter": {"name": "pH à ajouter"},
+      "piscinexa_chlore": {"name": "Chlore"},
+      "piscinexa_chlore_a_ajouter": {"name": "Chlore à ajouter"},
+      "piscinexa_conso_puissance": {"name": "Consommation puissance"},
+      "piscinexa_log": {"name": "Journal"}
+    },
+    "button": {
+      "piscinexa_test": {"name": "Tester"},
+      "piscinexa_reset": {"name": "Réinitialiser"}
+    }
+  }
+}
