@@ -1,0 +1,62 @@
+title: Tableau de bord Piscinexa
+views:
+  - title: Piscines
+    path: piscinexa
+    icon: mdi:pool
+    type: sidebar
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: markdown
+            content: |
+              ## Piscine Papa
+          - type: entities
+            entities:
+              - sensor.piscinexa_papa_volume_eau
+              - sensor.piscinexa_papa_temps_filtration
+              - sensor.piscinexa_papa_ph
+              - sensor.piscinexa_papa_chlore
+              - sensor.piscinexa_papa_log
+          - type: horizontal-stack
+            cards:
+              - type: button
+                entity: button.piscinexa_papa_test
+                name: Test
+              - type: button
+                entity: button.piscinexa_papa_reset
+                name: Réinitialiser
+
+      - type: vertical-stack
+        cards:
+          - type: markdown
+            content: |
+              ## Piscine Maman
+          - type: entities
+            entities:
+              - sensor.piscinexa_maman_volume_eau
+              - sensor.piscinexa_maman_temps_filtration
+              - sensor.piscinexa_maman_ph
+              - sensor.piscinexa_maman_chlore
+              - sensor.piscinexa_maman_log
+          - type: horizontal-stack
+            cards:
+              - type: button
+                entity: button.piscinexa_maman_test
+                name: Test
+              - type: button
+                entity: button.piscinexa_maman_reset
+                name: Réinitialiser
+
+      - type: vertical-stack
+        cards:
+          - type: markdown
+            content: |
+              ## Historique pH / Chlore
+          - type: history-graph
+            hours_to_show: 48
+            refresh_interval: 300
+            entities:
+              - sensor.piscinexa_papa_ph
+              - sensor.piscinexa_papa_chlore
+              - sensor.piscinexa_maman_ph
+              - sensor.piscinexa_maman_chlore

@@ -38,6 +38,8 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         if not validator(value):
                             errors[field] = error_key
                         data[field] = value
+                        if field == 'temperature' and 'temperature_sensor' in user_input:
+                            data['temperature_sensor'] = user_input['temperature_sensor']
                     except ValueError:
                         errors[field] = "invalid_number"
 
@@ -64,6 +66,8 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         if not validator(value):
                             errors[field] = error_key
                         data[field] = value
+                        if field == 'temperature' and 'temperature_sensor' in user_input:
+                            data['temperature_sensor'] = user_input['temperature_sensor']
                     except ValueError:
                         errors[field] = "invalid_number"
 
@@ -119,6 +123,6 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
             data_schema=vol.Schema({
                 vol.Optional("ph_target", default=current.get("ph_target", 7.4)): vol.Coerce(float),
                 vol.Optional("chlore_target", default=current.get("chlore_target", 2.0)): vol.Coerce(float),
-                vol.Optional("temperature", default=current.get("temperature", 20.0)): vol.Coerce(float),
+                vol.Optional("temperature_sensor", default=current.get("temperature_sensor", "")): str,
             }),
         )

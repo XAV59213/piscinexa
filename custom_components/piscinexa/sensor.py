@@ -53,7 +53,15 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
     @property
     def native_value(self):
         try:
-            return round(self._entry.data["temperature"] / 2, 1)
+            sensor_id = self._entry.data.get("temperature_sensor")
+if sensor_id:
+    state = self._hass.states.get(sensor_id)
+    if state:
+        try:
+            return round(float(state.state) / 2, 1)
+        except ValueError:
+            _LOGGER.warning("Valeur invalide du capteur température %s : %s", sensor_id, state.state)
+return round(self._entry.data["temperature"] / 2, 1)
         except Exception as e:
             _LOGGER.error("Erreur filtration: %s", e)
             return None
