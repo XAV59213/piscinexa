@@ -59,6 +59,7 @@
     "sensor": {
       "piscinexa_volume_eau": {"name": "Volume d'eau"},
       "piscinexa_temps_filtration": {"name": "Temps de filtration"},
+      "piscinexa_temperature": {"name": "Température"},  // Ajout de la traduction pour le capteur de température
       "piscinexa_ph": {"name": "pH"},
       "piscinexa_ph_a_ajouter": {"name": "pH à ajouter"},
       "piscinexa_chlore": {"name": "Chlore"},
