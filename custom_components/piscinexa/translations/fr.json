@@ -3,7 +3,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configuration de Piscine - Étape 1",
+        "title": "Step 1",
         "description": "Entrez le nom et le type de votre piscine.",
         "data": {
           "name": "Nom de la piscine",
@@ -11,7 +11,7 @@
         }
       },
       "dimensions": {
-        "title": "Configuration de Piscine - Dimensions",
+        "title": "Step 2",
         "description": "Entrez les dimensions de votre piscine.",
         "data": {
           "length": "Longueur (mètres)",
@@ -20,51 +20,45 @@
           "diameter": "Diamètre (mètres)"
         }
       },
-      "quality_parameters": {
-        "title": "Paramètres de qualité de l'eau",
-        "description": "Entrez les paramètres initiaux de qualité de l'eau pour votre piscine.",
+      "ph_config": {
+        "title": "Step 3 - Réglage capteur pH",
+        "description": "Entrez les paramètres initiaux pour le pH et choisissez si vous voulez utiliser un capteur ou conserver la valeur manuelle saisie.",
         "data": {
           "ph_current": "pH actuel",
           "ph_target": "pH cible",
-          "chlore_current": "Chlore actuel (mg/L)",
-          "chlore_target": "Chlore cible (mg/L)",
-          "temperature": "Température (°C)"
-        }
-      },
-      "chlore_config": {
-        "title": "Configuration du chlore",
-        "description": "Voulez-vous utiliser un capteur pour mesurer le chlore ou conserver la valeur manuelle saisie ?",
-        "data": {
-          "use_chlore_sensor": "Utiliser un capteur de chlore",
-          "chlore_sensor": "Capteur de chlore"
-        }
-      },
-      "ph_config": {
-        "title": "Configuration du pH",
-        "description": "Voulez-vous utiliser un capteur pour mesurer le pH ou conserver la valeur manuelle saisie ?",
-        "data": {
           "use_ph_sensor": "Utiliser un capteur de pH",
           "ph_sensor": "Capteur de pH"
         }
       },
-      "temperature_config": {
-        "title": "Configuration de la température",
-        "description": "Voulez-vous utiliser un capteur pour mesurer la température ou conserver la valeur manuelle saisie ?",
+      "chlore_config": {
+        "title": "Step 4",
+        "description": "Entrez les paramètres initiaux pour le chlore et choisissez si vous voulez utiliser un capteur ou conserver la valeur manuelle saisie.",
         "data": {
+          "chlore_current": "Chlore actuel (mg/L)",
+          "chlore_target": "Chlore cible (mg/L)",
+          "use_chlore_sensor": "Utiliser un capteur de chlore",
+          "chlore_sensor": "Capteur de chlore"
+        }
+      },
+      "temperature_config": {
+        "title": "Step 5",
+        "description": "Entrez la température initiale et choisissez si vous voulez utiliser un capteur ou conserver la valeur manuelle saisie.",
+        "data": {
+          "temperature": "Température (°C)",
           "use_temperature_sensor": "Utiliser un capteur de température",
           "temperature_sensor": "Capteur de température"
         }
       },
       "power_config": {
-        "title": "Configuration de la puissance",
-        "description": "Voulez-vous utiliser un capteur pour mesurer la consommation de puissance ou laisser ce champ vide ?",
+        "title": "Step 6",
+        "description": "Choisissez si vous voulez utiliser un capteur pour mesurer la consommation de puissance ou laisser ce champ vide.",
         "data": {
           "use_power_sensor": "Utiliser un capteur de puissance",
           "power_sensor_entity_id": "ID de l'entité du capteur de puissance"
         }
       },
       "summary": {
-        "title": "Récapitulatif",
+        "title": "Step 7",
         "description": "Vérifiez les paramètres et capteurs sélectionnés avant de valider.\n\n{summary}",
         "data": {}
       },
