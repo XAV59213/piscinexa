@@ -157,20 +157,32 @@ class PiscinexaTemperatureSensor(SensorEntity):
         sensor_id = self._entry.data.get("temperature_sensor")
         if sensor_id:
             state = self._hass.states.get(sensor_id)
-            if state and state.state not in ("unknown", "unavailable"):
+            if state:
+                if state.state in ("unknown", "unavailable"):
+                    _LOGGER.warning("Capteur de température %s indisponible ou inconnu", sensor_id)
+                    return None
                 try:
                     value = float(state.state)
                     # Convertir en °C si l'unité est °F
                     unit = state.attributes.get("unit_of_measurement", "").lower()
+                    _LOGGER.debug("Capteur %s: valeur=%s, unité=%s", sensor_id, value, unit)
                     if unit in ("°f", "f", "fahrenheit"):
                         value = (value - 32) * 5 / 9
+                        _LOGGER.debug("Conversion de °F en °C: %s °F -> %s °C", state.state, value)
                     value = round(value, 1)
                     # Mettre à jour entry.data
                     self._hass.data[DOMAIN][self._entry.entry_id]["temperature"] = value
                     _LOGGER.debug("Température mise à jour depuis capteur %s: %s °C", sensor_id, value)
                     return value
+                except ValueError as e:
+                    _LOGGER.error("Valeur non numérique pour capteur %s: %s", sensor_id, state.state)
+                    return None
                 except Exception as e:
                     _LOGGER.warning("Erreur lecture température depuis %s : %s", sensor_id, e)
+                    return None
+            else:
+                _LOGGER.warning("Capteur de température %s introuvable", sensor_id)
+                return None
         try:
             return round(float(self._entry.data["temperature"]), 1)
         except Exception as e:
@@ -208,7 +220,10 @@ class PiscinexaPhSensor(SensorEntity):
         sensor_id = self._entry.data.get("ph_sensor")
         if sensor_id:
             state = self._hass.states.get(sensor_id)
-            if state and state.state not in ("unknown", "unavailable"):
+            if state:
+                if state.state in ("unknown", "unavailable"):
+                    _LOGGER.warning("Capteur de pH %s indisponible ou inconnu", sensor_id)
+                    return None
                 try:
                     value = round(float(state.state), 1)
                     # Mettre à jour entry.data
@@ -227,8 +242,15 @@ class PiscinexaPhSensor(SensorEntity):
                     )
                     _LOGGER.debug("pH mis à jour depuis capteur %s: %s", sensor_id, value)
                     return value
+                except ValueError as e:
+                    _LOGGER.error("Valeur non numérique pour capteur %s: %s", sensor_id, state.state)
+                    return None
                 except Exception as e:
                     _LOGGER.warning("Erreur lecture pH depuis capteur %s : %s", sensor_id, e)
+                    return None
+            else:
+                _LOGGER.warning("Capteur de pH %s introuvable", sensor_id)
+                return None
 
         # Priorité 2 : input_number
         input_state = self._hass.states.get(f"input_number.{self._name}_ph_current")
