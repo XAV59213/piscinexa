@@ -46,3 +46,7 @@ Un fichier YAML est fourni ici : `piscine_dashboard_custom_component.yaml`
 Consultez le fichier [CHANGELOG.md](CHANGELOG.md) pour voir l'historique des versions et des modifications de l'intégration Piscinexa.
 ### 📄 Licence
 L'intégration Piscinexa est distribuée sous la [licence MIT](LICENSE). Consultez le fichier LICENSE pour plus de détails.
+
+## [Unreleased]
+### Added
+- (Liste des fonctionnalités en cours de développement)
