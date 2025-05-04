@@ -17,7 +17,6 @@ views:
             unit: L
           - entity: sensor.piscinechlore
             unit: mg/L
-          # Utilisation d'une entité template pour afficher soit la valeur, soit le message
           - type: template
             entity_id: sensor.piscinechloreaajouter
             name: "Chlore à ajouter"
