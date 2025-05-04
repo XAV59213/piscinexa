@@ -37,7 +37,7 @@
       },
       "ph_sensor": {
         "title": "Step 3 - Sélection du capteur pH",
-        "description": "Sélectionnez un capteur pour mesurer le pH actuel de votre piscine et définissez la valeur idéale que vous souhaitez atteindre.\n\n- **Capteur de pH** : Choisissez un capteur existant dans votre système.\n- **pH cible (valeur idéale)** : La valeur idéale que vous souhaitez atteindre (obligatoire, généralement entre 7.2 et 7.6 pour une piscine).",
+        "description": "Sélectionnez un capteur pour mesurer le pH actuel de votre piscine et définissez la valeur idéale que vous souhaitez atteindre.\n\n- **Capteur de pH** : Choisissez un capteur existant dans votre système (facultatif, sélectionnez 'Aucun capteur' pour ignorer).\n- **pH cible (valeur idéale)** : La valeur idéale que vous souhaitez atteindre (obligatoire, généralement entre 7.2 et 7.6 pour une piscine).",
         "data": {
           "ph_target": "pH cible (valeur idéale)",
           "ph_sensor": "Capteur de pH"
@@ -60,7 +60,7 @@
       },
       "chlore_sensor": {
         "title": "Step 4 - Sélection du capteur chlore",
-        "description": "Sélectionnez un capteur pour mesurer le chlore actuel de votre piscine et définissez la valeur idéale que vous souhaitez atteindre.\n\n- **Capteur de chlore** : Choisissez un capteur existant dans votre système.\n- **Chlore cible (valeur idéale, mg/L)** : La valeur idéale que vous souhaitez atteindre (obligatoire, généralement entre 1 et 3 mg/L pour une piscine).",
+        "description": "Sélectionnez un capteur pour mesurer le chlore actuel de votre piscine et définissez la valeur idéale que vous souhaitez atteindre.\n\n- **Capteur de chlore** : Choisissez un capteur existant dans votre système (facultatif, sélectionnez 'Aucun capteur' pour ignorer).\n- **Chlore cible (valeur idéale, mg/L)** : La valeur idéale que vous souhaitez atteindre (obligatoire, généralement entre 1 et 3 mg/L pour une piscine).",
         "data": {
           "chlore_target": "Chlore cible (valeur idéale, mg/L)",
           "chlore_sensor": "Capteur de chlore"
@@ -82,7 +82,7 @@
       },
       "temperature_sensor": {
         "title": "Step 5 - Sélection du capteur température",
-        "description": "Sélectionnez un capteur pour mesurer la température actuelle de votre piscine.\n\n- **Capteur de température** : Choisissez un capteur existant dans votre système.",
+        "description": "Sélectionnez un capteur pour mesurer la température actuelle de votre piscine.\n\n- **Capteur de température** : Choisissez un capteur existant dans votre système (facultatif, sélectionnez 'Aucun capteur' pour ignorer).",
         "data": {
           "temperature_sensor": "Capteur de température"
         }
@@ -100,7 +100,7 @@
       },
       "power_sensor": {
         "title": "Step 6 - Sélection du capteur puissance",
-        "description": "Entrez l'ID de l'entité du capteur pour mesurer la consommation de puissance.\n\n- **ID de l'entité du capteur de puissance** : Indiquez l’ID exact de l’entité (par exemple, sensor.piscine_power).",
+        "description": "Entrez l'ID de l'entité du capteur pour mesurer la consommation de puissance.\n\n- **ID de l'entité du capteur de puissance** : Indiquez l’ID exact de l’entité (facultatif, laissez vide pour ignorer, par exemple, sensor.piscine_power).",
         "data": {
           "power_sensor_entity_id": "ID de l'entité du capteur de puissance"
         }
