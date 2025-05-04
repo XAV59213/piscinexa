@@ -1,18 +1,18 @@
-Changelog
+## Changelog
 All notable changes to the Piscinexa Home Assistant integration will be documented in this file.
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
-[1.0.2] - 2025-05-05
+## [1.0.2] - 2025-05-05
 Added
 
 Added MIT License (LICENSE) to clarify usage terms.
 
-[1.0.1] - 2025-05-04
+## [1.0.1] - 2025-05-04
 Added
 
 Added English translations (translations/en.json) to support multilingual users.
 Added CHANGELOG.md to document versions and changes.
 
-[1.0.0] - 2025-04-01
+## [1.0.0] - 2025-04-01
 Added
 
 Initial release of the Piscinexa integration for Home Assistant.
