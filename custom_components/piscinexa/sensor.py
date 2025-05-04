@@ -31,7 +31,7 @@ async def async_setup_entry(
     sensors = [
         PiscinexaVolumeSensor(hass, entry, name),
         PiscinexaTempsFiltrationSensor(hass, entry, name),
-        PiscinexaTemperatureSensor(hass, entry, name),  # Ajout du nouveau capteur de température
+        PiscinexaTemperatureSensor(hass, entry, name),
         PiscinexaPhSensor(hass, entry, name),
         PiscinexaPhAjouterSensor(hass, entry, name),
         PiscinexaChloreSensor(hass, entry, name),
@@ -47,7 +47,7 @@ class PiscinexaVolumeSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_volume_eau"
-        self._attr_unit_of_measurement = UNIT_CUBIC_METERS
+        self._attr_unit_of_measurement = UNIT_CUBIC_METERS  # m³
         self._attr_icon = "mdi:pool"
         self._attr_unique_id = f"{entry.entry_id}_volume_eau"
         self._attr_device_info = DeviceInfo(
@@ -82,7 +82,7 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_temps_filtration"
-        self._attr_unit_of_measurement = UNIT_HOURS
+        self._attr_unit_of_measurement = UNIT_HOURS  # h
         self._attr_icon = "mdi:clock"
         self._attr_unique_id = f"{entry.entry_id}_temps_filtration"
         self._attr_device_info = DeviceInfo(
@@ -116,7 +116,7 @@ class PiscinexaTemperatureSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_temperature"
-        self._attr_unit_of_measurement = "°C"
+        self._attr_unit_of_measurement = "°C"  # °C
         self._attr_icon = "mdi:thermometer"
         self._attr_unique_id = f"{entry.entry_id}_temperature"
         self._attr_device_info = DeviceInfo(
@@ -148,7 +148,7 @@ class PiscinexaPhSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_ph"
-        self._attr_icon = "mdi:water-ph"
+        self._attr_icon = "mdi:water"  # Changement de mdi:water-ph à mdi:water
         self._attr_unique_id = f"{entry.entry_id}_ph"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -173,7 +173,7 @@ class PiscinexaPhAjouterSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_ph_a_ajouter"
-        self._attr_unit_of_measurement = UNIT_LITERS
+        self._attr_unit_of_measurement = UNIT_LITERS  # L
         self._attr_icon = "mdi:bottle-tonic-plus"
         self._attr_unique_id = f"{entry.entry_id}_ph_a_ajouter"
         self._attr_device_info = DeviceInfo(
@@ -204,7 +204,7 @@ class PiscinexaChloreSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_chlore"
-        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
+        self._attr_unit_of_measurement = UNIT_MG_PER_LITER  # mg/L
         self._attr_icon = "mdi:water-check"
         self._attr_unique_id = f"{entry.entry_id}_chlore"
         self._attr_device_info = DeviceInfo(
@@ -230,7 +230,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_chlore_a_ajouter"
-        self._attr_unit_of_measurement = UNIT_GRAMS
+        self._attr_unit_of_measurement = UNIT_GRAMS  # g
         self._attr_icon = "mdi:bottle-tonic-plus"
         self._attr_unique_id = f"{entry.entry_id}_chlore_a_ajouter"
         self._attr_device_info = DeviceInfo(
@@ -262,7 +262,7 @@ class PiscinexaLogSensor(SensorEntity):
         self._entry = entry
         self._name = entry.data["name"]
         self._attr_name = f"{DOMAIN}_{self._name}_log"
-        self._attr_icon = "mdi:book"  # Changement de l'icône de mdi:notebook à mdi:book
+        self._attr_icon = "mdi:book"
         self._attr_unique_id = f"{entry.entry_id}_log"
         self._state = deque(maxlen=10)
         self._attr_device_info = DeviceInfo(
@@ -289,7 +289,7 @@ class PiscinexaPowerSensor(SensorEntity):
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_conso_puissance"
         self._attr_icon = "mdi:flash"
-        self._attr_unit_of_measurement = "W"
+        self._attr_unit_of_measurement = "W"  # W
         self._attr_unique_id = f"{entry.entry_id}_conso_puissance"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
