@@ -46,7 +46,7 @@ class PiscinexaVolumeSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}volumeeau"  # Sans underscore
+        self._attr_name = f"{name}volumeeau"
         self._attr_friendly_name = f"{name.capitalize()} Volume d'eau"
         self._attr_unit_of_measurement = UNIT_CUBIC_METERS  # m³
         self._attr_icon = "mdi:pool"
@@ -58,6 +58,10 @@ class PiscinexaVolumeSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.0",
         )
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def native_value(self):
@@ -86,7 +90,7 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}tempsfiltration"  # Sans underscore
+        self._attr_name = f"{name}tempsfiltration"
         self._attr_friendly_name = f"{name.capitalize()} Temps de filtration"
         self._attr_unit_of_measurement = UNIT_HOURS  # h
         self._attr_icon = "mdi:clock"
@@ -98,6 +102,10 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.0",
         )
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def native_value(self):
@@ -125,7 +133,7 @@ class PiscinexaTemperatureSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}temperature"  # Sans underscore
+        self._attr_name = f"{name}temperature"
         self._attr_friendly_name = f"{name.capitalize()} Température"
         self._attr_unit_of_measurement = "°C"  # °C
         self._attr_icon = "mdi:thermometer"
@@ -137,6 +145,10 @@ class PiscinexaTemperatureSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.0",
         )
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def native_value(self):
@@ -162,7 +174,7 @@ class PiscinexaPhSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}ph"  # Sans underscore
+        self._attr_name = f"{name}ph"
         self._attr_friendly_name = f"{name.capitalize()} pH"
         self._attr_icon = "mdi:water"
         self._attr_unique_id = f"{entry.entry_id}_ph"
@@ -173,6 +185,10 @@ class PiscinexaPhSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.0",
         )
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def native_value(self):
@@ -188,7 +204,7 @@ class PiscinexaPhAjouterSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}phaajouter"  # Sans underscore
+        self._attr_name = f"{name}phaajouter"
         self._attr_friendly_name = f"{name.capitalize()} pH à ajouter"
         self._attr_unit_of_measurement = UNIT_LITERS  # L
         self._attr_icon = "mdi:bottle-tonic-plus"
@@ -200,6 +216,10 @@ class PiscinexaPhAjouterSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.0",
         )
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def native_value(self):
@@ -224,7 +244,7 @@ class PiscinexaChloreSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}chlore"  # Sans underscore
+        self._attr_name = f"{name}chlore"
         self._attr_friendly_name = f"{name.capitalize()} Chlore"
         self._attr_unit_of_measurement = UNIT_MG_PER_LITER  # mg/L
         self._attr_icon = "mdi:water-check"
@@ -236,6 +256,10 @@ class PiscinexaChloreSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.0",
         )
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def native_value(self):
@@ -255,7 +279,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}chloreaajouter"  # Sans underscore
+        self._attr_name = f"{name}chloreaajouter"
         self._attr_friendly_name = f"{name.capitalize()} Chlore à ajouter"
         self._attr_unit_of_measurement = UNIT_GRAMS  # g
         self._attr_icon = "mdi:bottle-tonic-plus"
@@ -267,6 +291,10 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.0",
         )
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def native_value(self):
@@ -292,7 +320,7 @@ class PiscinexaLogSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = entry.data["name"]
-        self._attr_name = f"{self._name}log"  # Sans underscore
+        self._attr_name = f"{self._name}log"
         self._attr_friendly_name = f"{self._name.capitalize()} Journal"
         self._attr_icon = "mdi:book"
         self._attr_unique_id = f"{entry.entry_id}_log"
@@ -304,6 +332,10 @@ class PiscinexaLogSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.0",
         )
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     def log_action(self, action: str):
         self._state.append(f"{datetime.now()}: {action}")
@@ -319,7 +351,7 @@ class PiscinexaPowerSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}consopuissance"  # Sans underscore
+        self._attr_name = f"{name}consopuissance"
         self._attr_friendly_name = f"{name.capitalize()} Consommation puissance"
         self._attr_unit_of_measurement = "W"  # W
         self._attr_icon = "mdi:flash"
@@ -331,6 +363,10 @@ class PiscinexaPowerSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.0",
         )
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def state(self):
