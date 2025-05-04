@@ -31,15 +31,42 @@
           "temperature": "Température (°C)"
         }
       },
-      "sensor_selection": {
-        "title": "Sélection des capteurs",
-        "description": "Sélectionnez les capteurs optionnels pour mesurer la température, le chlore, le pH et la consommation de puissance.",
+      "chlore_config": {
+        "title": "Configuration du chlore",
+        "description": "Voulez-vous utiliser un capteur pour mesurer le chlore ou conserver la valeur manuelle saisie ?",
         "data": {
-          "temperature_sensor": "Capteur de température",
-          "chlore_sensor": "Capteur de chlore",
-          "ph_sensor": "Capteur de pH",
+          "use_chlore_sensor": "Utiliser un capteur de chlore",
+          "chlore_sensor": "Capteur de chlore"
+        }
+      },
+      "ph_config": {
+        "title": "Configuration du pH",
+        "description": "Voulez-vous utiliser un capteur pour mesurer le pH ou conserver la valeur manuelle saisie ?",
+        "data": {
+          "use_ph_sensor": "Utiliser un capteur de pH",
+          "ph_sensor": "Capteur de pH"
+        }
+      },
+      "temperature_config": {
+        "title": "Configuration de la température",
+        "description": "Voulez-vous utiliser un capteur pour mesurer la température ou conserver la valeur manuelle saisie ?",
+        "data": {
+          "use_temperature_sensor": "Utiliser un capteur de température",
+          "temperature_sensor": "Capteur de température"
+        }
+      },
+      "power_config": {
+        "title": "Configuration de la puissance",
+        "description": "Voulez-vous utiliser un capteur pour mesurer la consommation de puissance ou laisser ce champ vide ?",
+        "data": {
+          "use_power_sensor": "Utiliser un capteur de puissance",
           "power_sensor_entity_id": "ID de l'entité du capteur de puissance"
         }
+      },
+      "summary": {
+        "title": "Récapitulatif",
+        "description": "Vérifiez les paramètres et capteurs sélectionnés avant de valider.\n\n{summary}",
+        "data": {}
       },
       "init": {
         "title": "Options de Piscine",
