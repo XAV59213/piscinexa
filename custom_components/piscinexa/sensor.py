@@ -5,7 +5,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.entity import DeviceInfo  # Ajout de l'importation de DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo
 from .const import (
     DOMAIN,
     POOL_TYPE_SQUARE,
@@ -31,6 +31,7 @@ async def async_setup_entry(
     sensors = [
         PiscinexaVolumeSensor(hass, entry, name),
         PiscinexaTempsFiltrationSensor(hass, entry, name),
+        PiscinexaTemperatureSensor(hass, entry, name),  # Ajout du nouveau capteur de température
         PiscinexaPhSensor(hass, entry, name),
         PiscinexaPhAjouterSensor(hass, entry, name),
         PiscinexaChloreSensor(hass, entry, name),
@@ -104,6 +105,40 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
                     _LOGGER.warning("Erreur de conversion température depuis %s : %s", sensor_id, e)
         try:
             return round(self._entry.data["temperature"] / 2, 1)
+        except Exception as e:
+            _LOGGER.error("Température par défaut invalide : %s", e)
+            return None
+
+class PiscinexaTemperatureSensor(SensorEntity):
+    """Capteur pour afficher la température mesurée ou par défaut."""
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_temperature"
+        self._attr_unit_of_measurement = "°C"
+        self._attr_icon = "mdi:thermometer"
+        self._attr_unique_id = f"{entry.entry_id}_temperature"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=f"Piscinexa {name.capitalize()}",
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.0",
+        )
+
+    @property
+    def native_value(self):
+        sensor_id = self._entry.data.get("temperature_sensor")
+        if sensor_id:
+            state = self._hass.states.get(sensor_id)
+            if state and state.state not in ("unknown", "unavailable"):
+                try:
+                    return round(float(state.state), 1)
+                except Exception as e:
+                    _LOGGER.warning("Erreur lecture température depuis %s : %s", sensor_id, e)
+        try:
+            return round(float(self._entry.data["temperature"]), 1)
         except Exception as e:
             _LOGGER.error("Température par défaut invalide : %s", e)
             return None
@@ -227,7 +262,7 @@ class PiscinexaLogSensor(SensorEntity):
         self._entry = entry
         self._name = entry.data["name"]
         self._attr_name = f"{DOMAIN}_{self._name}_log"
-        self._attr_icon = "mdi:notebook"
+        self._attr_icon = "mdi:book"  # Changement de l'icône de mdi:notebook à mdi:book
         self._attr_unique_id = f"{entry.entry_id}_log"
         self._state = deque(maxlen=10)
         self._attr_device_info = DeviceInfo(
