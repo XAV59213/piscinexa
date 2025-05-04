@@ -12,18 +12,18 @@ views:
               ## Piscine Papa
           - type: entities
             entities:
-              - sensor.piscinexa_papa_volume_eau
-              - sensor.piscinexa_papa_temps_filtration
-              - sensor.piscinexa_papa_ph
-              - sensor.piscinexa_papa_chlore
-              - sensor.piscinexa_papa_log
+              - sensor.papa_volume_eau
+              - sensor.papa_temps_filtration
+              - sensor.papa_ph
+              - sensor.papa_chlore
+              - sensor.papa_log
           - type: horizontal-stack
             cards:
               - type: button
-                entity: button.piscinexa_papa_test
+                entity: button.papa_test
                 name: Test
               - type: button
-                entity: button.piscinexa_papa_reset
+                entity: button.papa_reset
                 name: Réinitialiser
 
       - type: vertical-stack
@@ -33,18 +33,18 @@ views:
               ## Piscine Maman
           - type: entities
             entities:
-              - sensor.piscinexa_maman_volume_eau
-              - sensor.piscinexa_maman_temps_filtration
-              - sensor.piscinexa_maman_ph
-              - sensor.piscinexa_maman_chlore
-              - sensor.piscinexa_maman_log
+              - sensor.maman_volume_eau
+              - sensor.maman_temps_filtration
+              - sensor.maman_ph
+              - sensor.maman_chlore
+              - sensor.maman_log
           - type: horizontal-stack
             cards:
               - type: button
-                entity: button.piscinexa_maman_test
+                entity: button.maman_test
                 name: Test
               - type: button
-                entity: button.piscinexa_maman_reset
+                entity: button.maman_reset
                 name: Réinitialiser
 
       - type: vertical-stack
@@ -56,7 +56,7 @@ views:
             hours_to_show: 48
             refresh_interval: 300
             entities:
-              - sensor.piscinexa_papa_ph
-              - sensor.piscinexa_papa_chlore
-              - sensor.piscinexa_maman_ph
-              - sensor.piscinexa_maman_chlore
+              - sensor.papa_ph
+              - sensor.papa_chlore
+              - sensor.maman_ph
+              - sensor.maman_chlore
