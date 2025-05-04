@@ -80,7 +80,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     errors[field] = "invalid_number"
 
             if not errors:
-                return await self.async_step_parameters()
+                return await self.async_step_quality_parameters()
 
         schema = {}
         if pool_type == POOL_TYPE_SQUARE:
@@ -101,8 +101,8 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    async def async_step_parameters(self, user_input=None):
-        """Troisième étape : demander les paramètres (pH, chlore, température, etc.)."""
+    async def async_step_quality_parameters(self, user_input=None):
+        """Étape : demander les paramètres de qualité de l'eau."""
         errors = {}
         if user_input is not None:
             # Validation des champs numériques
@@ -128,6 +128,34 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 except ValueError:
                     errors[field] = "invalid_number"
 
+            if not errors:
+                # Définir des valeurs par défaut si non fournies
+                if "ph_current" not in self._data or self._data["ph_current"] is None:
+                    self._data["ph_current"] = 7.0
+                if "chlore_current" not in self._data or self._data["chlore_current"] is None:
+                    self._data["chlore_current"] = 1.0
+                if "temperature" not in self._data or self._data["temperature"] is None:
+                    self._data["temperature"] = 20.0
+                return await self.async_step_sensor_selection()
+
+        schema = {
+            vol.Optional("ph_current", default=7.0): vol.Coerce(float),
+            vol.Required("ph_target", default=7.4): vol.Coerce(float),
+            vol.Optional("chlore_current", default=1.0): vol.Coerce(float),
+            vol.Required("chlore_target", default=2.0): vol.Coerce(float),
+            vol.Optional("temperature", default=20.0): vol.Coerce(float),
+        }
+
+        return self.async_show_form(
+            step_id="quality_parameters",
+            data_schema=vol.Schema(schema),
+            errors=errors,
+        )
+
+    async def async_step_sensor_selection(self, user_input=None):
+        """Étape : sélectionner les capteurs optionnels."""
+        errors = {}
+        if user_input is not None:
             # Validation conditionnelle : capteur ou valeur manuelle pour pH
             ph_sensor = user_input.get("ph_sensor", "")
             if not ph_sensor and ("ph_current" not in self._data or self._data["ph_current"] is None or self._data["ph_current"] == ""):
@@ -152,21 +180,13 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             # Si pas d'erreurs, créer l'entrée
             if not errors:
-                # Définir des valeurs par défaut si non fournies
-                if "ph_current" not in self._data or self._data["ph_current"] is None:
-                    self._data["ph_current"] = 7.0
-                if "chlore_current" not in self._data or self._data["chlore_current"] is None:
-                    self._data["chlore_current"] = 1.0
-                if "temperature" not in self._data or self._data["temperature"] is None:
-                    self._data["temperature"] = 20.0
                 return self.async_create_entry(title=f"Piscinexa {self._data['name']}", data=self._data)
 
         # Récupérer les capteurs de température disponibles
         temp_sensors = [""]  # Option vide pour rendre le champ optionnel
-        temp_sensors_dict = {"": "Aucun"}
+        temp_sensors_dict = {"": ""}
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
-            attributes = state.attributes
             # Exclure les capteurs créés par cette intégration
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
                 continue
@@ -181,7 +201,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         # Récupérer les capteurs de chlore disponibles (basé sur unit_of_measurement mg/L ou ppm)
         chlore_sensors = [""]
-        chlore_sensors_dict = {"": "Aucun"}
+        chlore_sensors_dict = {"": ""}
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             # Exclure les capteurs créés par cette intégration
@@ -196,7 +216,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         # Récupérer les capteurs de pH disponibles (basé sur unit_of_measurement pH ou nom)
         ph_sensors = [""]
-        ph_sensors_dict = {"": "Aucun"}
+        ph_sensors_dict = {"": ""}
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             # Exclure les capteurs créés par cette intégration
@@ -207,6 +227,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             friendly_name = attributes.get("friendly_name", entity_id).lower()
             # Élargir les critères pour inclure les capteurs avec "ph" dans le nom ou l'unité
             if unit == "ph" or "ph" in friendly_name or "ph" in entity_id.lower():
+                friendly_name = attributes.get("friendly_name", entity_id)
                 ph_sensors.append(entity_id)
                 ph_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
 
@@ -215,11 +236,6 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         _LOGGER.debug("Capteurs de pH trouvés : %s", ph_sensors)
 
         schema = {
-            vol.Optional("ph_current", default=7.0): vol.Coerce(float),
-            vol.Required("ph_target", default=7.4): vol.Coerce(float),
-            vol.Optional("chlore_current", default=1.0): vol.Coerce(float),
-            vol.Required("chlore_target", default=2.0): vol.Coerce(float),
-            vol.Optional("temperature", default=20.0): vol.Coerce(float),
             vol.Optional("temperature_sensor", default=""): vol.In(temp_sensors_dict),
             vol.Optional("chlore_sensor", default=""): vol.In(chlore_sensors_dict),
             vol.Optional("ph_sensor", default=""): vol.In(ph_sensors_dict),
@@ -227,7 +243,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         }
 
         return self.async_show_form(
-            step_id="parameters",
+            step_id="sensor_selection",
             data_schema=vol.Schema(schema),
             errors=errors,
         )
@@ -246,7 +262,7 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
 
         # Récupérer les capteurs de température disponibles pour les options
         temp_sensors = [""]  # Option vide pour rendre le champ optionnel
-        temp_sensors_dict = {"": "Aucun"}
+        temp_sensors_dict = {"": ""}
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             # Exclure les capteurs créés par cette intégration
@@ -263,7 +279,7 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
 
         # Récupérer les capteurs de chlore disponibles
         chlore_sensors = [""]
-        chlore_sensors_dict = {"": "Aucun"}
+        chlore_sensors_dict = {"": ""}
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             # Exclure les capteurs créés par cette intégration
@@ -278,7 +294,7 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
 
         # Récupérer les capteurs de pH disponibles
         ph_sensors = [""]
-        ph_sensors_dict = {"": "Aucun"}
+        ph_sensors_dict = {"": ""}
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             # Exclure les capteurs créés par cette intégration
