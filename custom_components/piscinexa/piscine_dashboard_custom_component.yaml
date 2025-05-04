@@ -3,23 +3,29 @@ views:
   - title: Piscine
     path: piscine
     cards:
-      - type: entities
-        title: Infos piscine
+      - type: buttons
+        title: Contrôles
         entities:
-          - entity: sensor.piscinevolumeeau
-            unit: m³
-          - entity: sensor.piscinetempsfiltration
-            unit: h
-          - entity: sensor.piscinetemperature
-            unit: °C
-          - entity: sensor.piscineph
-          - entity: sensor.piscinephaajouter
-            unit: L
+          - button.piscinereset
+            name: Réinitialiser
+          - button.piscinetest
+            name: Tester
+      - type: entities
+        title: Saisie manuelle
+        entities:
+          - entity: input_number.piscine_ph_current
+            name: pH Actuel
+          - entity: input_number.piscine_chlore_current
+            name: Chlore Actuel
+      - type: entities
+        title: Capteurs
+        entities:
           - entity: sensor.piscinechlore
             unit: mg/L
+            name: Chlore
           - type: template
             entity_id: sensor.piscinechloreaajouter
-            name: "Chlore à ajouter"
+            name: Chlore à ajouter
             content: >
               {% if states('sensor.piscinechloreaajouter') | float(default=0) > 0 %}
                 {{ states('sensor.piscinechloreaajouter') }} g
@@ -28,14 +34,20 @@ views:
               {% endif %}
           - entity: sensor.piscineconsopuissance
             unit: W
+            name: Consommation puissance
           - entity: sensor.piscinelog
-      - type: entities
-        title: Saisie manuelle
-        entities:
-          - entity: input_number.piscine_ph_current
-          - entity: input_number.piscine_chlore_current
-      - type: buttons
-        title: Commandes
-        entities:
-          - button.piscinetest
-          - button.piscinereset
+            name: Journal
+          - entity: sensor.piscineph
+            name: pH
+          - entity: sensor.piscinephaajouter
+            unit: L
+            name: pH à ajouter
+          - entity: sensor.piscinetemperature
+            unit: °C
+            name: Température
+          - entity: sensor.piscinetempsfiltration
+            unit: h
+            name: Temps de filtration
+          - entity: sensor.piscinevolumeeau
+            unit: m³
+            name: Volume d'eau
