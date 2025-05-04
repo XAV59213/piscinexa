@@ -17,8 +17,16 @@ views:
             unit: L
           - entity: sensor.piscinechlore
             unit: mg/L
-          - entity: sensor.piscinechloreaajouter
-            unit: g
+          # Utilisation d'une entité template pour afficher soit la valeur, soit le message
+          - type: template
+            entity_id: sensor.piscinechloreaajouter
+            name: "Chlore à ajouter"
+            content: >
+              {% if states('sensor.piscinechloreaajouter') | float(default=0) > 0 %}
+                {{ states('sensor.piscinechloreaajouter') }} g
+              {% else %}
+                {{ state_attr('sensor.piscinechloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
+              {% endif %}
           - entity: sensor.piscineconsopuissance
             unit: W
           - entity: sensor.piscinelog
