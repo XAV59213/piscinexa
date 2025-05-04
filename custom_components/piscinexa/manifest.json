@@ -3,8 +3,9 @@
   "name": "Piscinexa",
   "version": "1.0.2",
   "documentation": "https://github.com/XAV59213/piscinexa",
-  "requirements": [],
+  "issue_tracker": "https://github.com/XAV59213/piscinexa/issues",
   "dependencies": [],
+  "requirements": [],
   "codeowners": ["@XAV59213"],
   "config_flow": true,
   "iot_class": "local_push"
