@@ -10,15 +10,33 @@ views:
           - type: markdown
             content: |
               ## Piscine Papa
+          - type: horizontal-stack
+            cards:
+              - type: button
+                entity: button.papatest
+                name: Tester
+              - type: button
+                entity: button.papareset
+                name: Réinitialiser
+          - type: entities
+            title: Saisie manuelle
+            entities:
+              - input_number.papa_ph_current
+                name: pH Actuel
+              - input_number.papa_chlore_current
+                name: Chlore Actuel
           - type: entities
             entities:
               - sensor.papavolumeeau
               - sensor.papatempsfiltration
               - sensor.papaph
               - sensor.papachlore
+              - sensor.papachloredifference
+                unit: mg/L
+                name: Différence Chlore
               - type: template
                 entity_id: sensor.papachloreaajouter
-                name: "Chlore à ajouter"
+                name: Chlore à ajouter
                 content: >
                   {% if states('sensor.papachloreaajouter') | float(default=0) > 0 %}
                     {{ states('sensor.papachloreaajouter') }} g
@@ -26,34 +44,39 @@ views:
                     {{ state_attr('sensor.papachloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
                   {% endif %}
               - sensor.papalog
-          - type: entities
-            title: Saisie manuelle
-            entities:
-              - input_number.papa_ph_current
-              - input_number.papa_chlore_current
-          - type: horizontal-stack
-            cards:
-              - type: button
-                entity: button.papatest
-                name: Test
-              - type: button
-                entity: button.papareset
-                name: Réinitialiser
 
       - type: vertical-stack
         cards:
           - type: markdown
             content: |
               ## Piscine Maman
+          - type: horizontal-stack
+            cards:
+              - type: button
+                entity: button.mamantest
+                name: Tester
+              - type: button
+                entity: button.mamanreset
+                name: Réinitialiser
+          - type: entities
+            title: Saisie manuelle
+            entities:
+              - input_number.maman_ph_current
+                name: pH Actuel
+              - input_number.maman_chlore_current
+                name: Chlore Actuel
           - type: entities
             entities:
               - sensor.mamanvolumeeau
               - sensor.mamantempsfiltration
               - sensor.mamanph
               - sensor.mamanchlore
+              - sensor.mamanchloredifference
+                unit: mg/L
+                name: Différence Chlore
               - type: template
                 entity_id: sensor.mamanchloreaajouter
-                name: "Chlore à ajouter"
+                name: Chlore à ajouter
                 content: >
                   {% if states('sensor.mamanchloreaajouter') | float(default=0) > 0 %}
                     {{ states('sensor.mamanchloreaajouter') }} g
@@ -61,19 +84,6 @@ views:
                     {{ state_attr('sensor.mamanchloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
                   {% endif %}
               - sensor.mamanlog
-          - type: entities
-            title: Saisie manuelle
-            entities:
-              - input_number.maman_ph_current
-              - input_number.maman_chlore_current
-          - type: horizontal-stack
-            cards:
-              - type: button
-                entity: button.mamantest
-                name: Test
-              - type: button
-                entity: button.mamanreset
-                name: Réinitialiser
 
       - type: vertical-stack
         cards:
