@@ -1,94 +1,56 @@
-title: Tableau de bord Piscinexa
+title: Piscine
 views:
-  - title: Piscines
-    path: piscinexa
-    icon: mdi:pool
-    type: sidebar
+  - title: Piscine
+    path: piscine
     cards:
-      - type: vertical-stack
-        cards:
-          - type: markdown
-            content: |
-              ## Piscine Papa
-          - type: horizontal-stack
-            cards:
-              - type: button
-                entity: button.papatest
-                name: Tester
-              - type: button
-                entity: button.papareset
-                name: Réinitialiser
-          - type: entities
-            title: Saisie manuelle
-            entities:
-              - input_number.papa_ph_current
-                name: pH Actuel
-              - input_number.papa_chlore_current
-                name: Chlore Actuel
-          - type: entities
-            entities:
-              - sensor.papavolumeeau
-              - sensor.papatempsfiltration
-              - sensor.papaph
-              - sensor.papachlore
-              - type: template
-                entity_id: sensor.papachloreaajouter
-                name: Chlore à ajouter
-                content: >
-                  {% if states('sensor.papachloreaajouter') | float(default=0) > 0 %}
-                    {{ states('sensor.papachloreaajouter') }} g
-                  {% else %}
-                    {{ state_attr('sensor.papachloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
-                  {% endif %}
-              - sensor.papalog
-
-      - type: vertical-stack
-        cards:
-          - type: markdown
-            content: |
-              ## Piscine Maman
-          - type: horizontal-stack
-            cards:
-              - type: button
-                entity: button.mamantest
-                name: Tester
-              - type: button
-                entity: button.mamanreset
-                name: Réinitialiser
-          - type: entities
-            title: Saisie manuelle
-            entities:
-              - input_number.maman_ph_current
-                name: pH Actuel
-              - input_number.maman_chlore_current
-                name: Chlore Actuel
-          - type: entities
-            entities:
-              - sensor.mamanvolumeeau
-              - sensor.mamantempsfiltration
-              - sensor.mamanph
-              - sensor.mamanchlore
-              - type: template
-                entity_id: sensor.mamanchloreaajouter
-                name: Chlore à ajouter
-                content: >
-                  {% if states('sensor.mamanchloreaajouter') | float(default=0) > 0 %}
-                    {{ states('sensor.mamanchloreaajouter') }} g
-                  {% else %}
-                    {{ state_attr('sensor.mamanchloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
-                  {% endif %}
-              - sensor.mamanlog
-
-      - type: vertical-stack
-        cards:
-          - type: markdown
-            content: |
-              ## Historique pH / Chlore
-          - type: history-graph
-            hours_to_show: 48
-            refresh_interval: 300
-            entities:
-              - sensor.papaph
-              - sensor.papachlore
-              - sensor.mamanph
-              - sensor.mamanchlore
+      - type: buttons
+        title: Contrôles
+        entities:
+          - button.piscinereset
+            name: Réinitialiser
+          - button.piscinetest
+            name: Tester
+      - type: entities
+        title: Saisie manuelle
+        entities:
+          - entity: input_number.piscine_ph_current
+            name: pH Actuel
+          - entity: input_number.piscine_chlore_current
+            name: Chlore Actuel
+      - type: entities
+        title: Capteurs
+        entities:
+          - entity: sensor.piscinechlore
+            unit: mg/L
+            name: Chlore
+          - entity: sensor.piscinechloredifference
+            unit: mg/L
+            name: Différence Chlore
+          - type: template
+            entity_id: sensor.piscinechloreaajouter
+            name: Chlore à ajouter
+            content: >
+              {% if states('sensor.piscinechloreaajouter') | float(default=0) > 0 %}
+                {{ states('sensor.piscinechloreaajouter') }} g
+              {% else %}
+                {{ state_attr('sensor.piscinechloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
+              {% endif %}
+          - entity: sensor.piscineconsopuissance
+            unit: W
+            name: Consommation puissance
+          - entity: sensor.piscinelog
+            name: Journal
+          - entity: sensor.piscineph
+            name: pH
+          - entity: sensor.piscinephaajouter
+            unit: L
+            name: pH à ajouter
+          - entity: sensor.piscinetemperature
+            unit: °C
+            name: Température
+          - entity: sensor.piscinetempsfiltration
+            unit: h
+            name: Temps de filtration
+          - entity: sensor.piscinevolumeeau
+            unit: m³
+            name: Volume d'eau
