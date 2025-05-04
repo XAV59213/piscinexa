@@ -52,7 +52,7 @@ class PiscinexaVolumeSensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_volume_eau"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=f"Piscinexa {name.capitalize()}",
+            name=name.capitalize(),  # Changement ici
             manufacturer="Piscinexa",
             model="Piscine",
             sw_version="1.0.0",
@@ -87,7 +87,7 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_temps_filtration"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=f"Piscinexa {name.capitalize()}",
+            name=name.capitalize(),  # Changement ici
             manufacturer="Piscinexa",
             model="Piscine",
             sw_version="1.0.0",
@@ -121,7 +121,7 @@ class PiscinexaTemperatureSensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_temperature"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=f"Piscinexa {name.capitalize()}",
+            name=name.capitalize(),  # Changement ici
             manufacturer="Piscinexa",
             model="Piscine",
             sw_version="1.0.0",
@@ -148,11 +148,11 @@ class PiscinexaPhSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_ph"
-        self._attr_icon = "mdi:water"  # Changement de mdi:water-ph à mdi:water
+        self._attr_icon = "mdi:water"
         self._attr_unique_id = f"{entry.entry_id}_ph"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=f"Piscinexa {name.capitalize()}",
+            name=name.capitalize(),  # Changement ici
             manufacturer="Piscinexa",
             model="Piscine",
             sw_version="1.0.0",
@@ -178,7 +178,7 @@ class PiscinexaPhAjouterSensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_ph_a_ajouter"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=f"Piscinexa {name.capitalize()}",
+            name=name.capitalize(),  # Changement ici
             manufacturer="Piscinexa",
             model="Piscine",
             sw_version="1.0.0",
@@ -209,7 +209,7 @@ class PiscinexaChloreSensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_chlore"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=f"Piscinexa {name.capitalize()}",
+            name=name.capitalize(),  # Changement ici
             manufacturer="Piscinexa",
             model="Piscine",
             sw_version="1.0.0",
@@ -235,7 +235,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_chlore_a_ajouter"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=f"Piscinexa {name.capitalize()}",
+            name=name.capitalize(),  # Changement ici
             manufacturer="Piscinexa",
             model="Piscine",
             sw_version="1.0.0",
@@ -267,7 +267,7 @@ class PiscinexaLogSensor(SensorEntity):
         self._state = deque(maxlen=10)
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{self._name}")},
-            name=f"Piscinexa {self._name.capitalize()}",
+            name=self._name.capitalize(),  # Changement ici
             manufacturer="Piscinexa",
             model="Piscine",
             sw_version="1.0.0",
@@ -293,7 +293,7 @@ class PiscinexaPowerSensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_conso_puissance"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=f"Piscinexa {name.capitalize()}",
+            name=name.capitalize(),  # Changement ici
             manufacturer="Piscinexa",
             model="Piscine",
             sw_version="1.0.0",
