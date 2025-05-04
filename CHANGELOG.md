@@ -1,10 +1,11 @@
-## [1.0.2] - 2025-05-05
-### Added
-- Added MIT License (`LICENSE`) to clarify usage terms.
-
 Changelog
 All notable changes to the Piscinexa Home Assistant integration will be documented in this file.
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
+[1.0.2] - 2025-05-05
+Added
+
+Added MIT License (LICENSE) to clarify usage terms.
+
 [1.0.1] - 2025-05-04
 Added
 
@@ -31,3 +32,4 @@ Configuration flow to set up pool type, dimensions, and sensor or manual inputs 
 French translations (translations/fr.json) for configuration and entities.
 Support for square and round pools.
 Integration with HACS via hacs.json.
+
