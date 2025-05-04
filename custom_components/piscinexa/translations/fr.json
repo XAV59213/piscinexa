@@ -57,19 +57,19 @@
   },
   "entity": {
     "sensor": {
-      "piscine_volume_eau": {"name": "Piscine Volume d'eau", "unit_of_measurement": "m³"},
-      "piscine_temps_filtration": {"name": "Piscine Temps de filtration", "unit_of_measurement": "h"},
-      "piscine_temperature": {"name": "Piscine Température", "unit_of_measurement": "°C"},
-      "piscine_ph": {"name": "Piscine pH"},
-      "piscine_ph_a_ajouter": {"name": "Piscine pH à ajouter", "unit_of_measurement": "L"},
-      "piscine_chlore": {"name": "Piscine Chlore", "unit_of_measurement": "mg/L"},
-      "piscine_chlore_a_ajouter": {"name": "Piscine Chlore à ajouter", "unit_of_measurement": "g"},
-      "piscine_conso_puissance": {"name": "Piscine Consommation puissance", "unit_of_measurement": "W"},
-      "piscine_log": {"name": "Piscine Journal"}
+      "piscinevolumeeau": {"name": "Piscine Volume d'eau", "unit_of_measurement": "m³"},
+      "piscinetempsfiltration": {"name": "Piscine Temps de filtration", "unit_of_measurement": "h"},
+      "piscinetemperature": {"name": "Piscine Température", "unit_of_measurement": "°C"},
+      "piscineph": {"name": "Piscine pH"},
+      "piscinephaajouter": {"name": "Piscine pH à ajouter", "unit_of_measurement": "L"},
+      "piscinechlore": {"name": "Piscine Chlore", "unit_of_measurement": "mg/L"},
+      "piscinechloreaajouter": {"name": "Piscine Chlore à ajouter", "unit_of_measurement": "g"},
+      "piscineconsopuissance": {"name": "Piscine Consommation puissance", "unit_of_measurement": "W"},
+      "piscinelog": {"name": "Piscine Journal"}
     },
     "button": {
-      "piscine_test": {"name": "Piscine Tester"},
-      "piscine_reset": {"name": "Piscine Réinitialiser"}
+      "piscinetest": {"name": "Piscine Tester"},
+      "piscinereset": {"name": "Piscine Réinitialiser"}
     }
   }
 }
