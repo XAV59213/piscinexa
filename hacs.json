@@ -2,5 +2,6 @@
   "name": "piscinexa",
   "content_in_root": false,
   "homeassistant": "2025.4.0",
-  "render_readme": true
+  "render_readme": true,
+  "hacs": "1.0.0"
 }
