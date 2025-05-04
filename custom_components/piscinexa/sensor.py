@@ -5,6 +5,7 @@ from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity import DeviceInfo  # Ajout de l'importation de DeviceInfo
 from .const import (
     DOMAIN,
     POOL_TYPE_SQUARE,
@@ -48,6 +49,13 @@ class PiscinexaVolumeSensor(SensorEntity):
         self._attr_unit_of_measurement = UNIT_CUBIC_METERS
         self._attr_icon = "mdi:pool"
         self._attr_unique_id = f"{entry.entry_id}_volume_eau"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=f"Piscinexa {name.capitalize()}",
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.0",
+        )
 
     @property
     def native_value(self):
@@ -76,6 +84,13 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
         self._attr_unit_of_measurement = UNIT_HOURS
         self._attr_icon = "mdi:clock"
         self._attr_unique_id = f"{entry.entry_id}_temps_filtration"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=f"Piscinexa {name.capitalize()}",
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.0",
+        )
 
     @property
     def native_value(self):
@@ -100,6 +115,13 @@ class PiscinexaPhSensor(SensorEntity):
         self._attr_name = f"{DOMAIN}_{name}_ph"
         self._attr_icon = "mdi:water-ph"
         self._attr_unique_id = f"{entry.entry_id}_ph"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=f"Piscinexa {name.capitalize()}",
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.0",
+        )
 
     @property
     def native_value(self):
@@ -119,6 +141,13 @@ class PiscinexaPhAjouterSensor(SensorEntity):
         self._attr_unit_of_measurement = UNIT_LITERS
         self._attr_icon = "mdi:bottle-tonic-plus"
         self._attr_unique_id = f"{entry.entry_id}_ph_a_ajouter"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=f"Piscinexa {name.capitalize()}",
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.0",
+        )
 
     @property
     def native_value(self):
@@ -143,6 +172,13 @@ class PiscinexaChloreSensor(SensorEntity):
         self._attr_unit_of_measurement = UNIT_MG_PER_LITER
         self._attr_icon = "mdi:water-check"
         self._attr_unique_id = f"{entry.entry_id}_chlore"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=f"Piscinexa {name.capitalize()}",
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.0",
+        )
 
     @property
     def native_value(self):
@@ -162,6 +198,13 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         self._attr_unit_of_measurement = UNIT_GRAMS
         self._attr_icon = "mdi:bottle-tonic-plus"
         self._attr_unique_id = f"{entry.entry_id}_chlore_a_ajouter"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=f"Piscinexa {name.capitalize()}",
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.0",
+        )
 
     @property
     def native_value(self):
@@ -187,6 +230,13 @@ class PiscinexaLogSensor(SensorEntity):
         self._attr_icon = "mdi:notebook"
         self._attr_unique_id = f"{entry.entry_id}_log"
         self._state = deque(maxlen=10)
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{self._name}")},
+            name=f"Piscinexa {self._name.capitalize()}",
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.0",
+        )
 
     def log_action(self, action: str):
         self._state.append(f"{datetime.now()}: {action}")
@@ -198,7 +248,6 @@ class PiscinexaLogSensor(SensorEntity):
 
 class PiscinexaPowerSensor(SensorEntity):
     """Capteur pour la puissance de la prise connectée à la piscine."""
-
     def __init__(self, hass, entry, name):
         self._hass = hass
         self._entry = entry
@@ -207,6 +256,13 @@ class PiscinexaPowerSensor(SensorEntity):
         self._attr_icon = "mdi:flash"
         self._attr_unit_of_measurement = "W"
         self._attr_unique_id = f"{entry.entry_id}_conso_puissance"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=f"Piscinexa {name.capitalize()}",
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.0",
+        )
 
     @property
     def state(self):
