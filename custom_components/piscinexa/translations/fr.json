@@ -30,6 +30,8 @@
           "chlore_target": "Chlore cible (mg/L)",
           "temperature": "Température (°C)",
           "temperature_sensor": "Sélectionner un capteur de température (optionnel)",
+          "chlore_sensor": "Sélectionner un capteur de chlore (optionnel)",
+          "ph_sensor": "Sélectionner un capteur de pH (optionnel)",
           "power_sensor_entity_id": "ID de l'entité du capteur de puissance (optionnel)"
         }
       },
@@ -39,7 +41,9 @@
         "data": {
           "ph_target": "pH cible",
           "chlore_target": "Chlore cible (mg/L)",
-          "temperature_sensor": "Sélectionner un capteur de température (optionnel)"
+          "temperature_sensor": "Sélectionner un capteur de température (optionnel)",
+          "chlore_sensor": "Sélectionner un capteur de chlore (optionnel)",
+          "ph_sensor": "Sélectionner un capteur de pH (optionnel)"
         }
       }
     },
@@ -47,7 +51,11 @@
       "name_invalid": "Nom invalide (ne peut pas être vide).",
       "name_duplicate": "Ce nom est déjà utilisé par une autre piscine.",
       "ph_invalid": "Valeur de pH invalide (doit être entre 0 et 14).",
+      "ph_required_if_no_sensor": "Une valeur de pH actuel est requise si aucun capteur de pH n'est sélectionné.",
+      "sensor_required_if_no_ph": "Un capteur de pH est requis si aucune valeur de pH actuel n'est fournie.",
       "chlore_invalid": "Valeur de chlore invalide (doit être supérieure ou égale à 0).",
+      "chlore_required_if_no_sensor": "Une valeur de chlore actuel est requise si aucun capteur de chlore n'est sélectionné.",
+      "sensor_required_if_no_chlore": "Un capteur de chlore est requis si aucune valeur de chlore actuel n'est fournie.",
       "temperature_invalid": "Température invalide (doit être entre 0 et 50 °C).",
       "dimensions_invalid": "Dimensions invalides (doivent être supérieures à 0).",
       "required_field": "Ce champ est requis.",
