@@ -6,24 +6,24 @@ views:
       - type: entities
         title: Infos piscine
         entities:
-          - entity: sensor.piscine_volume_eau
+          - entity: sensor.piscinevolumeeau
             unit: m³
-          - entity: sensor.piscine_temps_filtration
+          - entity: sensor.piscinetempsfiltration
             unit: h
-          - entity: sensor.piscine_temperature
+          - entity: sensor.piscinetemperature
             unit: °C
-          - entity: sensor.piscine_ph
-          - entity: sensor.piscine_ph_a_ajouter
+          - entity: sensor.piscineph
+          - entity: sensor.piscinephaajouter
             unit: L
-          - entity: sensor.piscine_chlore
+          - entity: sensor.piscinechlore
             unit: mg/L
-          - entity: sensor.piscine_chlore_a_ajouter
+          - entity: sensor.piscinechloreaajouter
             unit: g
-          - entity: sensor.piscine_conso_puissance
+          - entity: sensor.piscineconsopuissance
             unit: W
-          - entity: sensor.piscine_log
+          - entity: sensor.piscinelog
       - type: buttons
         title: Commandes
         entities:
-          - button.piscine_test
-          - button.piscine_reset
+          - button.piscinetest
+          - button.piscinereset
