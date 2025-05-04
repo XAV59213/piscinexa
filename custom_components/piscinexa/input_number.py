@@ -11,13 +11,13 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
     name = entry.data["name"]
-    _LOGGER.debug("Configuration des entités input_number pour %s", name)
+    _LOGGER.info("Configuration des entités input_number pour %s", name)
     entities = [
         PiscinexaPhCurrentInput(hass, entry, name),
         PiscinexaChloreCurrentInput(hass, entry, name),
     ]
     async_add_entities(entities)
-    _LOGGER.debug("Entités input_number ajoutées: %s", [entity.entity_id for entity in entities])
+    _LOGGER.info("Entités input_number ajoutées: %s", [entity.entity_id for entity in entities])
 
 class PiscinexaPhCurrentInput(InputNumber):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
