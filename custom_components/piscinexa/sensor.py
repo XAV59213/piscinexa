@@ -46,8 +46,8 @@ class PiscinexaVolumeSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_volume_eau"  # Identifiant interne
-        self._attr_friendly_name = f"{name.capitalize()} Volume d'eau"  # Nom affiché
+        self._attr_name = f"{DOMAIN}_{name}_volume_eau"
+        self._attr_friendly_name = f"{name.capitalize()} Volume d'eau"
         self._attr_unit_of_measurement = UNIT_CUBIC_METERS  # m³
         self._attr_icon = "mdi:pool"
         self._attr_unique_id = f"{entry.entry_id}_volume_eau"
@@ -77,13 +77,17 @@ class PiscinexaVolumeSensor(SensorEntity):
             _LOGGER.error("Erreur calcul volume pour %s: %s", self._name, e)
             return None
 
+    @property
+    def unit_of_measurement(self):
+        return self._attr_unit_of_measurement
+
 class PiscinexaTempsFiltrationSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_temps_filtration"  # Identifiant interne
-        self._attr_friendly_name = f"{name.capitalize()} Temps de filtration"  # Nom affiché
+        self._attr_name = f"{DOMAIN}_{name}_temps_filtration"
+        self._attr_friendly_name = f"{name.capitalize()} Temps de filtration"
         self._attr_unit_of_measurement = UNIT_HOURS  # h
         self._attr_icon = "mdi:clock"
         self._attr_unique_id = f"{entry.entry_id}_temps_filtration"
@@ -111,14 +115,18 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
             _LOGGER.error("Température par défaut invalide : %s", e)
             return None
 
+    @property
+    def unit_of_measurement(self):
+        return self._attr_unit_of_measurement
+
 class PiscinexaTemperatureSensor(SensorEntity):
     """Capteur pour afficher la température mesurée ou par défaut."""
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_temperature"  # Identifiant interne
-        self._attr_friendly_name = f"{name.capitalize()} Température"  # Nom affiché
+        self._attr_name = f"{DOMAIN}_{name}_temperature"
+        self._attr_friendly_name = f"{name.capitalize()} Température"
         self._attr_unit_of_measurement = "°C"  # °C
         self._attr_icon = "mdi:thermometer"
         self._attr_unique_id = f"{entry.entry_id}_temperature"
@@ -146,12 +154,16 @@ class PiscinexaTemperatureSensor(SensorEntity):
             _LOGGER.error("Température par défaut invalide : %s", e)
             return None
 
+    @property
+    def unit_of_measurement(self):
+        return self._attr_unit_of_measurement
+
 class PiscinexaPhSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_ph"  # Identifiant interne
-        self._attr_friendly_name = f"{name.capitalize()} pH"  # Nom affiché
+        self._attr_name = f"{DOMAIN}_{name}_ph"
+        self._attr_friendly_name = f"{name.capitalize()} pH"
         self._attr_icon = "mdi:water"
         self._attr_unique_id = f"{entry.entry_id}_ph"
         self._attr_device_info = DeviceInfo(
@@ -176,8 +188,8 @@ class PiscinexaPhAjouterSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_ph_a_ajouter"  # Identifiant interne
-        self._attr_friendly_name = f"{name.capitalize()} pH à ajouter"  # Nom affiché
+        self._attr_name = f"{DOMAIN}_{name}_ph_a_ajouter"
+        self._attr_friendly_name = f"{name.capitalize()} pH à ajouter"
         self._attr_unit_of_measurement = UNIT_LITERS  # L
         self._attr_icon = "mdi:bottle-tonic-plus"
         self._attr_unique_id = f"{entry.entry_id}_ph_a_ajouter"
@@ -204,12 +216,16 @@ class PiscinexaPhAjouterSensor(SensorEntity):
             _LOGGER.error("Erreur calcul dose pH: %s", e)
             return None
 
+    @property
+    def unit_of_measurement(self):
+        return self._attr_unit_of_measurement
+
 class PiscinexaChloreSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_chlore"  # Identifiant interne
-        self._attr_friendly_name = f"{name.capitalize()} Chlore"  # Nom affiché
+        self._attr_name = f"{DOMAIN}_{name}_chlore"
+        self._attr_friendly_name = f"{name.capitalize()} Chlore"
         self._attr_unit_of_measurement = UNIT_MG_PER_LITER  # mg/L
         self._attr_icon = "mdi:water-check"
         self._attr_unique_id = f"{entry.entry_id}_chlore"
@@ -230,13 +246,17 @@ class PiscinexaChloreSensor(SensorEntity):
             _LOGGER.error("Erreur lecture chlore: %s", e)
             return None
 
+    @property
+    def unit_of_measurement(self):
+        return self._attr_unit_of_measurement
+
 class PiscinexaChloreAjouterSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_chlore_a_ajouter"  # Identifiant interne
-        self._attr_friendly_name = f"{name.capitalize()} Chlore à ajouter"  # Nom affiché
+        self._attr_name = f"{DOMAIN}_{name}_chlore_a_ajouter"
+        self._attr_friendly_name = f"{name.capitalize()} Chlore à ajouter"
         self._attr_unit_of_measurement = UNIT_GRAMS  # g
         self._attr_icon = "mdi:bottle-tonic-plus"
         self._attr_unique_id = f"{entry.entry_id}_chlore_a_ajouter"
@@ -263,13 +283,17 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             _LOGGER.error("Erreur calcul dose chlore: %s", e)
             return None
 
+    @property
+    def unit_of_measurement(self):
+        return self._attr_unit_of_measurement
+
 class PiscinexaLogSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry):
         self._hass = hass
         self._entry = entry
         self._name = entry.data["name"]
-        self._attr_name = f"{DOMAIN}_{self._name}_log"  # Identifiant interne
-        self._attr_friendly_name = f"{self._name.capitalize()} Journal"  # Nom affiché
+        self._attr_name = f"{DOMAIN}_{self._name}_log"
+        self._attr_friendly_name = f"{self._name.capitalize()} Journal"
         self._attr_icon = "mdi:book"
         self._attr_unique_id = f"{entry.entry_id}_log"
         self._state = deque(maxlen=10)
@@ -295,10 +319,10 @@ class PiscinexaPowerSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_conso_puissance"  # Identifiant interne
-        self._attr_friendly_name = f"{name.capitalize()} Consommation puissance"  # Nom affiché
-        self._attr_icon = "mdi:flash"
+        self._attr_name = f"{DOMAIN}_{name}_conso_puissance"
+        self._attr_friendly_name = f"{name.capitalize()} Consommation puissance"
         self._attr_unit_of_measurement = "W"  # W
+        self._attr_icon = "mdi:flash"
         self._attr_unique_id = f"{entry.entry_id}_conso_puissance"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -323,3 +347,7 @@ class PiscinexaPowerSensor(SensorEntity):
         except Exception as e:
             _LOGGER.warning("Erreur lecture capteur puissance : %s", e)
         return None
+
+    @property
+    def unit_of_measurement(self):
+        return self._attr_unit_of_measurement
