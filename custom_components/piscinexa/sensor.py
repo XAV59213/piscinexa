@@ -46,7 +46,7 @@ class PiscinexaVolumeSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}_volume_eau"  # Simplifié, sans préfixe DOMAIN
+        self._attr_name = f"{name}volumeeau"  # Sans underscore
         self._attr_friendly_name = f"{name.capitalize()} Volume d'eau"
         self._attr_unit_of_measurement = UNIT_CUBIC_METERS  # m³
         self._attr_icon = "mdi:pool"
@@ -86,7 +86,7 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}_temps_filtration"  # Simplifié, sans préfixe DOMAIN
+        self._attr_name = f"{name}tempsfiltration"  # Sans underscore
         self._attr_friendly_name = f"{name.capitalize()} Temps de filtration"
         self._attr_unit_of_measurement = UNIT_HOURS  # h
         self._attr_icon = "mdi:clock"
@@ -125,7 +125,7 @@ class PiscinexaTemperatureSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}_temperature"  # Simplifié, sans préfixe DOMAIN
+        self._attr_name = f"{name}temperature"  # Sans underscore
         self._attr_friendly_name = f"{name.capitalize()} Température"
         self._attr_unit_of_measurement = "°C"  # °C
         self._attr_icon = "mdi:thermometer"
@@ -162,7 +162,7 @@ class PiscinexaPhSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}_ph"  # Simplifié, sans préfixe DOMAIN
+        self._attr_name = f"{name}ph"  # Sans underscore
         self._attr_friendly_name = f"{name.capitalize()} pH"
         self._attr_icon = "mdi:water"
         self._attr_unique_id = f"{entry.entry_id}_ph"
@@ -188,7 +188,7 @@ class PiscinexaPhAjouterSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}_ph_a_ajouter"  # Simplifié, sans préfixe DOMAIN
+        self._attr_name = f"{name}phaajouter"  # Sans underscore
         self._attr_friendly_name = f"{name.capitalize()} pH à ajouter"
         self._attr_unit_of_measurement = UNIT_LITERS  # L
         self._attr_icon = "mdi:bottle-tonic-plus"
@@ -206,7 +206,7 @@ class PiscinexaPhAjouterSensor(SensorEntity):
         try:
             ph_current = float(self._entry.data["ph_current"])
             ph_target = float(self._entry.data["ph_target"])
-            volume = self._hass.states.get(f"sensor.{name}_volume_eau")
+            volume = self._hass.states.get(f"sensor.{name}volumeeau")
             if volume:
                 volume_val = float(volume.state)
                 dose = abs(ph_target - ph_current) * volume_val * 10
@@ -224,7 +224,7 @@ class PiscinexaChloreSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}_chlore"  # Simplifié, sans préfixe DOMAIN
+        self._attr_name = f"{name}chlore"  # Sans underscore
         self._attr_friendly_name = f"{name.capitalize()} Chlore"
         self._attr_unit_of_measurement = UNIT_MG_PER_LITER  # mg/L
         self._attr_icon = "mdi:water-check"
@@ -255,7 +255,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}_chlore_a_ajouter"  # Simplifié, sans préfixe DOMAIN
+        self._attr_name = f"{name}chloreaajouter"  # Sans underscore
         self._attr_friendly_name = f"{name.capitalize()} Chlore à ajouter"
         self._attr_unit_of_measurement = UNIT_GRAMS  # g
         self._attr_icon = "mdi:bottle-tonic-plus"
@@ -273,7 +273,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         try:
             chlore_current = float(self._entry.data["chlore_current"])
             chlore_target = float(self._entry.data["chlore_target"])
-            volume = self._hass.states.get(f"sensor.{name}_volume_eau")
+            volume = self._hass.states.get(f"sensor.{name}volumeeau")
             if volume:
                 volume_val = float(volume.state)
                 dose = (chlore_target - chlore_current) * volume_val * 10
@@ -292,7 +292,7 @@ class PiscinexaLogSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = entry.data["name"]
-        self._attr_name = f"{self._name}_log"  # Simplifié, sans préfixe DOMAIN
+        self._attr_name = f"{self._name}log"  # Sans underscore
         self._attr_friendly_name = f"{self._name.capitalize()} Journal"
         self._attr_icon = "mdi:book"
         self._attr_unique_id = f"{entry.entry_id}_log"
@@ -319,7 +319,7 @@ class PiscinexaPowerSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{name}_conso_puissance"  # Simplifié, sans préfixe DOMAIN
+        self._attr_name = f"{name}consopuissance"  # Sans underscore
         self._attr_friendly_name = f"{name.capitalize()} Consommation puissance"
         self._attr_unit_of_measurement = "W"  # W
         self._attr_icon = "mdi:flash"
