@@ -12,18 +12,18 @@ views:
               ## Piscine Papa
           - type: entities
             entities:
-              - sensor.papa_volume_eau
-              - sensor.papa_temps_filtration
-              - sensor.papa_ph
-              - sensor.papa_chlore
-              - sensor.papa_log
+              - sensor.papavolumeeau
+              - sensor.papatempsfiltration
+              - sensor.papaph
+              - sensor.papachlore
+              - sensor.papalog
           - type: horizontal-stack
             cards:
               - type: button
-                entity: button.papa_test
+                entity: button.papatest
                 name: Test
               - type: button
-                entity: button.papa_reset
+                entity: button.papareset
                 name: Réinitialiser
 
       - type: vertical-stack
@@ -33,18 +33,18 @@ views:
               ## Piscine Maman
           - type: entities
             entities:
-              - sensor.maman_volume_eau
-              - sensor.maman_temps_filtration
-              - sensor.maman_ph
-              - sensor.maman_chlore
-              - sensor.maman_log
+              - sensor.mamanvolumeeau
+              - sensor.mamantempsfiltration
+              - sensor.mamanph
+              - sensor.mamanchlore
+              - sensor.mamanlog
           - type: horizontal-stack
             cards:
               - type: button
-                entity: button.maman_test
+                entity: button.mamantest
                 name: Test
               - type: button
-                entity: button.maman_reset
+                entity: button.mamanreset
                 name: Réinitialiser
 
       - type: vertical-stack
@@ -56,7 +56,7 @@ views:
             hours_to_show: 48
             refresh_interval: 300
             entities:
-              - sensor.papa_ph
-              - sensor.papa_chlore
-              - sensor.maman_ph
-              - sensor.maman_chlore
+              - sensor.papaph
+              - sensor.papachlore
+              - sensor.mamanph
+              - sensor.mamanchlore
