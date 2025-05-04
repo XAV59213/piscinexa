@@ -1,38 +1,22 @@
 title: Piscine
 views:
-  - title: Piscinexa
+  - title: Piscine
     path: piscine
     cards:
       - type: entities
         title: Infos piscine
         entities:
-          - entity: sensor.piscinexa_piscine_volume_eau
-            name: Volume d'eau
-            unit_of_measurement: m³
-          - entity: sensor.piscinexa_piscine_temps_filtration
-            name: Temps de filtration
-            unit_of_measurement: h
-          - entity: sensor.piscinexa_piscine_temperature
-            name: Température
-            unit_of_measurement: °C
-          - entity: sensor.piscinexa_piscine_ph
-            name: pH
-          - entity: sensor.piscinexa_piscine_ph_a_ajouter
-            name: pH à ajouter
-            unit_of_measurement: L
-          - entity: sensor.piscinexa_piscine_chlore
-            name: Chlore
-            unit_of_measurement: mg/L
-          - entity: sensor.piscinexa_piscine_chlore_a_ajouter
-            name: Chlore à ajouter
-            unit_of_measurement: g
-          - entity: sensor.piscinexa_piscine_conso_puissance
-            name: Consommation puissance
-            unit_of_measurement: W
-          - entity: sensor.piscinexa_piscine_log
-            name: Journal
+          - sensor.piscinexa_spa_volume_eau
+          - sensor.piscinexa_spa_temps_filtration
+          - sensor.piscinexa_spa_temperature
+          - sensor.piscinexa_spa_ph
+          - sensor.piscinexa_spa_ph_a_ajouter
+          - sensor.piscinexa_spa_chlore
+          - sensor.piscinexa_spa_chlore_a_ajouter
+          - sensor.piscinexa_spa_conso_puissance
+          - sensor.piscinexa_spa_log
       - type: buttons
         title: Commandes
         entities:
-          - button.piscinexa_piscine_test
-          - button.piscinexa_piscine_reset
+          - button.piscinexa_spa_test
+          - button.piscinexa_spa_reset
