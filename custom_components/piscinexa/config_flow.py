@@ -221,8 +221,8 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         _LOGGER.debug("Capteurs de pH trouvés : %s", ph_sensors)
 
         schema = vol.Schema({
-            vol.Required("ph_target", default=7.4): vol.Coerce(float),
             vol.Optional("ph_sensor", default=""): vol.In(ph_sensors_dict),
+            vol.Required("ph_target", default=7.4): vol.Coerce(float),
         })
 
         return self.async_show_form(
@@ -346,8 +346,8 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         _LOGGER.debug("Capteurs de chlore trouvés : %s", chlore_sensors)
 
         schema = vol.Schema({
-            vol.Required("chlore_target", default=2.0): vol.Coerce(float),
             vol.Optional("chlore_sensor", default=""): vol.In(chlore_sensors_dict),
+            vol.Required("chlore_target", default=2.0): vol.Coerce(float),
         })
 
         return self.async_show_form(
@@ -581,7 +581,7 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
                 continue
-            # Exclure les capteurs "chlore à ajouter"
+            # Exclure les capteurs "chlore à ajouter" ou similaires
             if "chlore_a_ajouter" in entity_id.lower() or "chloreaajouter" in entity_id.lower():
                 continue
             attributes = state.attributes
@@ -598,7 +598,7 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
                 continue
-            # Exclure les capteurs "pH à ajouter"
+            # Exclure les capteurs "pH à ajouter" ou similaires
             if "ph_a_ajouter" in entity_id.lower() or "phaajouter" in entity_id.lower():
                 continue
             attributes = state.attributes
