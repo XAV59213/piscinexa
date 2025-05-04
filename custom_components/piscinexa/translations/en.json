@@ -1,0 +1,159 @@
+{
+  "title": "Piscinexa - Configuration",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Step 1 - Initial Setup",
+        "description": "Welcome to Piscinexa setup! Let's start by defining the basic information for your pool.\n\n- Enter a unique name for your pool.\n- Select the pool type (square or round).",
+        "data": {
+          "name": "Pool name",
+          "pool_type": "Pool type"
+        }
+      },
+      "dimensions": {
+        "title": "Step 2 - Pool Dimensions",
+        "description": "Enter your pool's dimensions to calculate its volume.\n\n- For a square pool, provide the length, width, and depth.\n- For a round pool, provide the diameter and depth.\n\nValues must be in meters.",
+        "data": {
+          "length": "Length (meters)",
+          "width": "Width (meters)",
+          "depth": "Depth (meters)",
+          "diameter": "Diameter (meters)"
+        }
+      },
+      "ph_config": {
+        "title": "Step 3 - pH Sensor Setup",
+        "description": "Choose how to configure the pH for your pool.\n\n- **Manual input**: Enter the current measured and target pH values.\n- **Select a sensor**: Use an existing sensor to measure the current pH.",
+        "data": {
+          "ph_config_choice": "pH configuration method"
+        }
+      },
+      "ph_manual": {
+        "title": "Step 3 - Manual pH Input",
+        "description": "Enter the pH values for your pool.\n\n- **Current pH (measured)**: The current pH of your pool, measured manually (optional).\n- **Target pH (ideal)**: The ideal pH you want to achieve (required, typically between 7.2 and 7.6 for a pool).",
+        "data": {
+          "ph_current": "Current pH (measured)",
+          "ph_target": "Target pH (ideal)"
+        }
+      },
+      "ph_sensor": {
+        "title": "Step 3 - Select pH Sensor",
+        "description": "Select a sensor to measure the current pH of your pool and set the ideal target value.\n\n- **pH sensor**: Choose an existing sensor in your system (optional, select 'No sensor' to skip).\n- **Target pH (ideal)**: The ideal pH you want to achieve (required, typically between 7.2 and 7.6 for a pool).",
+        "data": {
+          "ph_sensor": "pH sensor",
+          "ph_target": "Target pH (ideal)"
+        }
+      },
+      "chlore_config": {
+        "title": "Step 4 - Chlorine Sensor Setup",
+        "description": "Choose how to configure the chlorine for your pool.\n\n- **Manual input**: Enter the current measured and target chlorine values.\n- **Select a sensor**: Use an existing sensor to measure the current chlorine.",
+        "data": {
+          "chlore_config_choice": "Chlorine configuration method"
+        }
+      },
+      "chlore_manual": {
+        "title": "Step 4 - Manual Chlorine Input",
+        "description": "Enter the chlorine values for your pool.\n\n- **Current chlorine (measured, mg/L)**: The current chlorine level in your pool, measured manually (optional).\n- **Target chlorine (ideal, mg/L)**: The ideal chlorine level you want to achieve (required, typically between 1 and 3 mg/L for a pool).",
+        "data": {
+          "chlore_current": "Current chlorine (measured, mg/L)",
+          "chlore_target": "Target chlorine (ideal, mg/L)"
+        }
+      },
+      "chlore_sensor": {
+        "title": "Step 4 - Select Chlorine Sensor",
+        "description": "Select a sensor to measure the current chlorine level in your pool and set the ideal target value.\n\n- **Chlorine sensor**: Choose an existing sensor in your system (optional, select 'No sensor' to skip).\n- **Target chlorine (ideal, mg/L)**: The ideal chlorine level you want to achieve (required, typically between 1 and 3 mg/L for a pool).",
+        "data": {
+          "chlore_sensor": "Chlorine sensor",
+          "chlore_target": "Target chlorine (ideal, mg/L)"
+        }
+      },
+      "temperature_config": {
+        "title": "Step 5 - Temperature Sensor Setup",
+        "description": "Choose how to configure the temperature for your pool.\n\n- **Manual input**: Enter the current measured pool temperature.\n- **Select a sensor**: Use an existing sensor to measure the current temperature.",
+        "data": {
+          "temperature_config_choice": "Temperature configuration method"
+        }
+      },
+      "temperature_manual": {
+        "title": "Step 5 - Manual Temperature Input",
+        "description": "Enter the current measured temperature of your pool.\n\n- **Current temperature (°C)**: The current water temperature, measured manually (optional).",
+        "data": {
+          "temperature": "Current temperature (°C)"
+        }
+      },
+      "temperature_sensor": {
+        "title": "Step 5 - Select Temperature Sensor",
+        "description": "Select a sensor to measure the current temperature of your pool.\n\n- **Temperature sensor**: Choose an existing sensor in your system (optional, select 'No sensor' to skip).",
+        "data": {
+          "temperature_sensor": "Temperature sensor"
+        }
+      },
+      "power_config": {
+        "title": "Step 6 - Power Sensor Setup",
+        "description": "Choose whether to use a sensor to measure the power consumption of your pool or leave this field empty.\n\n- **Manual input**: Leave this field empty.\n- **Select a sensor**: Enter the ID of an existing sensor to measure power consumption.",
+        "data": {
+          "power_config_choice": "Power configuration method"
+        }
+      },
+      "power_manual": {
+        "title": "Step 6 - Manual Power Input",
+        "description": "No value to enter for power. This field will be left empty."
+      },
+      "power_sensor": {
+        "title": "Step 6 - Select Power Sensor",
+        "description": "Enter the entity ID of the sensor to measure power consumption.\n\n- **Power sensor entity ID**: Provide the exact entity ID (optional, leave empty to skip, e.g., sensor.pool_power).",
+        "data": {
+          "power_sensor_entity_id": "Power sensor entity ID"
+        }
+      },
+      "summary": {
+        "title": "Step 7 - Summary",
+        "description": "Here is a summary of your configuration. Review the details before confirming.\n\n{summary}",
+        "data": {}
+      },
+      "init": {
+        "title": "Piscinexa Options",
+        "description": "Adjust the target settings for your pool.\n\n- **Target pH**: The ideal pH value you want to achieve.\n- **Target chlorine**: The ideal chlorine level you want to achieve (mg/L).\n- **Sensors**: Select or update the sensors used to measure pH, chlorine, and temperature.",
+        "data": {
+          "ph_target": "Target pH (ideal)",
+          "chlore_target": "Target chlorine (ideal, mg/L)",
+          "temperature_sensor": "Temperature sensor",
+          "chlore_sensor": "Chlorine sensor",
+          "ph_sensor": "pH sensor"
+        }
+      }
+    },
+    "error": {
+      "name_invalid": "Invalid name (cannot be empty).",
+      "name_duplicate": "This name is already used by another pool.",
+      "ph_invalid": "Invalid pH value (must be between 0 and 14).",
+      "ph_required_if_no_sensor": "A current pH value is required if no pH sensor is selected.",
+      "sensor_required_if_no_ph": "A pH sensor is required if no current pH value is provided.",
+      "chlore_invalid": "Invalid chlorine value (must be greater than or equal to 0).",
+      "chlore_required_if_no_sensor": "A current chlorine value is required if no chlorine sensor is selected.",
+      "sensor_required_if_no_chlore": "A chlorine sensor is required if no current chlorine value is provided.",
+      "temperature_invalid": "Invalid temperature (must be between 0 and 50 °C).",
+      "dimensions_invalid": "Invalid dimensions (must be greater than 0).",
+      "required_field": "This field is required.",
+      "invalid_number": "Invalid numeric value.",
+      "unexpected_error": "Unexpected error during configuration."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "piscinexa_piscine_volume_eau": {"name": "Pool Water Volume", "unit_of_measurement": "m³"},
+      "piscinexa_piscine_tempsfiltration": {"name": "Pool Filtration Time", "unit_of_measurement": "h"},
+      "piscinexa_piscine_temperature": {"name": "Pool Temperature", "unit_of_measurement": "°C"},
+      "piscinexa_piscine_ph": {"name": "Pool pH"},
+      "piscinexa_piscine_phaajouter": {"name": "Pool pH to Add", "unit_of_measurement": "L"},
+      "piscinexa_piscine_chlore": {"name": "Pool Chlorine", "unit_of_measurement": "mg/L"},
+      "piscinexa_piscine_chloredifference": {"name": "Pool Chlorine Difference", "unit_of_measurement": "mg/L"},
+      "piscinexa_piscine_chloreaajouter": {"name": "Pool Chlorine to Add", "unit_of_measurement": "g"},
+      "piscinexa_piscine_consopuissance": {"name": "Pool Power Consumption", "unit_of_measurement": "W"},
+      "piscinexa_piscine_log": {"name": "Pool Log"}
+    },
+    "button": {
+      "piscinexa_piscine_test": {"name": "Pool Test"},
+      "piscinexa_piscine_reset": {"name": "Pool Reset"}
+    }
+  }
+}
