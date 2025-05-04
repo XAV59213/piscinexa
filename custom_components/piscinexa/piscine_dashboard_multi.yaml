@@ -16,6 +16,15 @@ views:
               - sensor.papatempsfiltration
               - sensor.papaph
               - sensor.papachlore
+              - type: template
+                entity_id: sensor.papachloreaajouter
+                name: "Chlore à ajouter"
+                content: >
+                  {% if states('sensor.papachloreaajouter') | float(default=0) > 0 %}
+                    {{ states('sensor.papachloreaajouter') }} g
+                  {% else %}
+                    {{ state_attr('sensor.papachloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
+                  {% endif %}
               - sensor.papalog
           - type: entities
             title: Saisie manuelle
@@ -42,6 +51,15 @@ views:
               - sensor.mamantempsfiltration
               - sensor.mamanph
               - sensor.mamanchlore
+              - type: template
+                entity_id: sensor.mamanchloreaajouter
+                name: "Chlore à ajouter"
+                content: >
+                  {% if states('sensor.mamanchloreaajouter') | float(default=0) > 0 %}
+                    {{ states('sensor.mamanchloreaajouter') }} g
+                  {% else %}
+                    {{ state_attr('sensor.mamanchloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
+                  {% endif %}
               - sensor.mamanlog
           - type: entities
             title: Saisie manuelle
