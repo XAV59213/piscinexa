@@ -6,9 +6,9 @@ views:
       - type: buttons
         title: Contrôles
         entities:
-          - button.piscinereset
+          - button.piscinexa_piscine_reset
             name: Réinitialiser
-          - button.piscinetest
+          - button.piscinexa_piscine_test
             name: Tester
       - type: entities
         title: Saisie manuelle
@@ -20,37 +20,37 @@ views:
       - type: entities
         title: Capteurs
         entities:
-          - entity: sensor.piscinechlore
+          - entity: sensor.piscinexa_piscine_chlore
             unit: mg/L
             name: Chlore
-          - entity: sensor.piscinechloredifference
+          - entity: sensor.piscinexa_piscine_chloredifference
             unit: mg/L
             name: Différence Chlore
           - type: template
-            entity_id: sensor.piscinechloreaajouter
+            entity_id: sensor.piscinexa_piscine_chloreaajouter
             name: Chlore à ajouter
             content: >
-              {% if states('sensor.piscinechloreaajouter') | float(default=0) > 0 %}
-                {{ states('sensor.piscinechloreaajouter') }} g
+              {% if states('sensor.piscinexa_piscine_chloreaajouter') | float(default=0) > 0 %}
+                {{ states('sensor.piscinexa_piscine_chloreaajouter') }} g
               {% else %}
-                {{ state_attr('sensor.piscinechloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
+                {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
               {% endif %}
-          - entity: sensor.piscineconsopuissance
+          - entity: sensor.piscinexa_piscine_consopuissance
             unit: W
             name: Consommation puissance
-          - entity: sensor.piscinelog
+          - entity: sensor.piscinexa_piscine_log
             name: Journal
-          - entity: sensor.piscineph
+          - entity: sensor.piscinexa_piscine_ph
             name: pH
-          - entity: sensor.piscinephaajouter
+          - entity: sensor.piscinexa_piscine_phaajouter
             unit: L
             name: pH à ajouter
-          - entity: sensor.piscinetemperature
+          - entity: sensor.piscinexa_piscine_temperature
             unit: °C
             name: Température
-          - entity: sensor.piscinetempsfiltration
+          - entity: sensor.piscinexa_piscine_tempsfiltration
             unit: h
             name: Temps de filtration
-          - entity: sensor.piscinevolumeeau
+          - entity: sensor.piscinexa_piscine_volume_eau
             unit: m³
             name: Volume d'eau
