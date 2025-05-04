@@ -3,7 +3,7 @@ from homeassistant.components.button import ButtonEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.entity import DeviceInfo  # Ajout de l'importation de DeviceInfo
+from homeassistant.helpers.entity import DeviceInfo
 from .const import DOMAIN
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
@@ -22,7 +22,7 @@ class PiscinexaTestButton(ButtonEntity):
         self._attr_unique_id = f"{entry.entry_id}_test"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=f"Piscinexa {name.capitalize()}",
+            name=name.capitalize(),  # Changement ici
             manufacturer="Piscinexa",
             model="Piscine",
             sw_version="1.0.0",
@@ -40,7 +40,7 @@ class PiscinexaResetButton(ButtonEntity):
         self._attr_unique_id = f"{entry.entry_id}_reset"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=f"Piscinexa {name.capitalize()}",
+            name=name.capitalize(),  # Changement ici
             manufacturer="Piscinexa",
             model="Piscine",
             sw_version="1.0.0",
