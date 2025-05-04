@@ -366,6 +366,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.0",
         )
+        self._message = None
 
     @property
     def name(self):
@@ -374,21 +375,59 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
     @property
     def native_value(self):
         try:
+            # Récupérer chlore_current (peut être mis à jour par PiscinexaChloreSensor)
             chlore_current = float(self._entry.data["chlore_current"])
+            _LOGGER.debug("Chlore actuel pour %s: %s mg/L", self._name, chlore_current)
+
+            # Récupérer chlore_target
             chlore_target = float(self._entry.data["chlore_target"])
-            volume = self._hass.states.get(f"sensor.{self._name}volumeeau")
-            if volume:
-                volume_val = float(volume.state)
+            _LOGGER.debug("Chlore cible pour %s: %s mg/L", self._name, chlore_target)
+
+            # Récupérer le volume
+            volume_entity = self._hass.states.get(f"sensor.{self._name}volumeeau")
+            if volume_entity and volume_entity.state not in ("unknown", "unavailable"):
+                volume_val = float(volume_entity.state)
+                _LOGGER.debug("Volume pour %s: %s m³", self._name, volume_val)
+
+                # Calculer la dose
                 dose = (chlore_target - chlore_current) * volume_val * 10
-                return round(dose, 2) if dose > 0 else 0
-            return None
+                _LOGGER.debug("Dose calculée pour %s: %s g (avant arrondi)", self._name, dose)
+
+                # Définir le message si aucune addition n'est nécessaire
+                if dose <= 0:
+                    self._message = "Retirer le chlore, pas de besoin actuellement"
+                    return 0
+                else:
+                    self._message = None
+                    return round(dose, 2)
+            else:
+                _LOGGER.warning("Capteur de volume indisponible pour %s", self._name)
+                self._message = "Volume indisponible"
+                return None
         except Exception as e:
-            _LOGGER.error("Erreur calcul dose chlore: %s", e)
+            _LOGGER.error("Erreur calcul dose chlore pour %s: %s", self._name, e)
+            self._message = "Erreur de calcul"
             return None
 
     @property
     def unit_of_measurement(self):
         return self._attr_unit_of_measurement
+
+    @property
+    def extra_state_attributes(self):
+        """Retourne des attributs supplémentaires pour le débogage et l'affichage conditionnel."""
+        attributes = {}
+        try:
+            attributes["chlore_current"] = float(self._entry.data["chlore_current"])
+            attributes["chlore_target"] = float(self._entry.data["chlore_target"])
+            volume_entity = self._hass.states.get(f"sensor.{self._name}volumeeau")
+            if volume_entity:
+                attributes["volume"] = float(volume_entity.state)
+            if self._message:
+                attributes["message"] = self._message
+        except Exception as e:
+            _LOGGER.error("Erreur récupération attributs supplémentaires: %s", e)
+        return attributes
 
 class PiscinexaLogSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry):
