@@ -1,9 +1,9 @@
 {
-  "title": "Piscinexa",
+  "title": "Piscine",
   "config": {
     "step": {
       "user": {
-        "title": "Configuration de Piscinexa - Étape 1",
+        "title": "Configuration de Piscine - Étape 1",
         "description": "Entrez le nom et le type de votre piscine.",
         "data": {
           "name": "Nom de la piscine",
@@ -11,7 +11,7 @@
         }
       },
       "dimensions": {
-        "title": "Configuration de Piscinexa - Dimensions",
+        "title": "Configuration de Piscine - Dimensions",
         "description": "Entrez les dimensions de votre piscine.",
         "data": {
           "length": "Longueur (mètres)",
@@ -21,7 +21,7 @@
         }
       },
       "parameters": {
-        "title": "Configuration de Piscinexa - Paramètres",
+        "title": "Configuration de Piscine - Paramètres",
         "description": "Entrez les paramètres de qualité de l'eau et les capteurs optionnels.",
         "data": {
           "ph_current": "pH actuel",
@@ -34,7 +34,7 @@
         }
       },
       "init": {
-        "title": "Options de Piscinexa",
+        "title": "Options de Piscine",
         "description": "Modifiez les paramètres cibles pour votre piscine.",
         "data": {
           "ph_target": "pH cible",
@@ -45,6 +45,34 @@
     },
     "error": {
       "name_invalid": "Nom invalide (ne peut pas être vide).",
+      "name_duplicate": "Ce nom est déjà utilisé par une autre piscine.",
+      "ph_invalid": "Valeur de pH invalide (doit être entre 0 et 14).",
+      "chlore_invalid": "Valeur de chlore invalide (doit être supérieure ou égale à 0).",
+      "temperature_invalid": "Température invalide (doit être entre 0 et 50 °C).",
+      "dimensions_invalid": "Dimensions invalides (doivent être supérieures à 0).",
+      "required_field": "Ce champ est requis.",
+      "invalid_number": "Valeur numérique invalide.",
+      "unexpected_error": "Erreur inattendue lors de la configuration."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "piscinexa_spa_volume_eau": {"name": "Volume d'eau", "unit_of_measurement": "m³"},
+      "piscinexa_spa_temps_filtration": {"name": "Temps de filtration", "unit_of_measurement": "h"},
+      "piscinexa_spa_temperature": {"name": "Température", "unit_of_measurement": "°C"},
+      "piscinexa_spa_ph": {"name": "pH"},
+      "piscinexa_spa_ph_a_ajouter": {"name": "pH à ajouter", "unit_of_measurement": "L"},
+      "piscinexa_spa_chlore": {"name": "Chlore", "unit_of_measurement": "mg/L"},
+      "piscinexa_spa_chlore_a_ajouter": {"name": "Chlore à ajouter", "unit_of_measurement": "g"},
+      "piscinexa_spa_conso_puissance": {"name": "Consommation puissance", "unit_of_measurement": "W"},
+      "piscinexa_spa_log": {"name": "Journal"}
+    },
+    "button": {
+      "piscinexa_spa_test": {"name": "Tester"},
+      "piscinexa_spa_reset": {"name": "Réinitialiser"}
+    }
+  }
+}
       "name_duplicate": "Ce nom est déjà utilisé par une autre piscine.",
       "ph_invalid": "Valeur de pH invalide (doit être entre 0 et 14).",
       "chlore_invalid": "Valeur de chlore invalide (doit être supérieure ou égale à 0).",
