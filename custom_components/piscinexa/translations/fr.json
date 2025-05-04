@@ -57,20 +57,19 @@
   },
   "entity": {
     "sensor": {
-      "piscinexa_spa_volume_eau": {"name": "Volume d'eau", "unit_of_measurement": "m³"},
-      "piscinexa_spa_temps_filtration": {"name": "Temps de filtration", "unit_of_measurement": "h"},
-      "piscinexa_spa_temperature": {"name": "Température", "unit_of_measurement": "°C"},
-      "piscinexa_spa_ph": {"name": "pH"},
-      "piscinexa_spa_ph_a_ajouter": {"name": "pH à ajouter", "unit_of_measurement": "L"},
-      "piscinexa_spa_chlore": {"name": "Chlore", "unit_of_measurement": "mg/L"},
-      "piscinexa_spa_chlore_a_ajouter": {"name": "Chlore à ajouter", "unit_of_measurement": "g"},
-      "piscinexa_spa_conso_puissance": {"name": "Consommation puissance", "unit_of_measurement": "W"},
-      "piscinexa_spa_log": {"name": "Journal"}
+      "volume_eau": {"name": "Volume d'eau", "unit_of_measurement": "m³"},
+      "temps_filtration": {"name": "Temps de filtration", "unit_of_measurement": "h"},
+      "temperature": {"name": "Température", "unit_of_measurement": "°C"},
+      "ph": {"name": "pH"},
+      "ph_a_ajouter": {"name": "pH à ajouter", "unit_of_measurement": "L"},
+      "chlore": {"name": "Chlore", "unit_of_measurement": "mg/L"},
+      "chlore_a_ajouter": {"name": "Chlore à ajouter", "unit_of_measurement": "g"},
+      "conso_puissance": {"name": "Consommation puissance", "unit_of_measurement": "W"},
+      "log": {"name": "Journal"}
     },
     "button": {
-      "piscinexa_spa_test": {"name": "Tester"},
-      "piscinexa_spa_reset": {"name": "Réinitialiser"}
+      "test": {"name": "Tester"},
+      "reset": {"name": "Réinitialiser"}
     }
   }
 }
-
