@@ -375,7 +375,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
     @property
     def native_value(self):
         try:
-            # Récupérer chlore_current (peut être mis à jour par PiscinexaChloreSensor)
+            # Récupérer chlore_current
             chlore_current = float(self._entry.data["chlore_current"])
             _LOGGER.debug("Chlore actuel pour %s: %s mg/L", self._name, chlore_current)
 
@@ -389,17 +389,32 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
                 volume_val = float(volume_entity.state)
                 _LOGGER.debug("Volume pour %s: %s m³", self._name, volume_val)
 
-                # Calculer la dose
-                dose = (chlore_target - chlore_current) * volume_val * 10
-                _LOGGER.debug("Dose calculée pour %s: %s g (avant arrondi)", self._name, dose)
+                # Récupérer la température
+                temp_entity = self._hass.states.get(f"sensor.{self._name}temperature")
+                if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
+                    temperature = float(temp_entity.state)
+                    _LOGGER.debug("Température pour %s: %s °C", self._name, temperature)
 
-                # Définir le message si aucune addition n'est nécessaire
-                if dose <= 0:
-                    self._message = "Retirer le chlore, pas de besoin actuellement"
-                    return 0
+                    # Calculer le facteur de correction basé sur la température
+                    # Base : 20°C, augmentation de 2% par degré au-dessus
+                    temp_factor = max(1, 1 + (temperature - 20) * 0.02)
+                    _LOGGER.debug("Facteur de température pour %s: %s", self._name, temp_factor)
+
+                    # Calculer la dose
+                    dose = (chlore_target - chlore_current) * volume_val * 10 * temp_factor
+                    _LOGGER.debug("Dose calculée pour %s: %s g (avant arrondi)", self._name, dose)
+
+                    # Définir le message si aucune addition n'est nécessaire
+                    if dose <= 0:
+                        self._message = "Retirer le chlore, pas de besoin actuellement"
+                        return 0
+                    else:
+                        self._message = None
+                        return round(dose, 2)
                 else:
-                    self._message = None
-                    return round(dose, 2)
+                    _LOGGER.warning("Capteur de température indisponible pour %s", self._name)
+                    self._message = "Température indisponible"
+                    return None
             else:
                 _LOGGER.warning("Capteur de volume indisponible pour %s", self._name)
                 self._message = "Volume indisponible"
@@ -423,6 +438,10 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             volume_entity = self._hass.states.get(f"sensor.{self._name}volumeeau")
             if volume_entity:
                 attributes["volume"] = float(volume_entity.state)
+            temp_entity = self._hass.states.get(f"sensor.{self._name}temperature")
+            if temp_entity:
+                attributes["temperature"] = float(temp_entity.state)
+                attributes["temp_factor"] = max(1, 1 + (attributes["temperature"] - 20) * 0.02)
             if self._message:
                 attributes["message"] = self._message
         except Exception as e:
