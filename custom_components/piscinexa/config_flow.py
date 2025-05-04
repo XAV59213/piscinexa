@@ -78,7 +78,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     value = str(value).replace(",", ".").strip()
                     value = float(value)
                     if not validator(value):
-                        errors[field] = error_key
+                        errors[field] = "error_key"
                     self._data[field] = value
                 except ValueError:
                     errors[field] = "invalid_number"
@@ -577,7 +577,7 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
                 temp_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
 
         # Récupérer les capteurs de chlore disponibles
-        chlore_sensors = [""]
+        chlore_sensors = [""]  # Option vide pour rendre le champ optionnel
         chlore_sensors_dict = {"": ""}
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
@@ -591,7 +591,7 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
                 chlore_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
 
         # Récupérer les capteurs de pH disponibles
-        ph_sensors = [""]
+        ph_sensors = [""]  # Option vide pour rendre le champ optionnel
         ph_sensors_dict = {"": ""}
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
