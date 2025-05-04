@@ -17,6 +17,11 @@ views:
               - sensor.papaph
               - sensor.papachlore
               - sensor.papalog
+          - type: entities
+            title: Saisie manuelle
+            entities:
+              - input_number.papa_ph_current
+              - input_number.papa_chlore_current
           - type: horizontal-stack
             cards:
               - type: button
@@ -38,6 +43,11 @@ views:
               - sensor.mamanph
               - sensor.mamanchlore
               - sensor.mamanlog
+          - type: entities
+            title: Saisie manuelle
+            entities:
+              - input_number.maman_ph_current
+              - input_number.maman_chlore_current
           - type: horizontal-stack
             cards:
               - type: button
