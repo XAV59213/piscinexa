@@ -37,6 +37,7 @@ async def async_setup_entry(
         PiscinexaPhAjouterSensor(hass, entry, name),
         PiscinexaChloreSensor(hass, entry, name),
         PiscinexaChloreAjouterSensor(hass, entry, name),
+        PiscinexaChloreDifferenceSensor(hass, entry, name),  # Nouveau capteur
         PiscinexaPowerSensor(hass, entry, name),
         log_sensor,
     ]
@@ -376,10 +377,18 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
     def native_value(self):
         try:
             # Récupérer chlore_current
+            if "chlore_current" not in self._entry.data:
+                _LOGGER.error("chlore_current manquant dans entry.data pour %s", self._name)
+                self._message = "Chlore actuel manquant"
+                return None
             chlore_current = float(self._entry.data["chlore_current"])
             _LOGGER.debug("Chlore actuel pour %s: %s mg/L", self._name, chlore_current)
 
             # Récupérer chlore_target
+            if "chlore_target" not in self._entry.data:
+                _LOGGER.error("chlore_target manquant dans entry.data pour %s", self._name)
+                self._message = "Chlore cible manquant"
+                return None
             chlore_target = float(self._entry.data["chlore_target"])
             _LOGGER.debug("Chlore cible pour %s: %s mg/L", self._name, chlore_target)
 
@@ -447,6 +456,57 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         except Exception as e:
             _LOGGER.error("Erreur récupération attributs supplémentaires: %s", e)
         return attributes
+
+class PiscinexaChloreDifferenceSensor(SensorEntity):
+    """Capteur pour afficher la différence entre chlore visé et chlore actuel."""
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{name}chloredifference"
+        self._attr_friendly_name = f"{name.capitalize()} Différence Chlore"
+        self._attr_unit_of_measurement = UNIT_MG_PER_LITER  # mg/L
+        self._attr_icon = "mdi:delta"
+        self._attr_unique_id = f"{entry.entry_id}_chlore_difference"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.0",
+        )
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
+    def native_value(self):
+        try:
+            # Récupérer chlore_current
+            if "chlore_current" not in self._entry.data:
+                _LOGGER.error("chlore_current manquant dans entry.data pour %s", self._name)
+                return None
+            chlore_current = float(self._entry.data["chlore_current"])
+            _LOGGER.debug("Chlore actuel pour %s: %s mg/L", self._name, chlore_current)
+
+            # Récupérer chlore_target
+            if "chlore_target" not in self._entry.data:
+                _LOGGER.error("chlore_target manquant dans entry.data pour %s", self._name)
+                return None
+            chlore_target = float(self._entry.data["chlore_target"])
+            _LOGGER.debug("Chlore cible pour %s: %s mg/L", self._name, chlore_target)
+
+            # Calculer la différence
+            difference = chlore_target - chlore_current
+            return round(difference, 1)
+        except Exception as e:
+            _LOGGER.error("Erreur calcul différence chlore pour %s: %s", self._name, e)
+            return None
+
+    @property
+    def unit_of_measurement(self):
+        return self._attr_unit_of_measurement
 
 class PiscinexaLogSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry):
