@@ -20,19 +20,25 @@
           "diameter": "Diamètre (mètres)"
         }
       },
-      "parameters": {
-        "title": "Configuration de Piscine - Paramètres",
-        "description": "Entrez les paramètres de qualité de l'eau et les capteurs optionnels.",
+      "quality_parameters": {
+        "title": "Paramètres de qualité de l'eau",
+        "description": "Entrez les paramètres initiaux de qualité de l'eau pour votre piscine.",
         "data": {
           "ph_current": "pH actuel",
           "ph_target": "pH cible",
           "chlore_current": "Chlore actuel (mg/L)",
           "chlore_target": "Chlore cible (mg/L)",
-          "temperature": "Température (°C)",
-          "temperature_sensor": "Sélectionner un capteur de température (optionnel)",
-          "chlore_sensor": "Sélectionner un capteur de chlore (optionnel)",
-          "ph_sensor": "Sélectionner un capteur de pH (optionnel)",
-          "power_sensor_entity_id": "ID de l'entité du capteur de puissance (optionnel)"
+          "temperature": "Température (°C)"
+        }
+      },
+      "sensor_selection": {
+        "title": "Sélection des capteurs",
+        "description": "Sélectionnez les capteurs optionnels pour mesurer la température, le chlore, le pH et la consommation de puissance.",
+        "data": {
+          "temperature_sensor": "Capteur de température",
+          "chlore_sensor": "Capteur de chlore",
+          "ph_sensor": "Capteur de pH",
+          "power_sensor_entity_id": "ID de l'entité du capteur de puissance"
         }
       },
       "init": {
@@ -41,9 +47,9 @@
         "data": {
           "ph_target": "pH cible",
           "chlore_target": "Chlore cible (mg/L)",
-          "temperature_sensor": "Sélectionner un capteur de température (optionnel)",
-          "chlore_sensor": "Sélectionner un capteur de chlore (optionnel)",
-          "ph_sensor": "Sélectionner un capteur de pH (optionnel)"
+          "temperature_sensor": "Capteur de température",
+          "chlore_sensor": "Capteur de chlore",
+          "ph_sensor": "Capteur de pH"
         }
       }
     },
@@ -65,19 +71,20 @@
   },
   "entity": {
     "sensor": {
-      "piscinevolumeeau": {"name": "Piscine Volume d'eau", "unit_of_measurement": "m³"},
-      "piscinetempsfiltration": {"name": "Piscine Temps de filtration", "unit_of_measurement": "h"},
-      "piscinetemperature": {"name": "Piscine Température", "unit_of_measurement": "°C"},
-      "piscineph": {"name": "Piscine pH"},
-      "piscinephaajouter": {"name": "Piscine pH à ajouter", "unit_of_measurement": "L"},
-      "piscinechlore": {"name": "Piscine Chlore", "unit_of_measurement": "mg/L"},
-      "piscinechloreaajouter": {"name": "Piscine Chlore à ajouter", "unit_of_measurement": "g"},
-      "piscineconsopuissance": {"name": "Piscine Consommation puissance", "unit_of_measurement": "W"},
-      "piscinelog": {"name": "Piscine Journal"}
+      "piscinexa_piscine_volume_eau": {"name": "Piscine Volume d'eau", "unit_of_measurement": "m³"},
+      "piscinexa_piscine_tempsfiltration": {"name": "Piscine Temps de filtration", "unit_of_measurement": "h"},
+      "piscinexa_piscine_temperature": {"name": "Piscine Température", "unit_of_measurement": "°C"},
+      "piscinexa_piscine_ph": {"name": "Piscine pH"},
+      "piscinexa_piscine_phaajouter": {"name": "Piscine pH à ajouter", "unit_of_measurement": "L"},
+      "piscinexa_piscine_chlore": {"name": "Piscine Chlore", "unit_of_measurement": "mg/L"},
+      "piscinexa_piscine_chloredifference": {"name": "Piscine Différence Chlore", "unit_of_measurement": "mg/L"},
+      "piscinexa_piscine_chloreaajouter": {"name": "Piscine Chlore à ajouter", "unit_of_measurement": "g"},
+      "piscinexa_piscine_consopuissance": {"name": "Piscine Consommation puissance", "unit_of_measurement": "W"},
+      "piscinexa_piscine_log": {"name": "Piscine Journal"}
     },
     "button": {
-      "piscinetest": {"name": "Piscine Tester"},
-      "piscinereset": {"name": "Piscine Réinitialiser"}
+      "piscinexa_piscine_test": {"name": "Piscine Tester"},
+      "piscinexa_piscine_reset": {"name": "Piscine Réinitialiser"}
     }
   }
 }
