@@ -128,6 +128,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             if "temperature_sensor" in user_input:
                 self._data["temperature_sensor"] = user_input["temperature_sensor"]
+            if "chlore_sensor" in user_input:
+                self._data["chlore_sensor"] = user_input["chlore_sensor"]
+            if "ph_sensor" in user_input:
+                self._data["ph_sensor"] = user_input["ph_sensor"]
             if "power_sensor_entity_id" in user_input:
                 self._data["power_sensor_entity_id"] = user_input["power_sensor_entity_id"]
 
@@ -136,10 +140,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         # Récupérer les capteurs de température disponibles
         temp_sensors = [""]  # Option vide pour rendre le champ optionnel
-        temp_sensors_dict = {"": "Aucun"}  # Dictionnaire pour afficher des noms conviviaux
+        temp_sensors_dict = {"": "Aucun"}
         for state in self.hass.states.async_all("sensor"):
             attributes = state.attributes
-            # Vérifier si c'est un capteur de température via device_class ou unit_of_measurement
             if (attributes.get("device_class") == "temperature" or
                 attributes.get("unit_of_measurement") in ("°C", "°F")):
                 entity_id = state.entity_id
@@ -147,10 +150,31 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 temp_sensors.append(entity_id)
                 temp_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
 
-        _LOGGER.debug("Capteurs de température trouvés : %s", temp_sensors)
+        # Récupérer les capteurs de chlore disponibles (basé sur unit_of_measurement mg/L ou ppm)
+        chlore_sensors = [""]
+        chlore_sensors_dict = {"": "Aucun"}
+        for state in self.hass.states.async_all("sensor"):
+            attributes = state.attributes
+            if attributes.get("unit_of_measurement") in ("mg/L", "ppm"):
+                entity_id = state.entity_id
+                friendly_name = attributes.get("friendly_name", entity_id)
+                chlore_sensors.append(entity_id)
+                chlore_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
 
-        if len(temp_sensors) <= 1:  # Seulement l'option vide
-            _LOGGER.warning("Aucun capteur de température trouvé dans Home Assistant.")
+        # Récupérer les capteurs de pH disponibles (basé sur unit_of_measurement pH)
+        ph_sensors = [""]
+        ph_sensors_dict = {"": "Aucun"}
+        for state in self.hass.states.async_all("sensor"):
+            attributes = state.attributes
+            if attributes.get("unit_of_measurement") == "pH":
+                entity_id = state.entity_id
+                friendly_name = attributes.get("friendly_name", entity_id)
+                ph_sensors.append(entity_id)
+                ph_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
+
+        _LOGGER.debug("Capteurs de température trouvés : %s", temp_sensors)
+        _LOGGER.debug("Capteurs de chlore trouvés : %s", chlore_sensors)
+        _LOGGER.debug("Capteurs de pH trouvés : %s", ph_sensors)
 
         schema = {
             vol.Required("ph_current", default=7.0): vol.Coerce(float),
@@ -159,6 +183,8 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Required("chlore_target", default=2.0): vol.Coerce(float),
             vol.Optional("temperature", default=20.0): vol.Coerce(float),
             vol.Optional("temperature_sensor", default=""): vol.In(temp_sensors_dict),
+            vol.Optional("chlore_sensor", default=""): vol.In(chlore_sensors_dict),
+            vol.Optional("ph_sensor", default=""): vol.In(ph_sensors_dict),
             vol.Optional("power_sensor_entity_id", default=""): str,
         }
 
@@ -182,7 +208,7 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
 
         # Récupérer les capteurs de température disponibles pour les options
         temp_sensors = [""]  # Option vide pour rendre le champ optionnel
-        temp_sensors_dict = {"": "Aucun"}  # Dictionnaire pour afficher des noms conviviaux
+        temp_sensors_dict = {"": "Aucun"}
         for state in self.hass.states.async_all("sensor"):
             attributes = state.attributes
             if (attributes.get("device_class") == "temperature" or
@@ -192,7 +218,31 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
                 temp_sensors.append(entity_id)
                 temp_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
 
+        # Récupérer les capteurs de chlore disponibles
+        chlore_sensors = [""]
+        chlore_sensors_dict = {"": "Aucun"}
+        for state in self.hass.states.async_all("sensor"):
+            attributes = state.attributes
+            if attributes.get("unit_of_measurement") in ("mg/L", "ppm"):
+                entity_id = state.entity_id
+                friendly_name = attributes.get("friendly_name", entity_id)
+                chlore_sensors.append(entity_id)
+                chlore_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
+
+        # Récupérer les capteurs de pH disponibles
+        ph_sensors = [""]
+        ph_sensors_dict = {"": "Aucun"}
+        for state in self.hass.states.async_all("sensor"):
+            attributes = state.attributes
+            if attributes.get("unit_of_measurement") == "pH":
+                entity_id = state.entity_id
+                friendly_name = attributes.get("friendly_name", entity_id)
+                ph_sensors.append(entity_id)
+                ph_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
+
         _LOGGER.debug("Capteurs de température trouvés dans les options : %s", temp_sensors)
+        _LOGGER.debug("Capteurs de chlore trouvés dans les options : %s", chlore_sensors)
+        _LOGGER.debug("Capteurs de pH trouvés dans les options : %s", ph_sensors)
 
         current = self.config_entry.options
         return self.async_show_form(
@@ -201,5 +251,7 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
                 vol.Optional("ph_target", default=current.get("ph_target", 7.4)): vol.Coerce(float),
                 vol.Optional("chlore_target", default=current.get("chlore_target", 2.0)): vol.Coerce(float),
                 vol.Optional("temperature_sensor", default=current.get("temperature_sensor", "")): vol.In(temp_sensors_dict),
+                vol.Optional("chlore_sensor", default=current.get("chlore_sensor", "")): vol.In(chlore_sensors_dict),
+                vol.Optional("ph_sensor", default=current.get("ph_sensor", "")): vol.In(ph_sensors_dict),
             }),
         )
