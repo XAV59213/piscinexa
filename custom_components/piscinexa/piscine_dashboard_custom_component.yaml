@@ -22,6 +22,11 @@ views:
           - entity: sensor.piscineconsopuissance
             unit: W
           - entity: sensor.piscinelog
+      - type: entities
+        title: Saisie manuelle
+        entities:
+          - entity: input_number.piscine_ph_current
+          - entity: input_number.piscine_chlore_current
       - type: buttons
         title: Commandes
         entities:
