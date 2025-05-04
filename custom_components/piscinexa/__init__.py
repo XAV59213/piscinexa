@@ -11,6 +11,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = entry.data.copy()
 
+    # Vérifier et définir des valeurs par défaut pour chlore_target et ph_target si manquantes
+    if "chlore_target" not in hass.data[DOMAIN][entry.entry_id]:
+        _LOGGER.warning("chlore_target manquant dans entry.data, définition de la valeur par défaut: 2.0")
+        hass.data[DOMAIN][entry.entry_id]["chlore_target"] = 2.0
+    if "ph_target" not in hass.data[DOMAIN][entry.entry_id]:
+        _LOGGER.warning("ph_target manquant dans entry.data, définition de la valeur par défaut: 7.4")
+        hass.data[DOMAIN][entry.entry_id]["ph_target"] = 7.4
+
     # Services
     async def handle_test_calcul(call: ServiceCall):
         name = hass.data[DOMAIN][entry.entry_id]["name"]
