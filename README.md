@@ -41,3 +41,6 @@ Si vous installez manuellement, remplacez simplement le dossier `custom_componen
 
 Un fichier YAML est fourni ici : `piscine_dashboard_custom_component.yaml`
 ![Dashboard piscine](./images/screenshot_dashboard.png)
+
+### 📜 Changelog
+Consultez le fichier [CHANGELOG.md](CHANGELOG.md) pour voir l'historique des versions et des modifications de l'intégration Piscinexa.
