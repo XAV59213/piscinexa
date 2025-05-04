@@ -6,6 +6,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.const import CONF_NAME
 from .const import (
     DOMAIN,
     POOL_TYPE_SQUARE,
@@ -174,6 +175,7 @@ class PiscinexaPhSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._entry = entry
         self._name = name
+        self._hass = hass
         self._attr_name = f"{name}ph"
         self._attr_friendly_name = f"{name.capitalize()} pH"
         self._attr_icon = "mdi:water"
@@ -192,9 +194,45 @@ class PiscinexaPhSensor(SensorEntity):
 
     @property
     def native_value(self):
+        # Priorité 1 : Capteur de pH
+        sensor_id = self._entry.data.get("ph_sensor")
+        if sensor_id:
+            state = self._hass.states.get(sensor_id)
+            if state and state.state not in ("unknown", "unavailable"):
+                try:
+                    value = round(float(state.state), 1)
+                    # Mettre à jour entry.data
+                    self._hass.data[DOMAIN][self._entry.entry_id]["ph_current"] = value
+                    # Mettre à jour input_number
+                    self._hass.states.async_set(
+                        f"input_number.{self._name}_ph_current",
+                        value,
+                        {
+                            "friendly_name": f"{self._name.capitalize()} pH Actuel",
+                            "min": 0,
+                            "max": 14,
+                            "step": 0.1,
+                            "unit_of_measurement": "pH",
+                        },
+                    )
+                    return value
+                except Exception as e:
+                    _LOGGER.warning("Erreur lecture pH depuis capteur %s : %s", sensor_id, e)
+
+        # Priorité 2 : input_number
+        input_state = self._hass.states.get(f"input_number.{self._name}_ph_current")
+        if input_state and input_state.state not in ("unknown", "unavailable"):
+            try:
+                value = round(float(input_state.state), 1)
+                # Mettre à jour entry.data
+                self._hass.data[DOMAIN][self._entry.entry_id]["ph_current"] = value
+                return value
+            except Exception as e:
+                _LOGGER.warning("Erreur lecture pH depuis input_number : %s", e)
+
+        # Priorité 3 : Valeur par défaut dans entry.data
         try:
-            ph = float(self._entry.data["ph_current"])
-            return round(ph, 1)
+            return round(float(self._entry.data["ph_current"]), 1)
         except Exception as e:
             _LOGGER.error("Erreur lecture pH: %s", e)
             return None
@@ -226,7 +264,7 @@ class PiscinexaPhAjouterSensor(SensorEntity):
         try:
             ph_current = float(self._entry.data["ph_current"])
             ph_target = float(self._entry.data["ph_target"])
-            volume = self._hass.states.get(f"sensor.{name}volumeeau")
+            volume = self._hass.states.get(f"sensor.{self._name}volumeeau")
             if volume:
                 volume_val = float(volume.state)
                 dose = abs(ph_target - ph_current) * volume_val * 10
@@ -244,6 +282,7 @@ class PiscinexaChloreSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._entry = entry
         self._name = name
+        self._hass = hass
         self._attr_name = f"{name}chlore"
         self._attr_friendly_name = f"{name.capitalize()} Chlore"
         self._attr_unit_of_measurement = UNIT_MG_PER_LITER  # mg/L
@@ -263,9 +302,45 @@ class PiscinexaChloreSensor(SensorEntity):
 
     @property
     def native_value(self):
+        # Priorité 1 : Capteur de chlore
+        sensor_id = self._entry.data.get("chlore_sensor")
+        if sensor_id:
+            state = self._hass.states.get(sensor_id)
+            if state and state.state not in ("unknown", "unavailable"):
+                try:
+                    value = round(float(state.state), 1)
+                    # Mettre à jour entry.data
+                    self._hass.data[DOMAIN][self._entry.entry_id]["chlore_current"] = value
+                    # Mettre à jour input_number
+                    self._hass.states.async_set(
+                        f"input_number.{self._name}_chlore_current",
+                        value,
+                        {
+                            "friendly_name": f"{self._name.capitalize()} Chlore Actuel",
+                            "min": 0,
+                            "max": 10,
+                            "step": 0.1,
+                            "unit_of_measurement": "mg/L",
+                        },
+                    )
+                    return value
+                except Exception as e:
+                    _LOGGER.warning("Erreur lecture chlore depuis capteur %s : %s", sensor_id, e)
+
+        # Priorité 2 : input_number
+        input_state = self._hass.states.get(f"input_number.{self._name}_chlore_current")
+        if input_state and input_state.state not in ("unknown", "unavailable"):
+            try:
+                value = round(float(input_state.state), 1)
+                # Mettre à jour entry.data
+                self._hass.data[DOMAIN][self._entry.entry_id]["chlore_current"] = value
+                return value
+            except Exception as e:
+                _LOGGER.warning("Erreur lecture chlore depuis input_number : %s", e)
+
+        # Priorité 3 : Valeur par défaut dans entry.data
         try:
-            chlore = float(self._entry.data["chlore_current"])
-            return round(chlore, 1)
+            return round(float(self._entry.data["chlore_current"]), 1)
         except Exception as e:
             _LOGGER.error("Erreur lecture chlore: %s", e)
             return None
@@ -301,7 +376,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         try:
             chlore_current = float(self._entry.data["chlore_current"])
             chlore_target = float(self._entry.data["chlore_target"])
-            volume = self._hass.states.get(f"sensor.{name}volumeeau")
+            volume = self._hass.states.get(f"sensor.{self._name}volumeeau")
             if volume:
                 volume_val = float(volume.state)
                 dose = (chlore_target - chlore_current) * volume_val * 10
