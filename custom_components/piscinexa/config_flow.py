@@ -107,9 +107,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             # Validation des champs numériques
             numeric_fields = [
-                ("ph_current", "ph_invalid", lambda x: 0 <= x <= 14, False),  # Rendu facultatif
+                ("ph_current", "ph_invalid", lambda x: 0 <= x <= 14, False),
                 ("ph_target", "ph_invalid", lambda x: 0 <= x <= 14, True),
-                ("chlore_current", "chlore_invalid", lambda x: x >= 0, False),  # Rendu facultatif
+                ("chlore_current", "chlore_invalid", lambda x: x >= 0, False),
                 ("chlore_target", "chlore_invalid", lambda x: x >= 0, True),
                 ("temperature", "temperature_invalid", lambda x: 0 <= x <= 50, False),
             ]
@@ -165,10 +165,16 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         temp_sensors = [""]  # Option vide pour rendre le champ optionnel
         temp_sensors_dict = {"": "Aucun"}
         for state in self.hass.states.async_all("sensor"):
+            entity_id = state.entity_id
             attributes = state.attributes
-            if (attributes.get("device_class") == "temperature" or
-                attributes.get("unit_of_measurement") in ("°C", "°F")):
-                entity_id = state.entity_id
+            # Exclure les capteurs créés par cette intégration
+            if entity_id.startswith(f"sensor.{DOMAIN}_"):
+                continue
+            # Vérifier si c'est un capteur de température via device_class ou unit_of_measurement
+            unit = attributes.get("unit_of_measurement", "").lower()
+            device_class = attributes.get("device_class", "")
+            if (device_class == "temperature" or
+                unit in ("°c", "°f", "c", "f", "celsius", "fahrenheit")):
                 friendly_name = attributes.get("friendly_name", entity_id)
                 temp_sensors.append(entity_id)
                 temp_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
@@ -177,21 +183,30 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         chlore_sensors = [""]
         chlore_sensors_dict = {"": "Aucun"}
         for state in self.hass.states.async_all("sensor"):
+            entity_id = state.entity_id
+            # Exclure les capteurs créés par cette intégration
+            if entity_id.startswith(f"sensor.{DOMAIN}_"):
+                continue
             attributes = state.attributes
-            if attributes.get("unit_of_measurement") in ("mg/L", "ppm"):
-                entity_id = state.entity_id
+            unit = attributes.get("unit_of_measurement", "").lower()
+            if unit in ("mg/l", "ppm", "mg per liter", "parts per million"):
                 friendly_name = attributes.get("friendly_name", entity_id)
                 chlore_sensors.append(entity_id)
                 chlore_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
 
-        # Récupérer les capteurs de pH disponibles (basé sur unit_of_measurement pH)
+        # Récupérer les capteurs de pH disponibles (basé sur unit_of_measurement pH ou nom)
         ph_sensors = [""]
         ph_sensors_dict = {"": "Aucun"}
         for state in self.hass.states.async_all("sensor"):
+            entity_id = state.entity_id
+            # Exclure les capteurs créés par cette intégration
+            if entity_id.startswith(f"sensor.{DOMAIN}_"):
+                continue
             attributes = state.attributes
-            if attributes.get("unit_of_measurement") == "pH":
-                entity_id = state.entity_id
-                friendly_name = attributes.get("friendly_name", entity_id)
+            unit = attributes.get("unit_of_measurement", "").lower()
+            friendly_name = attributes.get("friendly_name", entity_id).lower()
+            # Élargir les critères pour inclure les capteurs avec "ph" dans le nom ou l'unité
+            if unit == "ph" or "ph" in friendly_name or "ph" in entity_id.lower():
                 ph_sensors.append(entity_id)
                 ph_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
 
@@ -233,10 +248,15 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
         temp_sensors = [""]  # Option vide pour rendre le champ optionnel
         temp_sensors_dict = {"": "Aucun"}
         for state in self.hass.states.async_all("sensor"):
+            entity_id = state.entity_id
+            # Exclure les capteurs créés par cette intégration
+            if entity_id.startswith(f"sensor.{DOMAIN}_"):
+                continue
             attributes = state.attributes
-            if (attributes.get("device_class") == "temperature" or
-                attributes.get("unit_of_measurement") in ("°C", "°F")):
-                entity_id = state.entity_id
+            unit = attributes.get("unit_of_measurement", "").lower()
+            device_class = attributes.get("device_class", "")
+            if (device_class == "temperature" or
+                unit in ("°c", "°f", "c", "f", "celsius", "fahrenheit")):
                 friendly_name = attributes.get("friendly_name", entity_id)
                 temp_sensors.append(entity_id)
                 temp_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
@@ -245,9 +265,13 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
         chlore_sensors = [""]
         chlore_sensors_dict = {"": "Aucun"}
         for state in self.hass.states.async_all("sensor"):
+            entity_id = state.entity_id
+            # Exclure les capteurs créés par cette intégration
+            if entity_id.startswith(f"sensor.{DOMAIN}_"):
+                continue
             attributes = state.attributes
-            if attributes.get("unit_of_measurement") in ("mg/L", "ppm"):
-                entity_id = state.entity_id
+            unit = attributes.get("unit_of_measurement", "").lower()
+            if unit in ("mg/l", "ppm", "mg per liter", "parts per million"):
                 friendly_name = attributes.get("friendly_name", entity_id)
                 chlore_sensors.append(entity_id)
                 chlore_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
@@ -256,9 +280,14 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
         ph_sensors = [""]
         ph_sensors_dict = {"": "Aucun"}
         for state in self.hass.states.async_all("sensor"):
+            entity_id = state.entity_id
+            # Exclure les capteurs créés par cette intégration
+            if entity_id.startswith(f"sensor.{DOMAIN}_"):
+                continue
             attributes = state.attributes
-            if attributes.get("unit_of_measurement") == "pH":
-                entity_id = state.entity_id
+            unit = attributes.get("unit_of_measurement", "").lower()
+            friendly_name = attributes.get("friendly_name", entity_id).lower()
+            if unit == "ph" or "ph" in friendly_name or "ph" in entity_id.lower():
                 friendly_name = attributes.get("friendly_name", entity_id)
                 ph_sensors.append(entity_id)
                 ph_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
