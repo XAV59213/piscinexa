@@ -52,14 +52,14 @@ views:
             name: Journal
           - entity: sensor.piscinexa_piscine_ph
             name: pH
-          - entity: sensor.piscinexa_piscine_phaajouter
+          - type: template
+            entity_id: sensor.piscinexa_piscine_phaajouter
             name: pH à ajouter
-            unit: dynamic
             content: >
               {% if states('sensor.piscinexa_piscine_phaajouter') | float(default=0) > 0 %}
-                {{ states('sensor.piscinexa_piscine_phaajouter') }} {{ state_attr('sensor.piscinexa_piscine_phaajouter', 'unit_of_measurement') }}
+                {{ states('sensor.piscinexa_piscine_phaajouter') }} {{ state_attr('sensor.piscinexa_piscine_phaajouter', 'unit_of_measurement') }} ({{ state_attr('sensor.piscinexa_piscine_phaajouter', 'treatment_direction') }})
               {% else %}
-                Aucun ajustement pH nécessaire
+                {{ state_attr('sensor.piscinexa_piscine_phaajouter', 'treatment_direction') }}
               {% endif %}
           - entity: sensor.piscinexa_piscine_temperature
             unit: °C
