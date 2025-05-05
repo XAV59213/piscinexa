@@ -712,7 +712,7 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
 
         # Récupérer les capteurs de température disponibles pour les options
         temp_sensors = [""]  # Option vide pour rendre le champ optionnel
-        temp_sensors_dict = {"": "No sensor"}
+        temp_sensors_dict = {"": "Aucun capteur (ajoutez un capteur de température)"}
         temp_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
@@ -720,16 +720,26 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
                 continue
             attributes = state.attributes
             unit = attributes.get("unit_of_measurement", "").lower()
-            device_class = attributes.get("device_class", "")
-            friendly_name = attributes.get("friendly_name", entity_id)
-            if (device_class == "temperature" or unit in ("°c", "°f", "c", "f", "celsius", "fahrenheit")):
+            device_class = attributes.get("device_class", "").lower()
+            friendly_name = attributes.get("friendly_name", entity_id).lower()
+            # Assouplir les critères pour inclure plus de capteurs
+            if (device_class == "temperature" or
+                unit in ("°c", "°f", "c", "f", "celsius", "fahrenheit") or
+                "temperature" in friendly_name or "temp" in friendly_name):
+                friendly_name = attributes.get("friendly_name", entity_id)
                 temp_sensors.append(entity_id)
                 temp_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
                 temp_sensor_entities.append((entity_id, unit, device_class, friendly_name))
 
+        # Si aucun capteur de température n'est détecté, ajouter un capteur factice pour tester
+        if len(temp_sensors) == 1:  # Seulement l'option vide
+            temp_sensors.append("sensor.test_temperature")
+            temp_sensors_dict["sensor.test_temperature"] = "Test Temperature Sensor (sensor.test_temperature)"
+            temp_sensor_entities.append(("sensor.test_temperature", "°C", "temperature", "Test Temperature Sensor"))
+
         # Récupérer les capteurs de chlore disponibles
         chlore_sensors = [""]  # Option vide pour rendre le champ optionnel
-        chlore_sensors_dict = {"": "No sensor"}
+        chlore_sensors_dict = {"": "Aucun capteur (ajoutez un capteur de chlore)"}
         chlore_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
@@ -740,15 +750,16 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
                 continue
             attributes = state.attributes
             unit = attributes.get("unit_of_measurement", "").lower()
-            friendly_name = attributes.get("friendly_name", entity_id)
-            if unit in ("mg/l", "ppm", "mg per liter", "parts per million"):
+            friendly_name = attributes.get("friendly_name", entity_id).lower()
+            if unit in ("mg/l", "ppm", "mg per liter", "parts per million") or "chlorine" in friendly_name or "chlore" in friendly_name:
+                friendly_name = attributes.get("friendly_name", entity_id)
                 chlore_sensors.append(entity_id)
                 chlore_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
                 chlore_sensor_entities.append((entity_id, unit, friendly_name))
 
         # Récupérer les capteurs de pH disponibles
         ph_sensors = [""]  # Option vide pour rendre le champ optionnel
-        ph_sensors_dict = {"": "No sensor"}
+        ph_sensors_dict = {"": "Aucun capteur (ajoutez un capteur de pH)"}
         ph_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
@@ -760,11 +771,18 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
             attributes = state.attributes
             unit = attributes.get("unit_of_measurement", "").lower()
             friendly_name = attributes.get("friendly_name", entity_id).lower()
+            # Assouplir les critères pour inclure plus de capteurs
             if unit == "ph" or "ph" in friendly_name or "ph" in entity_id.lower():
                 friendly_name = attributes.get("friendly_name", entity_id)
                 ph_sensors.append(entity_id)
                 ph_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
                 ph_sensor_entities.append((entity_id, unit, friendly_name))
+
+        # Si aucun capteur pH n'est détecté, ajouter un capteur factice pour tester
+        if len(ph_sensors) == 1:  # Seulement l'option vide
+            ph_sensors.append("sensor.test_ph")
+            ph_sensors_dict["sensor.test_ph"] = "Test pH Sensor (sensor.test_ph)"
+            ph_sensor_entities.append(("sensor.test_ph", "pH", "Test pH Sensor"))
 
         # Logs de débogage pour vérifier les capteurs détectés
         _LOGGER.debug("Capteurs de température trouvés dans les options : %s", temp_sensors)
