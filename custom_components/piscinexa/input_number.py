@@ -103,8 +103,8 @@ class PiscinexaPhPlusTreatmentSelect(InputSelect):
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:water-plus"
-        self._attr_value = "Liquide"  # Valeur par défaut
-        _LOGGER.debug("Entité input_select %s créée", self._attr_name)
+        self._attr_value = entry.data.get("ph_plus_treatment", "Liquide")
+        _LOGGER.debug("Entité input_select %s créée avec valeur initiale %s", self._attr_name, self._attr_value)
 
 class PiscinexaPhMinusTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
@@ -126,8 +126,8 @@ class PiscinexaPhMinusTreatmentSelect(InputSelect):
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:water-minus"
-        self._attr_value = "Liquide"  # Valeur par défaut
-        _LOGGER.debug("Entité input_select %s créée", self._attr_name)
+        self._attr_value = entry.data.get("ph_minus_treatment", "Liquide")
+        _LOGGER.debug("Entité input_select %s créée avec valeur initiale %s", self._attr_name, self._attr_value)
 
 class PiscinexaChloreTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
@@ -149,5 +149,5 @@ class PiscinexaChloreTreatmentSelect(InputSelect):
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:water-check"
-        self._attr_value = "Chlore choc (poudre)"  # Valeur par défaut
-        _LOGGER.debug("Entité input_select %s créée", self._attr_name)
+        self._attr_value = entry.data.get("chlore_treatment", "Chlore choc (poudre)")
+        _LOGGER.debug("Entité input_select %s créée avec valeur initiale %s", self._attr_name, self._attr_value)
