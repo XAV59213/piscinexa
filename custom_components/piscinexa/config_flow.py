@@ -17,7 +17,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._chlore_config_choice = None
         self._temperature_config_choice = None
         self._power_config_choice = None
-        self._no_sensor_message = False  # Indicateur pour afficher un message si aucun capteur
+        self._no_sensor_message = False
 
     async def async_step_user(self, user_input=None):
         """Step 1 : demander le nom et le type de piscine."""
@@ -25,7 +25,6 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 name = user_input["name"].strip().lower().replace(" ", "_")
-                # Vérifier si le nom est unique
                 for entry in self._async_current_entries():
                     if entry.data.get("name") == name:
                         errors["name"] = "name_duplicate"
@@ -113,10 +112,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if "ph_config_choice" in user_input:
                 self._ph_config_choice = user_input["ph_config_choice"]
                 if self._ph_config_choice == "manual":
-                    self._no_sensor_message = False  # Réinitialiser le message
+                    self._no_sensor_message = False
                     return await self.async_step_ph_manual()
                 else:
-                    self._no_sensor_message = False  # Réinitialiser le message
+                    self._no_sensor_message = False
                     return await self.async_step_ph_sensor()
             else:
                 errors["ph_config_choice"] = "required_field"
@@ -138,7 +137,6 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Step 3 (sous-étape) : saisie manuelle des valeurs pH."""
         errors = {}
         if user_input is not None:
-            # Validation des champs pH
             numeric_fields = [
                 ("ph_current", "ph_invalid", lambda x: 0 <= x <= 14, False),
                 ("ph_target", "ph_invalid", lambda x: 0 <= x <= 14, True),
@@ -159,7 +157,6 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     errors[field] = "invalid_number"
 
             if not errors:
-                # Définir des valeurs par défaut si non fournies
                 if "ph_current" not in self._data or self._data["ph_current"] is None:
                     self._data["ph_current"] = 7.0
                 self._data["use_ph_sensor"] = False
@@ -186,9 +183,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Step 3 (sous-étape) : sélection d'un capteur pH."""
         errors = {}
         if user_input is not None:
-            # Validation du capteur pH (facultatif)
             ph_sensor = user_input.get("ph_sensor", "")
-            # Validation de pH cible (obligatoire)
             try:
                 ph_target = user_input.get("ph_target", "")
                 if ph_target is None or ph_target == "":
@@ -203,7 +198,6 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except ValueError:
                 errors["ph_target"] = "invalid_number"
 
-            # Si aucun capteur n'est sélectionné et qu'il n'y a pas de valeur manuelle, rediriger vers confirmation
             if not ph_sensor and ("ph_current" not in self._data or self._data["ph_current"] is None):
                 return await self.async_step_confirm_ph_sensor()
 
@@ -212,14 +206,12 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._data["use_ph_sensor"] = bool(ph_sensor)
                 return await self.async_step_chlore_config()
 
-        # Récupérer les capteurs de pH disponibles
-        ph_sensors = [""]  # Option vide pour rendre le champ facultatif
+        ph_sensors = [""]
         ph_sensors_dict = {"": "Aucun capteur"}
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
                 continue
-            # Exclure les capteurs "pH à ajouter" ou similaires
             if "ph_a_ajouter" in entity_id.lower() or "phaajouter" in entity_id.lower():
                 continue
             attributes = state.attributes
@@ -252,7 +244,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if choice == "manual":
                     self._no_sensor_message = True
                     return await self.async_step_ph_manual()
-                else:  # retry
+                else:
                     return await self.async_step_ph_sensor()
             else:
                 errors["confirm_choice"] = "required_field"
@@ -277,10 +269,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if "chlore_config_choice" in user_input:
                 self._chlore_config_choice = user_input["chlore_config_choice"]
                 if self._chlore_config_choice == "manual":
-                    self._no_sensor_message = False  # Réinitialiser le message
+                    self._no_sensor_message = False
                     return await self.async_step_chlore_manual()
                 else:
-                    self._no_sensor_message = False  # Réinitialiser le message
+                    self._no_sensor_message = False
                     return await self.async_step_chlore_sensor()
             else:
                 errors["chlore_config_choice"] = "required_field"
@@ -302,7 +294,6 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Step 4 (sous-étape) : saisie manuelle des valeurs chlore."""
         errors = {}
         if user_input is not None:
-            # Validation des champs chlore
             numeric_fields = [
                 ("chlore_current", "chlore_invalid", lambda x: x >= 0, False),
                 ("chlore_target", "chlore_invalid", lambda x: x >= 0, True),
@@ -323,7 +314,6 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     errors[field] = "invalid_number"
 
             if not errors:
-                # Définir des valeurs par défaut si non fournies
                 if "chlore_current" not in self._data or self._data["chlore_current"] is None:
                     self._data["chlore_current"] = 1.0
                 self._data["use_chlore_sensor"] = False
@@ -350,9 +340,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Step 4 (sous-étape) : sélection d'un capteur chlore."""
         errors = {}
         if user_input is not None:
-            # Validation du capteur chlore (facultatif)
             chlore_sensor = user_input.get("chlore_sensor", "")
-            # Validation de chlore cible (obligatoire)
             try:
                 chlore_target = user_input.get("chlore_target", "")
                 if chlore_target is None or chlore_target == "":
@@ -367,7 +355,6 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except ValueError:
                 errors["chlore_target"] = "invalid_number"
 
-            # Si aucun capteur n'est sélectionné et qu'il n'y a pas de valeur manuelle, rediriger vers confirmation
             if not chlore_sensor and ("chlore_current" not in self._data or self._data["chlore_current"] is None):
                 return await self.async_step_confirm_chlore_sensor()
 
@@ -376,14 +363,12 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._data["use_chlore_sensor"] = bool(chlore_sensor)
                 return await self.async_step_temperature_config()
 
-        # Récupérer les capteurs de chlore disponibles
-        chlore_sensors = [""]  # Option vide pour rendre le champ facultatif
+        chlore_sensors = [""]
         chlore_sensors_dict = {"": "Aucun capteur"}
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
                 continue
-            # Exclure les capteurs "chlore à ajouter" ou similaires
             if "chlore_a_ajouter" in entity_id.lower() or "chloreaajouter" in entity_id.lower():
                 continue
             attributes = state.attributes
@@ -415,7 +400,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if choice == "manual":
                     self._no_sensor_message = True
                     return await self.async_step_chlore_manual()
-                else:  # retry
+                else:
                     return await self.async_step_chlore_sensor()
             else:
                 errors["confirm_choice"] = "required_field"
@@ -440,10 +425,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if "temperature_config_choice" in user_input:
                 self._temperature_config_choice = user_input["temperature_config_choice"]
                 if self._temperature_config_choice == "manual":
-                    self._no_sensor_message = False  # Réinitialiser le message
+                    self._no_sensor_message = False
                     return await self.async_step_temperature_manual()
                 else:
-                    self._no_sensor_message = False  # Réinitialiser le message
+                    self._no_sensor_message = False
                     return await self.async_step_temperature_sensor()
             else:
                 errors["temperature_config_choice"] = "required_field"
@@ -465,7 +450,6 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Step 5 (sous-étape) : saisie manuelle de la température."""
         errors = {}
         if user_input is not None:
-            # Validation de la température
             numeric_fields = [
                 ("temperature", "temperature_invalid", lambda x: 0 <= x <= 50, False),
             ]
@@ -482,7 +466,6 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     errors[field] = "invalid_number"
 
             if not errors:
-                # Définir des valeurs par défaut si non fournies
                 if "temperature" not in self._data or self._data["temperature"] is None:
                     self._data["temperature"] = 20.0
                 self._data["use_temperature_sensor"] = False
@@ -508,9 +491,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Step 5 (sous-étape) : sélection d'un capteur température."""
         errors = {}
         if user_input is not None:
-            # Validation du capteur température (facultatif)
             temperature_sensor = user_input.get("temperature_sensor", "")
-            # Si aucun capteur n'est sélectionné et qu'il n'y a pas de valeur manuelle, rediriger vers confirmation
             if not temperature_sensor and ("temperature" not in self._data or self._data["temperature"] is None):
                 return await self.async_step_confirm_temperature_sensor()
 
@@ -519,8 +500,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._data["use_temperature_sensor"] = bool(temperature_sensor)
                 return await self.async_step_power_config()
 
-        # Récupérer les capteurs de température disponibles
-        temp_sensors = [""]  # Option vide pour rendre le champ facultatif
+        temp_sensors = [""]
         temp_sensors_dict = {"": "Aucun capteur"}
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
@@ -556,7 +536,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if choice == "manual":
                     self._no_sensor_message = True
                     return await self.async_step_temperature_manual()
-                else:  # retry
+                else:
                     return await self.async_step_temperature_sensor()
             else:
                 errors["confirm_choice"] = "required_field"
@@ -581,10 +561,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if "power_config_choice" in user_input:
                 self._power_config_choice = user_input["power_config_choice"]
                 if self._power_config_choice == "manual":
-                    self._no_sensor_message = False  # Réinitialiser le message
+                    self._no_sensor_message = False
                     return await self.async_step_power_manual()
                 else:
-                    self._no_sensor_message = False  # Réinitialiser le message
+                    self._no_sensor_message = False
                     return await self.async_step_power_sensor()
             else:
                 errors["power_config_choice"] = "required_field"
@@ -610,22 +590,20 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         self._data["use_power_sensor"] = False
         self._data["power_sensor_entity_id"] = ""
-        return await self.async_step_summary()
+        return await self.async_step_treatment_config()
 
     async def async_step_power_sensor(self, user_input=None):
         """Step 6 (sous-étape) : sélection d'un capteur puissance."""
         errors = {}
         if user_input is not None:
-            # Validation du capteur puissance (facultatif)
             power_sensor = user_input.get("power_sensor_entity_id", "")
-            # Si aucun capteur n'est sélectionné, rediriger vers confirmation
             if not power_sensor:
                 return await self.async_step_confirm_power_sensor()
 
             if not errors:
                 self._data["power_sensor_entity_id"] = power_sensor if power_sensor else ""
                 self._data["use_power_sensor"] = bool(power_sensor)
-                return await self.async_step_summary()
+                return await self.async_step_treatment_config()
 
         schema = vol.Schema({
             vol.Optional("power_sensor_entity_id", default=""): str,
@@ -646,7 +624,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if choice == "manual":
                     self._no_sensor_message = True
                     return await self.async_step_power_manual()
-                else:  # retry
+                else:
                     return await self.async_step_power_sensor()
             else:
                 errors["confirm_choice"] = "required_field"
@@ -664,12 +642,45 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
+    async def async_step_treatment_config(self, user_input=None):
+        """Step 7 : configuration des types de traitements."""
+        errors = {}
+        if user_input is not None:
+            self._data["ph_plus_treatment"] = user_input.get("ph_plus_treatment", "Liquide")
+            self._data["ph_minus_treatment"] = user_input.get("ph_minus_treatment", "Liquide")
+            self._data["chlore_treatment"] = user_input.get("chlore_treatment", "Chlore choc (poudre)")
+            return await self.async_step_summary()
+
+        schema = vol.Schema({
+            vol.Required("ph_plus_treatment", default="Liquide"): vol.In({
+                "Liquide": "Liquide",
+                "Granulés": "Granulés"
+            }),
+            vol.Required("ph_minus_treatment", default="Liquide"): vol.In({
+                "Liquide": "Liquide",
+                "Granulés": "Granulés"
+            }),
+            vol.Required("chlore_treatment", default="Chlore choc (poudre)"): vol.In({
+                "Liquide": "Liquide",
+                "Chlore choc (poudre)": "Chlore choc (poudre)",
+                "Pastille lente": "Pastille lente"
+            }),
+        })
+
+        return self.async_show_form(
+            step_id="treatment_config",
+            data_schema=schema,
+            errors=errors,
+            description_placeholders={
+                "description": "Sélectionnez les types de produits chimiques utilisés pour les traitements de votre piscine."
+            },
+        )
+
     async def async_step_summary(self, user_input=None):
-        """Step 7 : récapitulatif avant validation."""
+        """Step 8 : récapitulatif avant validation."""
         if user_input is not None:
             return self.async_create_entry(title=f"Piscinexa {self._data['name']}", data=self._data)
 
-        # Préparer le récapitulatif
         summary = [
             f"Nom de la piscine: {self._data['name']}",
             f"Type de piscine: {self._data['pool_type']}",
@@ -677,9 +688,12 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             f"pH actuel: {self._data.get('ph_current', 'Non défini')}",
             f"pH cible: {self._data['ph_target']}",
             f"Source pH: {'Capteur' if self._data.get('use_ph_sensor', False) else 'Valeur manuelle'} ({self._data.get('ph_sensor', 'Aucune sélection')})",
+            f"Traitement pH+: {self._data.get('ph_plus_treatment', 'Liquide')}",
+            f"Traitement pH-: {self._data.get('ph_minus_treatment', 'Liquide')}",
             f"Chlore actuel: {self._data.get('chlore_current', 'Non défini')} mg/L",
             f"Chlore cible: {self._data['chlore_target']} mg/L",
             f"Source chlore: {'Capteur' if self._data.get('use_chlore_sensor', False) else 'Valeur manuelle'} ({self._data.get('chlore_sensor', 'Aucune sélection')})",
+            f"Traitement Chlore: {self._data.get('chlore_treatment', 'Chlore choc (poudre)')}",
             f"Température: {self._data.get('temperature', 'Non défini')} °C",
             f"Source température: {'Capteur' if self._data.get('use_temperature_sensor', False) else 'Valeur manuelle'} ({self._data.get('temperature_sensor', 'Aucune sélection')})",
             f"Source puissance: {'Capteur' if self._data.get('use_power_sensor', False) else 'Valeur manuelle'} ({self._data.get('power_sensor_entity_id', 'Aucune sélection')})",
@@ -710,8 +724,7 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
-        # Récupérer les capteurs de température disponibles pour les options
-        temp_sensors = [""]  # Option vide pour rendre le champ optionnel
+        temp_sensors = [""]
         temp_sensors_dict = {"": "Aucun capteur (ajoutez un capteur de température)"}
         temp_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
@@ -722,7 +735,6 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
             unit = attributes.get("unit_of_measurement", "").lower()
             device_class = attributes.get("device_class", "").lower()
             friendly_name = attributes.get("friendly_name", entity_id).lower()
-            # Assouplir les critères pour inclure plus de capteurs
             if (device_class == "temperature" or
                 unit in ("°c", "°f", "c", "f", "celsius", "fahrenheit") or
                 "temperature" in friendly_name or "temp" in friendly_name):
@@ -731,21 +743,18 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
                 temp_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
                 temp_sensor_entities.append((entity_id, unit, device_class, friendly_name))
 
-        # Si aucun capteur de température n'est détecté, ajouter un capteur factice pour tester
-        if len(temp_sensors) == 1:  # Seulement l'option vide
+        if len(temp_sensors) == 1:
             temp_sensors.append("sensor.test_temperature")
             temp_sensors_dict["sensor.test_temperature"] = "Test Temperature Sensor (sensor.test_temperature)"
             temp_sensor_entities.append(("sensor.test_temperature", "°C", "temperature", "Test Temperature Sensor"))
 
-        # Récupérer les capteurs de chlore disponibles
-        chlore_sensors = [""]  # Option vide pour rendre le champ optionnel
+        chlore_sensors = [""]
         chlore_sensors_dict = {"": "Aucun capteur (ajoutez un capteur de chlore)"}
         chlore_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
                 continue
-            # Exclure les capteurs "chlore à ajouter" ou similaires
             if "chlore_a_ajouter" in entity_id.lower() or "chloreaajouter" in entity_id.lower():
                 continue
             attributes = state.attributes
@@ -757,34 +766,29 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
                 chlore_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
                 chlore_sensor_entities.append((entity_id, unit, friendly_name))
 
-        # Récupérer les capteurs de pH disponibles
-        ph_sensors = [""]  # Option vide pour rendre le champ optionnel
+        ph_sensors = [""]
         ph_sensors_dict = {"": "Aucun capteur (ajoutez un capteur de pH)"}
         ph_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
                 continue
-            # Exclure les capteurs "pH à ajouter" ou similaires
             if "ph_a_ajouter" in entity_id.lower() or "phaajouter" in entity_id.lower():
                 continue
             attributes = state.attributes
             unit = attributes.get("unit_of_measurement", "").lower()
             friendly_name = attributes.get("friendly_name", entity_id).lower()
-            # Assouplir les critères pour inclure plus de capteurs
             if unit == "ph" or "ph" in friendly_name or "ph" in entity_id.lower():
                 friendly_name = attributes.get("friendly_name", entity_id)
                 ph_sensors.append(entity_id)
                 ph_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
                 ph_sensor_entities.append((entity_id, unit, friendly_name))
 
-        # Si aucun capteur pH n'est détecté, ajouter un capteur factice pour tester
-        if len(ph_sensors) == 1:  # Seulement l'option vide
+        if len(ph_sensors) == 1:
             ph_sensors.append("sensor.test_ph")
             ph_sensors_dict["sensor.test_ph"] = "Test pH Sensor (sensor.test_ph)"
             ph_sensor_entities.append(("sensor.test_ph", "pH", "Test pH Sensor"))
 
-        # Logs de débogage pour vérifier les capteurs détectés
         _LOGGER.debug("Capteurs de température trouvés dans les options : %s", temp_sensors)
         _LOGGER.debug("Détails des capteurs de température : %s", temp_sensor_entities)
         _LOGGER.debug("Capteurs de chlore trouvés dans les options : %s", chlore_sensors)
