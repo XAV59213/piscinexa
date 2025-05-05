@@ -53,3 +53,4 @@ French translations (translations/fr.json) for configuration and entities.
 Support for square and round pools.
 Integration with HACS via hacs.json.
 
+
