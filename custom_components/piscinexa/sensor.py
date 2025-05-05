@@ -135,9 +135,10 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
                 except Exception as e:
                     _LOGGER.warning("Erreur de conversion température depuis %s : %s", sensor_id, e)
         try:
-            return round(self._entry.data["temperature"] / 2, 1)
+            temperature = self._entry.data.get("temperature", 20.0)
+            return round(float(temperature) / 2, 1)
         except Exception as e:
-            _LOGGER.error("Température par défaut invalide : %s", e)
+            _LOGGER.error("Température par défaut invalide pour %s: %s", self._name, e)
             return None
 
 class PiscinexaTemperatureSensor(SensorEntity):
@@ -200,9 +201,10 @@ class PiscinexaTemperatureSensor(SensorEntity):
                     _LOGGER.error("Valeur non numérique pour capteur %s: %s", sensor_id, state.state)
                     return None
         try:
-            return round(float(self._entry.data["temperature"]), 1)
+            temperature = self._entry.data.get("temperature", 20.0)
+            return round(float(temperature), 1)
         except Exception as e:
-            _LOGGER.error("Température par défaut invalide : %s", e)
+            _LOGGER.error("Température par défaut invalide pour %s: %s", self._name, e)
             return None
 
 class PiscinexaPhSensor(SensorEntity):
@@ -397,7 +399,6 @@ class PiscinexaPhAjouterSensor(SensorEntity):
 
     @property
     def extra_state_attributes(self):
-        """Retourne des attributs supplémentaires pour indiquer si c'est pH+ ou pH-."""
         attributes = {}
         try:
             ph_current = float(self._entry.data["ph_current"])
@@ -595,11 +596,11 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
                     select_state = self._hass.states.get(f"input_select.{self._name}_chlore_treatment")
                     treatment = select_state.state if select_state else "Chlore choc (poudre)"
                     if treatment == "Liquide":
-                        dose = chlore_difference * volume_val * 0.1 * temp_factor  # 100 mL par mg/L par m³
+                        dose = chlore_difference * volume_val * 0.1 * temp_factor
                     elif treatment == "Pastille lente":
-                        dose = (chlore_difference * volume_val / 20) * temp_factor  # 1 pastille par 20 m³ pour 1 mg/L
+                        dose = (chlore_difference * volume_val / 20) * temp_factor
                     else:  # Chlore choc (poudre)
-                        dose = chlore_difference * volume_val * 0.01 * temp_factor  # 10 g par mg/L par m³
+                        dose = chlore_difference * volume_val * 0.01 * temp_factor
                     if dose <= 0:
                         self._message = "Retirer le chlore, pas de besoin actuellement"
                         return 0
