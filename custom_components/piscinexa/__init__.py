@@ -15,6 +15,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data[DOMAIN][entry.entry_id] = entry.data.copy()
 
+    # Ajout des valeurs par défaut pour les clés manquantes
     if "chlore_target" not in hass.data[DOMAIN][entry.entry_id]:
         _LOGGER.warning("chlore_target manquant, définition par défaut: 2.0")
         hass.data[DOMAIN][entry.entry_id]["chlore_target"] = 2.0
@@ -24,6 +25,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if "temperature" not in hass.data[DOMAIN][entry.entry_id]:
         _LOGGER.warning("temperature manquant, définition par défaut: 20.0")
         hass.data[DOMAIN][entry.entry_id]["temperature"] = 20.0
+    if "ph_current" not in hass.data[DOMAIN][entry.entry_id]:
+        _LOGGER.warning("ph_current manquant, définition par défaut: 7.0")
+        hass.data[DOMAIN][entry.entry_id]["ph_current"] = 7.0
+    if "chlore_current" not in hass.data[DOMAIN][entry.entry_id]:
+        _LOGGER.warning("chlore_current manquant, définition par défaut: 1.0")
+        hass.data[DOMAIN][entry.entry_id]["chlore_current"] = 1.0
 
     async def handle_test_calcul(call: ServiceCall):
         name = hass.data[DOMAIN][entry.entry_id]["name"]
@@ -84,9 +91,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         _LOGGER.info("Service apply_treatment appelé pour %s: %s, %s, %s", name, treatment_type, treatment_form, quantity)
 
+        # Vérification des capteurs et des données
+        volume_entity = hass.states.get(f"sensor.{DOMAIN}_{name}_volume_eau")
+        if not volume_entity or volume_entity.state in ("unknown", "unavailable"):
+            _LOGGER.error("Capteur de volume indisponible pour %s", name)
+            return
+
+        volume = float(volume_entity.state)
+
         if treatment_type in ["pH+", "pH-"]:
-            ph_current = float(hass.data[DOMAIN][entry.entry_id]["ph_current"])
-            volume = float(hass.states.get(f"sensor.{DOMAIN}_{name}_volume_eau").state)
+            ph_current = float(hass.data[DOMAIN][entry.entry_id].get("ph_current", 7.0))
             if treatment_form == "Liquide":
                 ph_change = quantity / (volume * (0.01 if treatment_type == "pH+" else 0.012))
             else:  # Granulés
@@ -101,8 +115,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 {"entity_id": f"input_number.{name}_ph_current", "value": new_ph}
             )
         elif treatment_type == "Chlore":
-            chlore_current = float(hass.data[DOMAIN][entry.entry_id]["chlore_current"])
-            volume = float(hass.states.get(f"sensor.{DOMAIN}_{name}_volume_eau").state)
+            chlore_current = float(hass.data[DOMAIN][entry.entry_id].get("chlore_current", 1.0))
             if treatment_form == "Liquide":
                 chlore_change = quantity / (volume * 0.1)
             elif treatment_form == "Pastille lente":
