@@ -712,7 +712,8 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
 
         # Récupérer les capteurs de température disponibles pour les options
         temp_sensors = [""]  # Option vide pour rendre le champ optionnel
-        temp_sensors_dict = {"": "Aucun capteur"}
+        temp_sensors_dict = {"": "No sensor"}
+        temp_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
@@ -720,15 +721,16 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
             attributes = state.attributes
             unit = attributes.get("unit_of_measurement", "").lower()
             device_class = attributes.get("device_class", "")
-            if (device_class == "temperature" or
-                unit in ("°c", "°f", "c", "f", "celsius", "fahrenheit")):
-                friendly_name = attributes.get("friendly_name", entity_id)
+            friendly_name = attributes.get("friendly_name", entity_id)
+            if (device_class == "temperature" or unit in ("°c", "°f", "c", "f", "celsius", "fahrenheit")):
                 temp_sensors.append(entity_id)
                 temp_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
+                temp_sensor_entities.append((entity_id, unit, device_class, friendly_name))
 
         # Récupérer les capteurs de chlore disponibles
         chlore_sensors = [""]  # Option vide pour rendre le champ optionnel
-        chlore_sensors_dict = {"": "Aucun capteur"}
+        chlore_sensors_dict = {"": "No sensor"}
+        chlore_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
@@ -738,14 +740,16 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
                 continue
             attributes = state.attributes
             unit = attributes.get("unit_of_measurement", "").lower()
+            friendly_name = attributes.get("friendly_name", entity_id)
             if unit in ("mg/l", "ppm", "mg per liter", "parts per million"):
-                friendly_name = attributes.get("friendly_name", entity_id)
                 chlore_sensors.append(entity_id)
                 chlore_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
+                chlore_sensor_entities.append((entity_id, unit, friendly_name))
 
         # Récupérer les capteurs de pH disponibles
         ph_sensors = [""]  # Option vide pour rendre le champ optionnel
-        ph_sensors_dict = {"": "Aucun capteur"}
+        ph_sensors_dict = {"": "No sensor"}
+        ph_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
@@ -760,10 +764,15 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
                 friendly_name = attributes.get("friendly_name", entity_id)
                 ph_sensors.append(entity_id)
                 ph_sensors_dict[entity_id] = f"{friendly_name} ({entity_id})"
+                ph_sensor_entities.append((entity_id, unit, friendly_name))
 
+        # Logs de débogage pour vérifier les capteurs détectés
         _LOGGER.debug("Capteurs de température trouvés dans les options : %s", temp_sensors)
+        _LOGGER.debug("Détails des capteurs de température : %s", temp_sensor_entities)
         _LOGGER.debug("Capteurs de chlore trouvés dans les options : %s", chlore_sensors)
+        _LOGGER.debug("Détails des capteurs de chlore : %s", chlore_sensor_entities)
         _LOGGER.debug("Capteurs de pH trouvés dans les options : %s", ph_sensors)
+        _LOGGER.debug("Détails des capteurs de pH : %s", ph_sensor_entities)
 
         current = self.config_entry.options
         return self.async_show_form(
