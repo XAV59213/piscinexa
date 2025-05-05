@@ -30,6 +30,7 @@
       "ph_manual": {
         "title": "Step 3 - Manual pH Input",
         "description": "Enter the pH values for your pool.\n\n- **Current pH (measured)**: The current pH of your pool, measured manually (optional).\n- **Target pH (ideal)**: The ideal pH you want to achieve (required, typically between 7.2 and 7.6 for a pool).",
+        "no_sensor_ph": "Piscinexa could not find a compatible pH sensor. You must configure the values manually.",
         "data": {
           "ph_current": "Current pH (measured)",
           "ph_target": "Target pH (ideal)"
@@ -43,6 +44,17 @@
           "ph_target": "Target pH (ideal)"
         }
       },
+      "confirm_ph_sensor": {
+        "title": "Step 3 - pH Confirmation",
+        "description": "No pH sensor was selected, and no manual value is available. What would you like to do?",
+        "data": {
+          "confirm_choice": "Choice"
+        },
+        "options": {
+          "manual": "Configure manually",
+          "retry": "Retry"
+        }
+      },
       "chlore_config": {
         "title": "Step 4 - Chlorine Sensor Setup",
         "description": "Choose how to configure the chlorine for your pool.\n\n- **Manual input**: Enter the current measured and target chlorine values.\n- **Select a sensor**: Use an existing sensor to measure the current chlorine.",
@@ -53,6 +65,7 @@
       "chlore_manual": {
         "title": "Step 4 - Manual Chlorine Input",
         "description": "Enter the chlorine values for your pool.\n\n- **Current chlorine (measured, mg/L)**: The current chlorine level in your pool, measured manually (optional).\n- **Target chlorine (ideal, mg/L)**: The ideal chlorine level you want to achieve (required, typically between 1 and 3 mg/L for a pool).",
+        "no_sensor_chlore": "Piscinexa could not find a compatible chlorine sensor. You must configure the values manually.",
         "data": {
           "chlore_current": "Current chlorine (measured, mg/L)",
           "chlore_target": "Target chlorine (ideal, mg/L)"
@@ -66,6 +79,17 @@
           "chlore_target": "Target chlorine (ideal, mg/L)"
         }
       },
+      "confirm_chlore_sensor": {
+        "title": "Step 4 - Chlorine Confirmation",
+        "description": "No chlorine sensor was selected, and no manual value is available. What would you like to do?",
+        "data": {
+          "confirm_choice": "Choice"
+        },
+        "options": {
+          "manual": "Configure manually",
+          "retry": "Retry"
+        }
+      },
       "temperature_config": {
         "title": "Step 5 - Temperature Sensor Setup",
         "description": "Choose how to configure the temperature for your pool.\n\n- **Manual input**: Enter the current measured pool temperature.\n- **Select a sensor**: Use an existing sensor to measure the current temperature.",
@@ -76,6 +100,7 @@
       "temperature_manual": {
         "title": "Step 5 - Manual Temperature Input",
         "description": "Enter the current measured temperature of your pool.\n\n- **Current temperature (°C)**: The current water temperature, measured manually (optional).",
+        "no_sensor_temperature": "Piscinexa could not find a compatible temperature sensor. You must configure the values manually.",
         "data": {
           "temperature": "Current temperature (°C)"
         }
@@ -87,6 +112,17 @@
           "temperature_sensor": "Temperature sensor"
         }
       },
+      "confirm_temperature_sensor": {
+        "title": "Step 5 - Temperature Confirmation",
+        "description": "No temperature sensor was selected, and no manual value is available. What would you like to do?",
+        "data": {
+          "confirm_choice": "Choice"
+        },
+        "options": {
+          "manual": "Configure manually",
+          "retry": "Retry"
+        }
+      },
       "power_config": {
         "title": "Step 6 - Power Sensor Setup",
         "description": "Choose whether to use a sensor to measure the power consumption of your pool or leave this field empty.\n\n- **Manual input**: Leave this field empty.\n- **Select a sensor**: Enter the ID of an existing sensor to measure power consumption.",
@@ -96,13 +132,26 @@
       },
       "power_manual": {
         "title": "Step 6 - Manual Power Input",
-        "description": "No value to enter for power. This field will be left empty."
+        "description": "No value to enter for power. This field will be left empty.",
+        "no_sensor_power": "Piscinexa could not find a compatible power sensor. This field will be left empty.",
+        "data": {}
       },
       "power_sensor": {
         "title": "Step 6 - Select Power Sensor",
         "description": "Enter the entity ID of the sensor to measure power consumption.\n\n- **Power sensor entity ID**: Provide the exact entity ID (optional, leave empty to skip, e.g., sensor.pool_power).",
         "data": {
           "power_sensor_entity_id": "Power sensor entity ID"
+        }
+      },
+      "confirm_power_sensor": {
+        "title": "Step 6 - Power Confirmation",
+        "description": "No power sensor was selected. What would you like to do?",
+        "data": {
+          "confirm_choice": "Choice"
+        },
+        "options": {
+          "manual": "Configure manually",
+          "retry": "Retry"
         }
       },
       "summary": {
