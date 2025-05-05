@@ -26,7 +26,7 @@ class PiscinexaTestButton(ButtonEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.0",
+            sw_version="1.0.2",
         )
 
     @property
@@ -49,7 +49,7 @@ class PiscinexaResetButton(ButtonEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.0",
+            sw_version="1.0.2",
         )
 
     @property
