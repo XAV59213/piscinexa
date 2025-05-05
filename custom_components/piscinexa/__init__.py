@@ -11,15 +11,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = entry.data.copy()
 
-    # Vérifier et définir des valeurs par défaut pour chlore_target et ph_target si manquantes
     if "chlore_target" not in hass.data[DOMAIN][entry.entry_id]:
-        _LOGGER.warning("chlore_target manquant dans entry.data, définition de la valeur par défaut: 2.0")
+        _LOGGER.warning("chlore_target manquant, définition par défaut: 2.0")
         hass.data[DOMAIN][entry.entry_id]["chlore_target"] = 2.0
     if "ph_target" not in hass.data[DOMAIN][entry.entry_id]:
-        _LOGGER.warning("ph_target manquant dans entry.data, définition de la valeur par défaut: 7.4")
+        _LOGGER.warning("ph_target manquant, définition par défaut: 7.4")
         hass.data[DOMAIN][entry.entry_id]["ph_target"] = 7.4
 
-    # Services
     async def handle_test_calcul(call: ServiceCall):
         name = hass.data[DOMAIN][entry.entry_id]["name"]
         _LOGGER.info("Service test_calcul appelé pour %s", name)
@@ -52,7 +50,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             })
         hass.data[DOMAIN][entry.entry_id].update(data)
 
-        # Réinitialiser les input_number en mettant à jour leurs valeurs
         for entity_id in [f"input_number.{name}_chlore_current", f"input_number.{name}_ph_current"]:
             entity = hass.states.get(entity_id)
             if entity:
@@ -72,10 +69,57 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             log_sensor.log_action("Valeurs réinitialisées")
         await hass.config_entries.async_reload(entry.entry_id)
 
+    async def handle_apply_treatment(call: ServiceCall):
+        name = call.data.get("name", hass.data[DOMAIN][entry.entry_id]["name"])
+        treatment_type = call.data.get("treatment_type")  # pH+, pH-, Chlore
+        treatment_form = call.data.get("treatment_form")  # Liquide, Granulés, etc.
+        quantity = float(call.data.get("quantity", 0.0))
+
+        _LOGGER.info("Service apply_treatment appelé pour %s: %s, %s, %s", name, treatment_type, treatment_form, quantity)
+
+        # Mettre à jour les capteurs en fonction du traitement
+        if treatment_type in ["pH+", "pH-"]:
+            ph_current = float(hass.data[DOMAIN][entry.entry_id]["ph_current"])
+            volume = float(hass.states.get(f"sensor.{DOMAIN}_{name}_volume_eau").state)
+            # Facteurs de conversion (hypothétiques, ajuster selon produits réels)
+            if treatment_form == "Liquide":
+                ph_change = quantity / (volume * 10)  # 10 L par unité de pH par m³
+            else:  # Granulés
+                ph_change = quantity / (volume * 100)  # 100 g par unité de pH par m³
+            if treatment_type == "pH+":
+                new_ph = ph_current + ph_change
+            else:
+                new_ph = ph_current - ph_change
+            hass.data[DOMAIN][entry.entry_id]["ph_current"] = round(new_ph, 1)
+            await hass.services.async_call(
+                "input_number", "set_value",
+                {"entity_id": f"input_number.{name}_ph_current", "value": new_ph}
+            )
+        elif treatment_type == "Chlore":
+            chlore_current = float(hass.data[DOMAIN][entry.entry_id]["chlore_current"])
+            volume = float(hass.states.get(f"sensor.{DOMAIN}_{name}_volume_eau").state)
+            if treatment_form == "Liquide":
+                chlore_change = quantity / (volume * 10)  # 10 L par mg/L par m³
+            elif treatment_form == "Pastille lente":
+                chlore_change = quantity / (volume * 0.5)  # 0.5 unité par mg/L par m³
+            else:  # Chlore choc (poudre)
+                chlore_change = quantity / (volume * 10)  # 10 g par mg/L par m³
+            new_chlore = chlore_current + chlore_change
+            hass.data[DOMAIN][entry.entry_id]["chlore_current"] = round(new_chlore, 1)
+            await hass.services.async_call(
+                "input_number", "set_value",
+                {"entity_id": f"input_number.{name}_chlore_current", "value": new_chlore}
+            )
+
+        log_sensor = hass.data[DOMAIN].get("log")
+        if log_sensor and name in log_sensor._name:
+            log_sensor.log_action(f"Traitement appliqué: {treatment_type} ({treatment_form}, {quantity})")
+        await hass.config_entries.async_reload(entry.entry_id)
+
     hass.services.async_register(DOMAIN, "test_calcul", handle_test_calcul)
     hass.services.async_register(DOMAIN, "reset_valeurs", handle_reset_valeurs)
+    hass.services.async_register(DOMAIN, "apply_treatment", handle_apply_treatment)
 
-    # Charger les plateformes
     await hass.config_entries.async_forward_entry_setups(entry, ["sensor", "button", "input_number"])
     return True
 
