@@ -10,3 +10,18 @@ reset_valeurs:
     name:
       description: Nom de la piscine
       example: "papa"
+apply_treatment:
+  description: Applique un traitement à la piscine et met à jour les capteurs
+  fields:
+    name:
+      description: Nom de la piscine
+      example: "papa"
+    treatment_type:
+      description: Type de traitement (pH+, pH-, Chlore)
+      example: "Chlore"
+    treatment_form:
+      description: Forme du traitement (Liquide, Granulés, Chlore choc (poudre), Pastille lente)
+      example: "Liquide"
+    quantity:
+      description: Quantité appliquée (en litres, grammes ou unités selon la forme)
+      example: 5.0
