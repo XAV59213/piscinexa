@@ -19,6 +19,15 @@ views:
           - entity: input_number.piscine_chlore_current
             name: Chlore Actuel
       - type: entities
+        title: Choix des traitements
+        entities:
+          - entity: input_select.piscine_ph_plus_treatment
+            name: Type de traitement pH+
+          - entity: input_select.piscine_ph_minus_treatment
+            name: Type de traitement pH-
+          - entity: input_select.piscine_chlore_treatment
+            name: Type de traitement Chlore
+      - type: entities
         title: Capteurs
         entities:
           - entity: sensor.piscinexa_piscine_chlore
@@ -32,7 +41,7 @@ views:
             name: Chlore à ajouter
             content: >
               {% if states('sensor.piscinexa_piscine_chloreaajouter') | float(default=0) > 0 %}
-                {{ states('sensor.piscinexa_piscine_chloreaajouter') }} g
+                {{ states('sensor.piscinexa_piscine_chloreaajouter') }} {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'unit_of_measurement') }}
               {% else %}
                 {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
               {% endif %}
@@ -44,8 +53,14 @@ views:
           - entity: sensor.piscinexa_piscine_ph
             name: pH
           - entity: sensor.piscinexa_piscine_phaajouter
-            unit: L
             name: pH à ajouter
+            unit: dynamic
+            content: >
+              {% if states('sensor.piscinexa_piscine_phaajouter') | float(default=0) > 0 %}
+                {{ states('sensor.piscinexa_piscine_phaajouter') }} {{ state_attr('sensor.piscinexa_piscine_phaajouter', 'unit_of_measurement') }}
+              {% else %}
+                Aucun ajustement pH nécessaire
+              {% endif %}
           - entity: sensor.piscinexa_piscine_temperature
             unit: °C
             name: Température
