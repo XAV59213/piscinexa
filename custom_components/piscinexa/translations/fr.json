@@ -163,4 +163,47 @@
         "title": "Options de Piscinexa",
         "description": "Modifiez les paramètres cibles pour votre piscine.\n\n- **pH cible** : La valeur idéale de pH que vous souhaitez atteindre.\n- **Chlore cible** : La valeur idéale de chlore que vous souhaitez atteindre (mg/L).\n- **Capteurs** : Sélectionnez ou modifiez les capteurs utilisés pour mesurer le pH, le chlore et la température.",
         "data": {
-          "ph_target": "
+          "ph_target": "pH cible (valeur idéale)",
+          "chlore_target": "Chlore cible (valeur idéale, mg/L)",
+          "temperature_sensor": "Capteur de température",
+          "chlore_sensor": "Capteur de chlore",
+          "ph_sensor": "Capteur de pH"
+        }
+      }
+    },
+    "error": {
+      "name_invalid": "Nom invalide (ne peut pas être vide).",
+      "name_duplicate": "Ce nom est déjà utilisé par une autre piscine.",
+      "ph_invalid": "Valeur de pH invalide (doit être entre 0 et 14).",
+      "ph_required_if_no_sensor": "Une valeur de pH actuel est requise si aucun capteur de pH n'est sélectionné.",
+      "sensor_required_if_no_ph": "Un capteur de pH est requis si aucune valeur de pH actuel n'est fournie.",
+      "chlore_invalid": "Valeur de chlore invalide (doit être supérieure ou égale à 0).",
+      "chlore_required_if_no_sensor": "Une valeur de chlore actuel est requise si aucun capteur de chlore n'est sélectionné.",
+      "sensor_required_if_no_chlore": "Un capteur de chlore est requis si aucune valeur de chlore actuel n'est fournie.",
+      "temperature_invalid": "Température invalide (doit être entre 0 et 50 °C).",
+      "dimensions_invalid": "Dimensions invalides (doivent être supérieures à 0).",
+      "required_field": "Ce champ est requis.",
+      "invalid_number": "Valeur numérique invalide.",
+      "unexpected_error": "Erreur inattendue lors de la configuration."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "piscinexa_piscine_volume_eau": {"name": "Piscine Volume d'eau", "unit_of_measurement": "m³"},
+      "piscinexa_piscine_tempsfiltration": {"name": "Piscine Temps de filtration", "unit_of_measurement": "h"},
+      "piscinexa_piscine_temperature": {"name": "Piscine Température", "unit_of_measurement": "°C"},
+      "piscinexa_piscine_ph": {"name": "Piscine pH"},
+      "piscinexa_piscine_phaajouter": {"name": "Piscine pH à ajouter", "unit_of_measurement": "L"},
+      "piscinexa_piscine_chlore": {"name": "Piscine Chlore", "unit_of_measurement": "mg/L"},
+      "piscinexa_piscine_chloredifference": {"name": "Piscine Différence Chlore", "unit_of_measurement": "mg/L"},
+      "piscinexa_piscine_chloreaajouter": {"name": "Piscine Chlore à ajouter", "unit_of_measurement": "g"},
+      "piscinexa_piscine_consopuissance": {"name": "Piscine Consommation puissance", "unit_of_measurement": "W"},
+      "piscinexa_piscine_log": {"name": "Piscine Journal"},
+      "piscinexa_piscine_pool_state": {"name": "Piscine État de la piscine"}
+    },
+    "button": {
+      "piscinexa_piscine_test": {"name": "Piscine Tester"},
+      "piscinexa_piscine_reset": {"name": "Piscine Réinitialiser"}
+    }
+  }
+}
