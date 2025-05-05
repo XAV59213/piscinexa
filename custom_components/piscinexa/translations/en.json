@@ -149,7 +149,8 @@
       "piscinexa_piscine_chloredifference": {"name": "Pool Chlorine Difference", "unit_of_measurement": "mg/L"},
       "piscinexa_piscine_chloreaajouter": {"name": "Pool Chlorine to Add", "unit_of_measurement": "g"},
       "piscinexa_piscine_consopuissance": {"name": "Pool Power Consumption", "unit_of_measurement": "W"},
-      "piscinexa_piscine_log": {"name": "Pool Log"}
+      "piscinexa_piscine_log": {"name": "Pool Log"},
+      "piscinexa_piscine_pool_state": {"name": "Pool State"}
     },
     "button": {
       "piscinexa_piscine_test": {"name": "Pool Test"},
