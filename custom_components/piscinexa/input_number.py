@@ -20,7 +20,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         PiscinexaPhMinusTreatmentSelect(hass, entry, name),
         PiscinexaChloreTreatmentSelect(hass, entry, name),
     ]
-    async_add_entities(entities)
+    if async_add_entities:
+        async_add_entities(entities)
+    else:
+        # Si appelé directement depuis __init__.py, ajouter les entités manuellement
+        from homeassistant.helpers.entity_platform import async_add_entities
+        async_add_entities(entities)
     _LOGGER.info("Entités ajoutées: %s", [entity.entity_id for entity in entities])
 
 class PiscinexaPhCurrentInput(InputNumber):
