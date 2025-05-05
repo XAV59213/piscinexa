@@ -71,21 +71,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     async def handle_apply_treatment(call: ServiceCall):
         name = call.data.get("name", hass.data[DOMAIN][entry.entry_id]["name"])
-        treatment_type = call.data.get("treatment_type")  # pH+, pH-, Chlore
-        treatment_form = call.data.get("treatment_form")  # Liquide, Granulés, etc.
+        treatment_type = call.data.get("treatment_type")
+        treatment_form = call.data.get("treatment_form")
         quantity = float(call.data.get("quantity", 0.0))
 
         _LOGGER.info("Service apply_treatment appelé pour %s: %s, %s, %s", name, treatment_type, treatment_form, quantity)
 
-        # Mettre à jour les capteurs en fonction du traitement
         if treatment_type in ["pH+", "pH-"]:
             ph_current = float(hass.data[DOMAIN][entry.entry_id]["ph_current"])
             volume = float(hass.states.get(f"sensor.{DOMAIN}_{name}_volume_eau").state)
-            # Facteurs de conversion (hypothétiques, ajuster selon produits réels)
             if treatment_form == "Liquide":
-                ph_change = quantity / (volume * 10)  # 10 L par unité de pH par m³
+                ph_change = quantity / (volume * (0.01 if treatment_type == "pH+" else 0.012))
             else:  # Granulés
-                ph_change = quantity / (volume * 100)  # 100 g par unité de pH par m³
+                ph_change = quantity / (volume * (1.0 if treatment_type == "pH+" else 1.2))
             if treatment_type == "pH+":
                 new_ph = ph_current + ph_change
             else:
@@ -99,11 +97,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             chlore_current = float(hass.data[DOMAIN][entry.entry_id]["chlore_current"])
             volume = float(hass.states.get(f"sensor.{DOMAIN}_{name}_volume_eau").state)
             if treatment_form == "Liquide":
-                chlore_change = quantity / (volume * 10)  # 10 L par mg/L par m³
+                chlore_change = quantity / (volume * 0.1)
             elif treatment_form == "Pastille lente":
-                chlore_change = quantity / (volume * 0.5)  # 0.5 unité par mg/L par m³
+                chlore_change = quantity * 20 / volume
             else:  # Chlore choc (poudre)
-                chlore_change = quantity / (volume * 10)  # 10 g par mg/L par m³
+                chlore_change = quantity / (volume * 0.01)
             new_chlore = chlore_current + chlore_change
             hass.data[DOMAIN][entry.entry_id]["chlore_current"] = round(new_chlore, 1)
             await hass.services.async_call(
@@ -120,10 +118,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.services.async_register(DOMAIN, "reset_valeurs", handle_reset_valeurs)
     hass.services.async_register(DOMAIN, "apply_treatment", handle_apply_treatment)
 
-    await hass.config_entries.async_forward_entry_setups(entry, ["sensor", "button", "input_number"])
+    # Charger uniquement les plateformes sensor et button
+    await hass.config_entries.async_forward_entry_setups(entry, ["sensor", "button"])
+
+    # Configurer manuellement les entités input_number et input_select
+    from .input_number import async_setup_entry as input_number_setup
+    await input_number_setup(hass, entry, None)
+
     return True
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    await hass.config_entries.async_unload_platforms(entry, ["sensor", "button", "input_number"])
+    await hass.config_entries.async_unload_platforms(entry, ["sensor", "button"])
     hass.data[DOMAIN].pop(entry.entry_id)
     return True
