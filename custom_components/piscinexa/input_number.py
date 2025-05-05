@@ -1,6 +1,7 @@
-"""Input numbers pour Piscinexa."""
+"""Input numbers et selects pour Piscinexa."""
 import logging
 from homeassistant.components.input_number import InputNumber
+from homeassistant.components.input_select import InputSelect
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -11,13 +12,16 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
     name = entry.data["name"]
-    _LOGGER.info("Configuration des entités input_number pour %s", name)
+    _LOGGER.info("Configuration des entités input_number et input_select pour %s", name)
     entities = [
         PiscinexaPhCurrentInput(hass, entry, name),
         PiscinexaChloreCurrentInput(hass, entry, name),
+        PiscinexaPhPlusTreatmentSelect(hass, entry, name),
+        PiscinexaPhMinusTreatmentSelect(hass, entry, name),
+        PiscinexaChloreTreatmentSelect(hass, entry, name),
     ]
     async_add_entities(entities)
-    _LOGGER.info("Entités input_number ajoutées: %s", [entity.entity_id for entity in entities])
+    _LOGGER.info("Entités ajoutées: %s", [entity.entity_id for entity in entities])
 
 class PiscinexaPhCurrentInput(InputNumber):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
@@ -41,12 +45,10 @@ class PiscinexaPhCurrentInput(InputNumber):
             model="Piscine",
             sw_version="1.0.2",
         )
-        # Initialiser avec la valeur actuelle
         self._attr_value = float(self._entry.data["ph_current"])
         _LOGGER.debug("Entité input_number %s créée avec valeur initiale %s", self._attr_name, self._attr_value)
 
     async def async_set_value(self, value: float) -> None:
-        """Mettre à jour la valeur et synchroniser avec entry.data."""
         await super().async_set_value(value)
         self._hass.data[DOMAIN][self._entry.entry_id]["ph_current"] = value
         _LOGGER.debug("pH actuel mis à jour via input_number: %s", value)
@@ -73,12 +75,79 @@ class PiscinexaChloreCurrentInput(InputNumber):
             model="Piscine",
             sw_version="1.0.2",
         )
-        # Initialiser avec la valeur actuelle
         self._attr_value = float(self._entry.data["chlore_current"])
         _LOGGER.debug("Entité input_number %s créée avec valeur initiale %s", self._attr_name, self._attr_value)
 
     async def async_set_value(self, value: float) -> None:
-        """Mettre à jour la valeur et synchroniser avec entry.data."""
         await super().async_set_value(value)
         self._hass.data[DOMAIN][self._entry.entry_id]["chlore_current"] = value
         _LOGGER.debug("Chlore actuel mis à jour via input_number: %s mg/L", value)
+
+class PiscinexaPhPlusTreatmentSelect(InputSelect):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        super().__init__(
+            options=["Liquide", "Granulés"],
+            name=f"{name}_ph_plus_treatment",
+        )
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{name}_ph_plus_treatment"
+        self._attr_friendly_name = f"{name.capitalize()} Type de traitement pH+"
+        self._attr_unique_id = f"{entry.entry_id}_ph_plus_treatment"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.2",
+        )
+        self._attr_icon = "mdi:water-plus"
+        self._attr_value = "Liquide"  # Valeur par défaut
+        _LOGGER.debug("Entité input_select %s créée", self._attr_name)
+
+class PiscinexaPhMinusTreatmentSelect(InputSelect):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        super().__init__(
+            options=["Liquide", "Granulés"],
+            name=f"{name}_ph_minus_treatment",
+        )
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{name}_ph_minus_treatment"
+        self._attr_friendly_name = f"{name.capitalize()} Type de traitement pH-"
+        self._attr_unique_id = f"{entry.entry_id}_ph_minus_treatment"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.2",
+        )
+        self._attr_icon = "mdi:water-minus"
+        self._attr_value = "Liquide"  # Valeur par défaut
+        _LOGGER.debug("Entité input_select %s créée", self._attr_name)
+
+class PiscinexaChloreTreatmentSelect(InputSelect):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        super().__init__(
+            options=["Chlore choc (poudre)", "Pastille lente", "Liquide"],
+            name=f"{name}_chlore_treatment",
+        )
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{name}_chlore_treatment"
+        self._attr_friendly_name = f"{name.capitalize()} Type de traitement Chlore"
+        self._attr_unique_id = f"{entry.entry_id}_chlore_treatment"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.2",
+        )
+        self._attr_icon = "mdi:water-check"
+        self._attr_value = "Chlore choc (poudre)"  # Valeur par défaut
+        _LOGGER.debug("Entité input_select %s créée", self._attr_name)
