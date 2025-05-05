@@ -9,6 +9,10 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
+    if entry.entry_id in hass.data[DOMAIN]:
+        _LOGGER.warning("Entrée %s déjà configurée, ignorée", entry.entry_id)
+        return False
+
     hass.data[DOMAIN][entry.entry_id] = entry.data.copy()
 
     if "chlore_target" not in hass.data[DOMAIN][entry.entry_id]:
@@ -132,5 +136,5 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_unload_platforms(entry, ["sensor", "button"])
-    hass.data[DOMAIN].pop(entry.entry_id)
+    hass.data[DOMAIN].pop(entry.entry_id, None)
     return True
