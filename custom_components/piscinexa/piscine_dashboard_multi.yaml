@@ -1,3 +1,4 @@
+# Tableau de bord pour plusieurs piscines. Adaptez les noms ('papa', 'maman') aux noms configurés dans l'intégration.
 title: Tableau de bord Piscinexa
 views:
   - title: Piscines
@@ -44,6 +45,8 @@ views:
                     {{ state_attr('sensor.papachloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
                   {% endif %}
               - sensor.papalog
+              - entity: sensor.piscinexa_papa_pool_state
+                name: État de la piscine
 
       - type: vertical-stack
         cards:
@@ -84,6 +87,8 @@ views:
                     {{ state_attr('sensor.mamanchloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
                   {% endif %}
               - sensor.mamanlog
+              - entity: sensor.piscinexa_maman_pool_state
+                name: État de la piscine
 
       - type: vertical-stack
         cards:
