@@ -3,10 +3,11 @@ from datetime import datetime
 from collections import deque
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.const import CONF_NAME
+from homeassistant.helpers.event import async_track_state_change_event
 from .const import (
     DOMAIN,
     POOL_TYPE_SQUARE,
@@ -39,6 +40,7 @@ async def async_setup_entry(
         PiscinexaChloreAjouterSensor(hass, entry, name),
         PiscinexaChloreDifferenceSensor(hass, entry, name),
         PiscinexaPowerSensor(hass, entry, name),
+        PiscinexaPoolStateSensor(hass, entry, name),
         log_sensor,
     ]
     async_add_entities(sensors, True)
@@ -58,7 +60,7 @@ class PiscinexaVolumeSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.0",
+            sw_version="1.0.2",
         )
 
     @property
@@ -102,8 +104,28 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.0",
+            sw_version="1.0.2",
         )
+        self._subscriptions = []
+        # S'abonner aux changements du capteur de température si configuré
+        sensor_id = self._entry.data.get("temperature_sensor")
+        if sensor_id:
+            self._subscriptions.append(
+                async_track_state_change_event(
+                    hass, [sensor_id], self._async_update_from_sensor
+                )
+            )
+
+    async def async_will_remove_from_hass(self):
+        """Nettoyer les subscriptions lors de la suppression."""
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_sensor(self, event):
+        """Mettre à jour le capteur lorsque le capteur de température change."""
+        self.async_schedule_update_ha_state(True)
 
     @property
     def name(self):
@@ -145,8 +167,28 @@ class PiscinexaTemperatureSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.0",
+            sw_version="1.0.2",
         )
+        self._subscriptions = []
+        # S'abonner aux changements du capteur de température si configuré
+        sensor_id = self._entry.data.get("temperature_sensor")
+        if sensor_id:
+            self._subscriptions.append(
+                async_track_state_change_event(
+                    hass, [sensor_id], self._async_update_from_sensor
+                )
+            )
+
+    async def async_will_remove_from_hass(self):
+        """Nettoyer les subscriptions lors de la suppression."""
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_sensor(self, event):
+        """Mettre à jour le capteur lorsque le capteur de température change."""
+        self.async_schedule_update_ha_state(True)
 
     @property
     def name(self):
@@ -207,8 +249,40 @@ class PiscinexaPhSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.0",
+            sw_version="1.0.2",
         )
+        self._subscriptions = []
+        # S'abonner aux changements du capteur de pH si configuré
+        sensor_id = self._entry.data.get("ph_sensor")
+        if sensor_id:
+            self._subscriptions.append(
+                async_track_state_change_event(
+                    hass, [sensor_id], self._async_update_from_sensor
+                )
+            )
+        # S'abonner aux changements de l'input_number
+        input_id = f"input_number.{name}_ph_current"
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [input_id], self._async_update_from_input
+            )
+        )
+
+    async def async_will_remove_from_hass(self):
+        """Nettoyer les subscriptions lors de la suppression."""
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_sensor(self, event):
+        """Mettre à jour le capteur lorsque le capteur de pH change."""
+        self.async_schedule_update_ha_state(True)
+
+    @callback
+    def _async_update_from_input(self, event):
+        """Mettre à jour le capteur lorsque l'input_number change."""
+        self.async_schedule_update_ha_state(True)
 
     @property
     def name(self):
@@ -285,8 +359,36 @@ class PiscinexaPhAjouterSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.0",
+            sw_version="1.0.2",
         )
+        self._subscriptions = []
+        # S'abonner aux changements du capteur de pH et de volume
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_ph"], self._async_update_from_ph
+            )
+        )
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_volume_eau"], self._async_update_from_volume
+            )
+        )
+
+    async def async_will_remove_from_hass(self):
+        """Nettoyer les subscriptions lors de la suppression."""
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_ph(self, event):
+        """Mettre à jour le capteur lorsque le pH change."""
+        self.async_schedule_update_ha_state(True)
+
+    @callback
+    def _async_update_from_volume(self, event):
+        """Mettre à jour le capteur lorsque le volume change."""
+        self.async_schedule_update_ha_state(True)
 
     @property
     def name(self):
@@ -326,8 +428,40 @@ class PiscinexaChloreSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.0",
+            sw_version="1.0.2",
         )
+        self._subscriptions = []
+        # S'abonner aux changements du capteur de chlore si configuré
+        sensor_id = self._entry.data.get("chlore_sensor")
+        if sensor_id:
+            self._subscriptions.append(
+                async_track_state_change_event(
+                    hass, [sensor_id], self._async_update_from_sensor
+                )
+            )
+        # S'abonner aux changements de l'input_number
+        input_id = f"input_number.{name}_chlore_current"
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [input_id], self._async_update_from_input
+            )
+        )
+
+    async def async_will_remove_from_hass(self):
+        """Nettoyer les subscriptions lors de la suppression."""
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_sensor(self, event):
+        """Mettre à jour le capteur lorsque le capteur de chlore change."""
+        self.async_schedule_update_ha_state(True)
+
+    @callback
+    def _async_update_from_input(self, event):
+        """Mettre à jour le capteur lorsque l'input_number change."""
+        self.async_schedule_update_ha_state(True)
 
     @property
     def name(self):
@@ -398,9 +532,47 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.0",
+            sw_version="1.0.2",
         )
         self._message = None
+        self._subscriptions = []
+        # S'abonner aux changements du chlore, volume et température
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_chlore"], self._async_update_from_chlore
+            )
+        )
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_volume_eau"], self._async_update_from_volume
+            )
+        )
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_temperature"], self._async_update_from_temperature
+            )
+        )
+
+    async def async_will_remove_from_hass(self):
+        """Nettoyer les subscriptions lors de la suppression."""
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_chlore(self, event):
+        """Mettre à jour le capteur lorsque le chlore change."""
+        self.async_schedule_update_ha_state(True)
+
+    @callback
+    def _async_update_from_volume(self, event):
+        """Mettre à jour le capteur lorsque le volume change."""
+        self.async_schedule_update_ha_state(True)
+
+    @callback
+    def _async_update_from_temperature(self, event):
+        """Mettre à jour le capteur lorsque la température change."""
+        self.async_schedule_update_ha_state(True)
 
     @property
     def name(self):
@@ -506,8 +678,26 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.0",
+            sw_version="1.0.2",
         )
+        self._subscriptions = []
+        # S'abonner aux changements du capteur de chlore
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_chlore"], self._async_update_from_chlore
+            )
+        )
+
+    async def async_will_remove_from_hass(self):
+        """Nettoyer les subscriptions lors de la suppression."""
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_chlore(self, event):
+        """Mettre à jour le capteur lorsque le chlore change."""
+        self.async_schedule_update_ha_state(True)
 
     @property
     def name(self):
@@ -556,7 +746,7 @@ class PiscinexaLogSensor(SensorEntity):
             name=self._name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.0",
+            sw_version="1.0.2",
         )
 
     @property
@@ -587,8 +777,28 @@ class PiscinexaPowerSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.0",
+            sw_version="1.0.2",
         )
+        self._subscriptions = []
+        # S'abonner aux changements du capteur de puissance si configuré
+        sensor_id = self._entry.data.get("power_sensor_entity_id")
+        if sensor_id:
+            self._subscriptions.append(
+                async_track_state_change_event(
+                    hass, [sensor_id], self._async_update_from_sensor
+                )
+            )
+
+    async def async_will_remove_from_hass(self):
+        """Nettoyer les subscriptions lors de la suppression."""
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_sensor(self, event):
+        """Mettre à jour le capteur lorsque le capteur de puissance change."""
+        self.async_schedule_update_ha_state(True)
 
     @property
     def name(self):
@@ -613,3 +823,135 @@ class PiscinexaPowerSensor(SensorEntity):
     @property
     def unit_of_measurement(self):
         return self._attr_unit_of_measurement
+
+class PiscinexaPoolStateSensor(SensorEntity):
+    """Capteur pour évaluer l'état global de la piscine."""
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_pool_state"
+        self._attr_friendly_name = f"{name.capitalize()} État de la piscine"
+        self._attr_icon = "mdi:pool"
+        self._attr_unique_id = f"{entry.entry_id}_pool_state"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.2",
+        )
+        self._subscriptions = []
+        # S'abonner aux changements des capteurs dépendants
+        entities_to_track = [
+            f"sensor.{DOMAIN}_{name}_temperature",
+            f"sensor.{DOMAIN}_{name}_chlore",
+            f"sensor.{DOMAIN}_{name}_ph",
+            f"sensor.{DOMAIN}_{name}_tempsfiltration",
+        ]
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, entities_to_track, self._async_update_from_sensors
+            )
+        )
+
+    async def async_will_remove_from_hass(self):
+        """Nettoyer les subscriptions lors de la suppression."""
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_sensors(self, event):
+        """Mettre à jour le capteur lorsque les capteurs dépendants changent."""
+        self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
+    def native_value(self):
+        try:
+            issues = []
+
+            # Température
+            temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
+            if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
+                temperature = float(temp_entity.state)
+                if temperature < 22:
+                    issues.append("Température trop froide")
+                elif temperature > 28:
+                    issues.append("Température trop chaude")
+                else:
+                    issues.append("Température idéale")
+            else:
+                issues.append("Température indisponible")
+
+            # Chlore
+            chlore_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_chlore")
+            if chlore_entity and chlore_entity.state not in ("unknown", "unavailable"):
+                chlore = float(chlore_entity.state)
+                if chlore < 1:
+                    issues.append("Chlore trop bas")
+                elif chlore > 3:
+                    issues.append("Chlore trop élevé")
+                else:
+                    issues.append("Chlore idéal")
+            else:
+                issues.append("Chlore indisponible")
+
+            # pH
+            ph_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_ph")
+            if ph_entity and ph_entity.state not in ("unknown", "unavailable"):
+                ph = float(ph_entity.state)
+                if ph < 7.2:
+                    issues.append("pH trop bas")
+                elif ph > 7.6:
+                    issues.append("pH trop élevé")
+                else:
+                    issues.append("pH idéal")
+            else:
+                issues.append("pH indisponible")
+
+            # Temps de filtration
+            filtration_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_tempsfiltration")
+            if filtration_entity and filtration_entity.state not in ("unknown", "unavailable") and temp_entity:
+                filtration_time = float(filtration_entity.state)
+                required_filtration = temperature / 2
+                if filtration_time < required_filtration:
+                    issues.append("Temps de filtration insuffisant")
+                else:
+                    issues.append("Temps de filtration idéal")
+            else:
+                issues.append("Temps de filtration indisponible")
+
+            # État global
+            if all(issue in ["Température idéale", "Chlore idéal", "pH idéal", "Temps de filtration idéal"] for issue in issues):
+                return "Baignade autorisée, profitez-en !"
+            else:
+                return ", ".join(issues)
+        except Exception as e:
+            _LOGGER.error("Erreur calcul état piscine pour %s: %s", self._name, e)
+            return "Erreur d'évaluation"
+
+    @property
+    def extra_state_attributes(self):
+        """Retourne les détails des paramètres évalués."""
+        attributes = {}
+        try:
+            temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
+            if temp_entity:
+                attributes["temperature"] = float(temp_entity.state)
+            chlore_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_chlore")
+            if chlore_entity:
+                attributes["chlore"] = float(chlore_entity.state)
+            ph_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_ph")
+            if ph_entity:
+                attributes["ph"] = float(ph_entity.state)
+            filtration_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_tempsfiltration")
+            if filtration_entity:
+                attributes["temps_filtration"] = float(filtration_entity.state)
+        except Exception as e:
+            _LOGGER.error("Erreur récupération attributs état piscine: %s", e)
+        return attributes
