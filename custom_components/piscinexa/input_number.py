@@ -23,20 +23,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     if async_add_entities:
         async_add_entities(entities)
     else:
-        # Si appelé directement depuis __init__.py, ajouter les entités manuellement
         from homeassistant.helpers.entity_platform import async_add_entities
         async_add_entities(entities)
     _LOGGER.info("Entités ajoutées: %s", [entity.entity_id for entity in entities])
 
 class PiscinexaPhCurrentInput(InputNumber):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
-        super().__init__(
-            min_value=0,
-            max_value=14,
-            step=0.1,
-            unit_of_measurement="pH",
-            mode="box",
-        )
+        super().__init__()
         self._hass = hass
         self._entry = entry
         self._name = name
@@ -50,7 +43,12 @@ class PiscinexaPhCurrentInput(InputNumber):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_value = float(self._entry.data["ph_current"])
+        self._attr_min_value = 0
+        self._attr_max_value = 14
+        self._attr_step = 0.1
+        self._attr_unit_of_measurement = "pH"
+        self._attr_mode = "box"
+        self._attr_value = float(self._entry.data.get("ph_current", 7.0))
         _LOGGER.debug("Entité input_number %s créée avec valeur initiale %s", self._attr_name, self._attr_value)
 
     async def async_set_value(self, value: float) -> None:
@@ -60,13 +58,7 @@ class PiscinexaPhCurrentInput(InputNumber):
 
 class PiscinexaChloreCurrentInput(InputNumber):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
-        super().__init__(
-            min_value=0,
-            max_value=10,
-            step=0.1,
-            unit_of_measurement="mg/L",
-            mode="box",
-        )
+        super().__init__()
         self._hass = hass
         self._entry = entry
         self._name = name
@@ -80,7 +72,12 @@ class PiscinexaChloreCurrentInput(InputNumber):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_value = float(self._entry.data["chlore_current"])
+        self._attr_min_value = 0
+        self._attr_max_value = 10
+        self._attr_step = 0.1
+        self._attr_unit_of_measurement = "mg/L"
+        self._attr_mode = "box"
+        self._attr_value = float(self._entry.data.get("chlore_current", 1.0))
         _LOGGER.debug("Entité input_number %s créée avec valeur initiale %s", self._attr_name, self._attr_value)
 
     async def async_set_value(self, value: float) -> None:
