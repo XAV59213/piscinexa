@@ -39,7 +39,7 @@ class PiscinexaPhCurrentInput(InputNumber):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.0",
+            sw_version="1.0.2",
         )
         # Initialiser avec la valeur actuelle
         self._attr_value = float(self._entry.data["ph_current"])
@@ -71,7 +71,7 @@ class PiscinexaChloreCurrentInput(InputNumber):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.0",
+            sw_version="1.0.2",
         )
         # Initialiser avec la valeur actuelle
         self._attr_value = float(self._entry.data["chlore_current"])
