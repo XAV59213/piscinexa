@@ -291,7 +291,7 @@ class PiscinexaPhSensor(SensorEntity):
             except Exception as e:
                 _LOGGER.warning("Erreur lecture pH depuis input_number : %s", e)
         try:
-            return round(float(self._entry.data["ph_current"]), 1)
+            return round(float(self._entry.data.get("ph_current", 7.0)), 1)
         except Exception as e:
             _LOGGER.error("Erreur lecture pH: %s", e)
             return None
@@ -358,22 +358,22 @@ class PiscinexaPhAjouterSensor(SensorEntity):
     @property
     def unit_of_measurement(self):
         try:
-            ph_current = float(self._entry.data["ph_current"])
-            ph_target = float(self._entry.data["ph_target"])
+            ph_current = float(self._entry.data.get("ph_current", 7.0))
+            ph_target = float(self._entry.data.get("ph_target", 7.4))
             treatment_type = "ph_plus_treatment" if ph_current < ph_target else "ph_minus_treatment"
             select_state = self._hass.states.get(f"input_select.{self._name}_{treatment_type}")
             if select_state and select_state.state == "Liquide":
                 return UNIT_LITERS
             return UNIT_GRAMS
         except Exception as e:
-            _LOGGER.error("Erreur détermination unité pH: %s", e)
+            _LOGGER.error("Erreur détermination unité pH pour %s: %s", self._name, e)
             return UNIT_LITERS
 
     @property
     def native_value(self):
         try:
-            ph_current = float(self._entry.data["ph_current"])
-            ph_target = float(self._entry.data["ph_target"])
+            ph_current = float(self._entry.data.get("ph_current", 7.0))
+            ph_target = float(self._entry.data.get("ph_target", 7.4))
             volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume and volume.state not in ("unknown", "unavailable"):
                 volume_val = float(volume.state)
@@ -392,17 +392,18 @@ class PiscinexaPhAjouterSensor(SensorEntity):
                     else:  # Granulés
                         dose = ph_difference * volume_val * 1.2  # 120 g par m³ pour 0.1 pH
                 return round(dose, 2) if ph_difference > 0 else 0
+            _LOGGER.warning("Capteur de volume indisponible pour %s", self._name)
             return None
         except Exception as e:
-            _LOGGER.error("Erreur calcul dose pH: %s", e)
+            _LOGGER.error("Erreur calcul dose pH pour %s: %s", self._name, e)
             return None
 
     @property
     def extra_state_attributes(self):
         attributes = {}
         try:
-            ph_current = float(self._entry.data["ph_current"])
-            ph_target = float(self._entry.data["ph_target"])
+            ph_current = float(self._entry.data.get("ph_current", 7.0))
+            ph_target = float(self._entry.data.get("ph_target", 7.4))
             volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume:
                 attributes["volume"] = float(volume.state)
@@ -415,7 +416,7 @@ class PiscinexaPhAjouterSensor(SensorEntity):
             attributes["ph_current"] = ph_current
             attributes["ph_target"] = ph_target
         except Exception as e:
-            _LOGGER.error("Erreur récupération attributs pH: %s", e)
+            _LOGGER.error("Erreur récupération attributs pH pour %s: %s", self._name, e)
             attributes["treatment_direction"] = "Erreur"
         return attributes
 
@@ -500,9 +501,9 @@ class PiscinexaChloreSensor(SensorEntity):
             except Exception as e:
                 _LOGGER.warning("Erreur lecture chlore depuis input_number : %s", e)
         try:
-            return round(float(self._entry.data["chlore_current"]), 1)
+            return round(float(self._entry.data.get("chlore_current", 1.0)), 1)
         except Exception as e:
-            _LOGGER.error("Erreur lecture chlore: %s", e)
+            _LOGGER.error("Erreur lecture chlore pour %s: %s", self._name, e)
             return None
 
 class PiscinexaChloreAjouterSensor(SensorEntity):
@@ -583,8 +584,8 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
     @property
     def native_value(self):
         try:
-            chlore_current = float(self._entry.data["chlore_current"])
-            chlore_target = float(self._entry.data["chlore_target"])
+            chlore_current = float(self._entry.data.get("chlore_current", 1.0))
+            chlore_target = float(self._entry.data.get("chlore_target", 2.0))
             volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume_entity and volume_entity.state not in ("unknown", "unavailable"):
                 volume_val = float(volume_entity.state)
@@ -619,8 +620,8 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
     def extra_state_attributes(self):
         attributes = {}
         try:
-            attributes["chlore_current"] = float(self._entry.data["chlore_current"])
-            attributes["chlore_target"] = float(self._entry.data["chlore_target"])
+            attributes["chlore_current"] = float(self._entry.data.get("chlore_current", 1.0))
+            attributes["chlore_target"] = float(self._entry.data.get("chlore_target", 2.0))
             volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume_entity:
                 attributes["volume"] = float(volume_entity.state)
@@ -631,7 +632,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             if self._message:
                 attributes["message"] = self._message
         except Exception as e:
-            _LOGGER.error("Erreur récupération attributs supplémentaires: %s", e)
+            _LOGGER.error("Erreur récupération attributs supplémentaires pour %s: %s", self._name, e)
         return attributes
 
 class PiscinexaChloreDifferenceSensor(SensorEntity):
@@ -674,8 +675,8 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
     @property
     def native_value(self):
         try:
-            chlore_current = float(self._entry.data["chlore_current"])
-            chlore_target = float(self._entry.data["chlore_target"])
+            chlore_current = float(self._entry.data.get("chlore_current", 1.0))
+            chlore_target = float(self._entry.data.get("chlore_target", 2.0))
             difference = chlore_target - chlore_current
             return round(difference, 1)
         except Exception as e:
@@ -881,5 +882,5 @@ class PiscinexaPoolStateSensor(SensorEntity):
             if filtration_entity:
                 attributes["temps_filtration"] = float(filtration_entity.state)
         except Exception as e:
-            _LOGGER.error("Erreur récupération attributs état piscine: %s", e)
+            _LOGGER.error("Erreur récupération attributs état piscine pour %s: %s", self._name, e)
         return attributes
