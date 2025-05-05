@@ -203,10 +203,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except ValueError:
                 errors["ph_target"] = "invalid_number"
 
-            # Si aucun capteur n'est sélectionné et qu'il n'y a pas de valeur manuelle, rediriger vers ph_manual
+            # Si aucun capteur n'est sélectionné et qu'il n'y a pas de valeur manuelle, rediriger vers confirmation
             if not ph_sensor and ("ph_current" not in self._data or self._data["ph_current"] is None):
-                self._no_sensor_message = True
-                return await self.async_step_ph_manual()
+                return await self.async_step_confirm_ph_sensor()
 
             if not errors:
                 self._data["ph_sensor"] = ph_sensor if ph_sensor else ""
@@ -233,11 +232,6 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         _LOGGER.debug("Capteurs de pH trouvés : %s", ph_sensors)
 
-        # Si aucun capteur n'est disponible (seule l'option vide existe), rediriger vers ph_manual
-        if len(ph_sensors) == 1:  # Seulement l'option vide [""] est présente
-            self._no_sensor_message = True
-            return await self.async_step_ph_manual()
-
         schema = vol.Schema({
             vol.Optional("ph_sensor", default=""): vol.In(ph_sensors_dict),
             vol.Required("ph_target", default=7.4): vol.Coerce(float),
@@ -245,6 +239,33 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="ph_sensor",
+            data_schema=schema,
+            errors=errors,
+        )
+
+    async def async_step_confirm_ph_sensor(self, user_input=None):
+        """Step 3 (sous-étape) : confirmation avant redirection pour pH."""
+        errors = {}
+        if user_input is not None:
+            if "confirm_choice" in user_input:
+                choice = user_input["confirm_choice"]
+                if choice == "manual":
+                    self._no_sensor_message = True
+                    return await self.async_step_ph_manual()
+                else:  # retry
+                    return await self.async_step_ph_sensor()
+            else:
+                errors["confirm_choice"] = "required_field"
+
+        schema = vol.Schema({
+            vol.Required("confirm_choice"): vol.In({
+                "manual": "Configurer manuellement",
+                "retry": "Réessayer"
+            }),
+        })
+
+        return self.async_show_form(
+            step_id="confirm_ph_sensor",
             data_schema=schema,
             errors=errors,
         )
@@ -346,6 +367,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except ValueError:
                 errors["chlore_target"] = "invalid_number"
 
+            # Si aucun capteur n'est sélectionné et qu'il n'y a pas de valeur manuelle, rediriger vers confirmation
+            if not chlore_sensor and ("chlore_current" not in self._data or self._data["chlore_current"] is None):
+                return await self.async_step_confirm_chlore_sensor()
+
             if not errors:
                 self._data["chlore_sensor"] = chlore_sensor if chlore_sensor else ""
                 self._data["use_chlore_sensor"] = bool(chlore_sensor)
@@ -370,11 +395,6 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         _LOGGER.debug("Capteurs de chlore trouvés : %s", chlore_sensors)
 
-        # Si aucun capteur n'est disponible (seule l'option vide existe), rediriger vers chlore_manual
-        if len(chlore_sensors) == 1:  # Seulement l'option vide [""] est présente
-            self._no_sensor_message = True
-            return await self.async_step_chlore_manual()
-
         schema = vol.Schema({
             vol.Optional("chlore_sensor", default=""): vol.In(chlore_sensors_dict),
             vol.Required("chlore_target", default=2.0): vol.Coerce(float),
@@ -382,6 +402,33 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="chlore_sensor",
+            data_schema=schema,
+            errors=errors,
+        )
+
+    async def async_step_confirm_chlore_sensor(self, user_input=None):
+        """Step 4 (sous-étape) : confirmation avant redirection pour chlore."""
+        errors = {}
+        if user_input is not None:
+            if "confirm_choice" in user_input:
+                choice = user_input["confirm_choice"]
+                if choice == "manual":
+                    self._no_sensor_message = True
+                    return await self.async_step_chlore_manual()
+                else:  # retry
+                    return await self.async_step_chlore_sensor()
+            else:
+                errors["confirm_choice"] = "required_field"
+
+        schema = vol.Schema({
+            vol.Required("confirm_choice"): vol.In({
+                "manual": "Configurer manuellement",
+                "retry": "Réessayer"
+            }),
+        })
+
+        return self.async_show_form(
+            step_id="confirm_chlore_sensor",
             data_schema=schema,
             errors=errors,
         )
@@ -429,7 +476,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         value = str(value).replace(",", ".").strip()
                         value = float(value)
                         if not validator(value):
-                            errors[field] = "invalid_number"
+                            errors[field] = "temperature_invalid"
                         self._data[field] = value
                 except ValueError:
                     errors[field] = "invalid_number"
@@ -463,6 +510,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             # Validation du capteur température (facultatif)
             temperature_sensor = user_input.get("temperature_sensor", "")
+            # Si aucun capteur n'est sélectionné et qu'il n'y a pas de valeur manuelle, rediriger vers confirmation
+            if not temperature_sensor and ("temperature" not in self._data or self._data["temperature"] is None):
+                return await self.async_step_confirm_temperature_sensor()
+
             if not errors:
                 self._data["temperature_sensor"] = temperature_sensor if temperature_sensor else ""
                 self._data["use_temperature_sensor"] = bool(temperature_sensor)
@@ -486,17 +537,39 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         _LOGGER.debug("Capteurs de température trouvés : %s", temp_sensors)
 
-        # Si aucun capteur n'est disponible (seule l'option vide existe), rediriger vers temperature_manual
-        if len(temp_sensors) == 1:  # Seulement l'option vide [""] est présente
-            self._no_sensor_message = True
-            return await self.async_step_temperature_manual()
-
         schema = vol.Schema({
             vol.Optional("temperature_sensor", default=""): vol.In(temp_sensors_dict),
         })
 
         return self.async_show_form(
             step_id="temperature_sensor",
+            data_schema=schema,
+            errors=errors,
+        )
+
+    async def async_step_confirm_temperature_sensor(self, user_input=None):
+        """Step 5 (sous-étape) : confirmation avant redirection pour température."""
+        errors = {}
+        if user_input is not None:
+            if "confirm_choice" in user_input:
+                choice = user_input["confirm_choice"]
+                if choice == "manual":
+                    self._no_sensor_message = True
+                    return await self.async_step_temperature_manual()
+                else:  # retry
+                    return await self.async_step_temperature_sensor()
+            else:
+                errors["confirm_choice"] = "required_field"
+
+        schema = vol.Schema({
+            vol.Required("confirm_choice"): vol.In({
+                "manual": "Configurer manuellement",
+                "retry": "Réessayer"
+            }),
+        })
+
+        return self.async_show_form(
+            step_id="confirm_temperature_sensor",
             data_schema=schema,
             errors=errors,
         )
@@ -533,7 +606,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Step 6 (sous-étape) : saisie manuelle pour la puissance (vide)."""
         description = "Aucune valeur à saisir pour la puissance. Ce champ sera laissé vide."
         if self._no_sensor_message:
-            description = "Piscinexa n'a pas trouvé de capteur puissance compatible. Vous devez configurer les valeurs manuellement.\n\n" + description
+            description = "Piscinexa n'a pas trouvé de capteur puissance compatible. Ce champ sera laissé vide.\n\n" + description
 
         self._data["use_power_sensor"] = False
         self._data["power_sensor_entity_id"] = ""
@@ -545,20 +618,48 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             # Validation du capteur puissance (facultatif)
             power_sensor = user_input.get("power_sensor_entity_id", "")
+            # Si aucun capteur n'est sélectionné, rediriger vers confirmation
+            if not power_sensor:
+                return await self.async_step_confirm_power_sensor()
+
             if not errors:
                 self._data["power_sensor_entity_id"] = power_sensor if power_sensor else ""
                 self._data["use_power_sensor"] = bool(power_sensor)
                 return await self.async_step_summary()
 
-        # Pas de recherche de capteurs de puissance spécifiques, donc on vérifie simplement si l'utilisateur a entré un ID
-        # On peut supposer qu'il n'y a pas de capteur si aucun ID n'est entré, mais comme c'est un champ texte libre, nous ne pouvons pas "rechercher" les capteurs de puissance
-        # Pour simplifier, nous allons considérer que si l'utilisateur n'entre rien, il sera redirigé vers power_manual
         schema = vol.Schema({
             vol.Optional("power_sensor_entity_id", default=""): str,
         })
 
         return self.async_show_form(
             step_id="power_sensor",
+            data_schema=schema,
+            errors=errors,
+        )
+
+    async def async_step_confirm_power_sensor(self, user_input=None):
+        """Step 6 (sous-étape) : confirmation avant redirection pour puissance."""
+        errors = {}
+        if user_input is not None:
+            if "confirm_choice" in user_input:
+                choice = user_input["confirm_choice"]
+                if choice == "manual":
+                    self._no_sensor_message = True
+                    return await self.async_step_power_manual()
+                else:  # retry
+                    return await self.async_step_power_sensor()
+            else:
+                errors["confirm_choice"] = "required_field"
+
+        schema = vol.Schema({
+            vol.Required("confirm_choice"): vol.In({
+                "manual": "Configurer manuellement",
+                "retry": "Réessayer"
+            }),
+        })
+
+        return self.async_show_form(
+            step_id="confirm_power_sensor",
             data_schema=schema,
             errors=errors,
         )
