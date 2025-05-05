@@ -355,7 +355,6 @@ class PiscinexaPhAjouterSensor(SensorEntity):
 
     @property
     def unit_of_measurement(self):
-        # Déterminer si c'est pH+ ou pH- qui est nécessaire
         try:
             ph_current = float(self._entry.data["ph_current"])
             ph_target = float(self._entry.data["ph_target"])
@@ -374,22 +373,50 @@ class PiscinexaPhAjouterSensor(SensorEntity):
             ph_current = float(self._entry.data["ph_current"])
             ph_target = float(self._entry.data["ph_target"])
             volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
-            if volume:
+            if volume and volume.state not in ("unknown", "unavailable"):
                 volume_val = float(volume.state)
-                # Déterminer si c'est pH+ ou pH-
+                ph_difference = abs(ph_target - ph_current)
                 treatment_type = "ph_plus_treatment" if ph_current < ph_target else "ph_minus_treatment"
                 select_state = self._hass.states.get(f"input_select.{self._name}_{treatment_type}")
                 treatment = select_state.state if select_state else "Liquide"
-                # Facteurs de conversion (hypothétiques, à ajuster selon les produits réels)
-                if treatment == "Liquide":
-                    dose = abs(ph_target - ph_current) * volume_val * 10  # 10 L par unité de pH par m³
-                else:  # Granulés
-                    dose = abs(ph_target - ph_current) * volume_val * 100  # 100 g par unité de pH par m³
-                return round(dose, 2)
+                if treatment_type == "ph_plus_treatment":
+                    if treatment == "Liquide":
+                        dose = ph_difference * volume_val * 0.01  # 10 mL par m³ pour 0.1 pH
+                    else:  # Granulés
+                        dose = ph_difference * volume_val * 1.0  # 100 g par m³ pour 0.1 pH
+                else:  # pH-
+                    if treatment == "Liquide":
+                        dose = ph_difference * volume_val * 0.012  # 12 mL par m³ pour 0.1 pH
+                    else:  # Granulés
+                        dose = ph_difference * volume_val * 1.2  # 120 g par m³ pour 0.1 pH
+                return round(dose, 2) if ph_difference > 0 else 0
             return None
         except Exception as e:
             _LOGGER.error("Erreur calcul dose pH: %s", e)
             return None
+
+    @property
+    def extra_state_attributes(self):
+        """Retourne des attributs supplémentaires pour indiquer si c'est pH+ ou pH-."""
+        attributes = {}
+        try:
+            ph_current = float(self._entry.data["ph_current"])
+            ph_target = float(self._entry.data["ph_target"])
+            volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
+            if volume:
+                attributes["volume"] = float(volume.state)
+            if ph_current < ph_target:
+                attributes["treatment_direction"] = "pH+"
+            elif ph_current > ph_target:
+                attributes["treatment_direction"] = "pH-"
+            else:
+                attributes["treatment_direction"] = "Aucun ajustement"
+            attributes["ph_current"] = ph_current
+            attributes["ph_target"] = ph_target
+        except Exception as e:
+            _LOGGER.error("Erreur récupération attributs pH: %s", e)
+            attributes["treatment_direction"] = "Erreur"
+        return attributes
 
 class PiscinexaChloreSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
@@ -564,15 +591,15 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
                 if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
                     temperature = float(temp_entity.state)
                     temp_factor = max(1, 1 + (temperature - 20) * 0.02)
+                    chlore_difference = chlore_target - chlore_current
                     select_state = self._hass.states.get(f"input_select.{self._name}_chlore_treatment")
                     treatment = select_state.state if select_state else "Chlore choc (poudre)"
-                    # Facteurs de conversion (hypothétiques, à ajuster)
                     if treatment == "Liquide":
-                        dose = (chlore_target - chlore_current) * volume_val * 10 * temp_factor  # 10 L par mg/L par m³
+                        dose = chlore_difference * volume_val * 0.1 * temp_factor  # 100 mL par mg/L par m³
                     elif treatment == "Pastille lente":
-                        dose = (chlore_target - chlore_current) * volume_val * 0.5 * temp_factor  # 0.5 unité par mg/L par m³
+                        dose = (chlore_difference * volume_val / 20) * temp_factor  # 1 pastille par 20 m³ pour 1 mg/L
                     else:  # Chlore choc (poudre)
-                        dose = (chlore_target - chlore_current) * volume_val * 10 * temp_factor  # 10 g par mg/L par m³
+                        dose = chlore_difference * volume_val * 0.01 * temp_factor  # 10 g par mg/L par m³
                     if dose <= 0:
                         self._message = "Retirer le chlore, pas de besoin actuellement"
                         return 0
@@ -599,7 +626,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
             if temp_entity:
                 attributes["temperature"] = float(temp_entity.state)
-                attributes["temp_factor"] = max(1, 1 + (temperature - 20) * 0.02)
+                attributes["temp_factor"] = max(1, 1 + (attributes["temperature"] - 20) * 0.02)
             if self._message:
                 attributes["message"] = self._message
         except Exception as e:
