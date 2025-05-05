@@ -1,3 +1,4 @@
+# Tableau de bord pour une seule piscine. Remplacez 'piscine' par le nom de votre piscine si différent.
 title: Piscine
 views:
   - title: Piscine
@@ -54,3 +55,5 @@ views:
           - entity: sensor.piscinexa_piscine_volume_eau
             unit: m³
             name: Volume d'eau
+          - entity: sensor.piscinexa_piscine_pool_state
+            name: État de la piscine
