@@ -17,6 +17,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if "ph_target" not in hass.data[DOMAIN][entry.entry_id]:
         _LOGGER.warning("ph_target manquant, définition par défaut: 7.4")
         hass.data[DOMAIN][entry.entry_id]["ph_target"] = 7.4
+    if "temperature" not in hass.data[DOMAIN][entry.entry_id]:
+        _LOGGER.warning("temperature manquant, définition par défaut: 20.0")
+        hass.data[DOMAIN][entry.entry_id]["temperature"] = 20.0
 
     async def handle_test_calcul(call: ServiceCall):
         name = hass.data[DOMAIN][entry.entry_id]["name"]
