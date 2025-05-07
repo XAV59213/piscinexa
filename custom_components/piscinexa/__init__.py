@@ -8,7 +8,8 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = [Platform.BUTTON, Platform.SENSOR, Platform.INPUT_NUMBER, Platform.INPUT_SELECT]
+# Utilisation des chaînes de caractères pour les plateformes
+PLATFORMS = ["button", "sensor", "input_number", "input_select"]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Configurer l'intégration Piscinexa via une entrée de configuration."""
