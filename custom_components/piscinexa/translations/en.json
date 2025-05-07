@@ -14,7 +14,7 @@
         "title": "Step 2 - Pool Dimensions",
         "description": "Enter your pool's dimensions to calculate its volume.\n\n- For a square pool, provide the length, width, and depth.\n- For a round pool, provide the diameter and depth.\n\nValues must be in meters.",
         "data": {
-          "length": "Length (meters)",
+          "length": "Length성은 (meters)",
           "width": "Width (meters)",
           "depth": "Depth (meters)",
           "diameter": "Diameter (meters)"
@@ -201,7 +201,22 @@
       "piscinexa_piscine_chlore_a_ajouter": {"name": "Chlorine to Add", "unit_of_measurement": "g"},
       "piscinexa_piscine_consopuissance": {"name": "Power Consumption", "unit_of_measurement": "W"},
       "piscinexa_piscine_log": {"name": "Log"},
-      "piscinexa_piscine_pool_state": {"name": "Pool State"}
+      "piscinexa_piscine_pool_state": {
+        "name": "Pool State",
+        "states": {
+          "temperature_ideal": "Temperature ideal",
+          "too_cold": "Too cold",
+          "too_hot": "Too hot",
+          "chlorine_ideal": "Chlorine ideal",
+          "chlorine_low": "Chlorine low",
+          "chlorine_high": "Chlorine high",
+          "ph_ideal": "pH ideal",
+          "ph_low": "pH low",
+          "ph_high": "pH high",
+          "swimming_allowed": "Swimming allowed",
+          "unavailable": "Unavailable"
+        }
+      }
     },
     "button": {
       "piscinexa_piscine_test": {"name": "Test"},
