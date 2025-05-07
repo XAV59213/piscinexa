@@ -1,8 +1,10 @@
-"""Constantes pour Piscinexa."""
+"""Constantes pour l'intégration Piscinexa."""
 DOMAIN = "piscinexa"
 POOL_TYPE_SQUARE = "square"
 POOL_TYPE_ROUND = "round"
-PI = 3.141592653589793
+PI = 3.14159265359
+CONF_SENSOR = "ph_sensor"
+CONF_TEMPERATURE = "temperature"
 UNIT_CUBIC_METERS = "m³"
 UNIT_HOURS = "h"
 UNIT_LITERS = "L"
