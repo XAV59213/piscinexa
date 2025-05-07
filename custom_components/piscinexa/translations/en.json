@@ -194,6 +194,8 @@
       "piscinexa_piscine_temperature": {"name": "Pool Temperature", "unit_of_measurement": "°C"},
       "piscinexa_piscine_ph": {"name": "Pool pH"},
       "piscinexa_piscine_phaajouter": {"name": "Pool pH to Add", "unit_of_measurement": "L"},
+      "piscinexa_piscine_phplusaajouter": {"name": "Pool pH+ to Add", "unit_of_measurement": "L"},
+      "piscinexa_piscine_phminusaajouter": {"name": "Pool pH- to Add", "unit_of_measurement": "L"},
       "piscinexa_piscine_chlore": {"name": "Pool Chlorine", "unit_of_measurement": "mg/L"},
       "piscinexa_piscine_chloredifference": {"name": "Pool Chlorine Difference", "unit_of_measurement": "mg/L"},
       "piscinexa_piscine_chloreaajouter": {"name": "Pool Chlorine to Add", "unit_of_measurement": "g"},
@@ -204,6 +206,11 @@
     "button": {
       "piscinexa_piscine_test": {"name": "Pool Test"},
       "piscinexa_piscine_reset": {"name": "Pool Reset"}
+    },
+    "input_number": {
+      "piscine_ph_current": {"name": "Pool pH Current"},
+      "piscine_ph_target": {"name": "Pool pH Target"},
+      "piscine_chlore_current": {"name": "Pool Chlorine Current"}
     }
   }
 }
