@@ -76,6 +76,7 @@ class PiscinexaVolumeSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
         super().__init__(hass, entry, entry.data["name"], "volume_eau", UNIT_CUBIC_METERS, "mdi:pool")
         self._attr_extra_state_attributes = {"configuration_error": None}
+        self._attr_friendly_name = f"{self._name.capitalize()} Volume d'eau"
 
     @property
     def available(self):
@@ -128,7 +129,8 @@ class PiscinexaVolumeSensor(PiscinexaBaseSensor):
 
 class PiscinexaTempsFiltrationSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
-        super().__init__(hass, entry, entry.data["name"], "tempsfiltration", UNIT_HOURS, "mdi:clock")
+        super().__init__(hass, entry, entry.data["name"], "temps_filtration", UNIT_HOURS, "mdi:clock")
+        self._attr_friendly_name = f"{self._name.capitalize()} Temps de filtration"
 
     @property
     def native_value(self):
@@ -143,7 +145,7 @@ class PiscinexaTempsFiltrationSensor(PiscinexaBaseSensor):
 class PiscinexaLogSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
         super().__init__(hass, entry, entry.data["name"], "log", None, "mdi:book")
-        self._state = deque(maxlen=10)
+        self._attr_friendly_name = f"{self._name.capitalize()} Journal"
 
     def log_action(self, action: str):
         self._state.append(f"{datetime.now()}: {action}")
@@ -157,6 +159,7 @@ class PiscinexaTemperatureSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
         super().__init__(hass, entry, entry.data["name"], "temperature", "°C", "mdi:thermometer")
         self._sensor_id = entry.data.get("temperature_sensor")
+        self._attr_friendly_name = f"{self._name.capitalize()} Température"
 
     @property
     def native_value(self):
@@ -178,6 +181,7 @@ class PiscinexaPhSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
         super().__init__(hass, entry, entry.data["name"], "ph", "pH", "mdi:water")
         self._sensor_id = entry.data.get("ph_sensor")
+        self._attr_friendly_name = f"{self._name.capitalize()} pH"
 
     @property
     def native_value(self):
@@ -197,6 +201,7 @@ class PiscinexaChloreSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
         super().__init__(hass, entry, entry.data["name"], "chlore", UNIT_MG_PER_LITER, "mdi:water-check")
         self._sensor_id = entry.data.get("chlore_sensor")
+        self._attr_friendly_name = f"{self._name.capitalize()} Chlore"
 
     @property
     def native_value(self):
@@ -215,6 +220,7 @@ class PiscinexaChloreSensor(PiscinexaBaseSensor):
 class PiscinexaChloreDifferenceSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
         super().__init__(hass, entry, entry.data["name"], "chlore_difference", UNIT_MG_PER_LITER, "mdi:delta")
+        self._attr_friendly_name = f"{self._name.capitalize()} Différence Chlore"
 
     @property
     def native_value(self):
@@ -230,6 +236,7 @@ class PiscinexaPowerSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
         super().__init__(hass, entry, entry.data["name"], "consopuissance", "W", "mdi:flash")
         self._sensor_id = entry.data.get("power_sensor_entity_id")
+        self._attr_friendly_name = f"{self._name.capitalize()} Consommation Puissance"
 
     @property
     def native_value(self):
@@ -246,6 +253,7 @@ class PiscinexaPowerSensor(PiscinexaBaseSensor):
 class PiscinexaPoolStateSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
         super().__init__(hass, entry, entry.data["name"], "pool_state", None, "mdi:pool")
+        self._attr_friendly_name = f"{self._name.capitalize()} État de la piscine"
 
     @property
     def native_value(self):
@@ -286,7 +294,8 @@ class PiscinexaPoolStateSensor(PiscinexaBaseSensor):
 
 class PiscinexaPhAjouterSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
-        super().__init__(hass, entry, entry.data["name"], "phaajouter", UNIT_LITERS, "mdi:water-plus")
+        super().__init__(hass, entry, entry.data["name"], "ph_a_ajouter", UNIT_LITERS, "mdi:water-plus")
+        self._attr_friendly_name = f"{self._name.capitalize()} pH à ajouter"
         self._attr_extra_state_attributes = {"treatment_direction": ""}
 
     @property
@@ -327,7 +336,8 @@ class PiscinexaPhAjouterSensor(PiscinexaBaseSensor):
 
 class PiscinexaPhPlusAjouterSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
-        super().__init__(hass, entry, entry.data["name"], "phplusaajouter", UNIT_LITERS, "mdi:water-plus")
+        super().__init__(hass, entry, entry.data["name"], "ph_plus_a_ajouter", UNIT_LITERS, "mdi:water-plus")
+        self._attr_friendly_name = f"{self._name.capitalize()} pH+ à ajouter"
         self._attr_extra_state_attributes = {"treatment_type": "pH+"}
 
     @property
@@ -365,7 +375,8 @@ class PiscinexaPhPlusAjouterSensor(PiscinexaBaseSensor):
 
 class PiscinexaPhMinusAjouterSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
-        super().__init__(hass, entry, entry.data["name"], "phminusaajouter", UNIT_LITERS, "mdi:water-minus")
+        super().__init__(hass, entry, entry.data["name"], "ph_minus_a_ajouter", UNIT_LITERS, "mdi:water-minus")
+        self._attr_friendly_name = f"{self._name.capitalize()} pH- à ajouter"
         self._attr_extra_state_attributes = {"treatment_type": "pH-"}
 
     @property
@@ -403,7 +414,8 @@ class PiscinexaPhMinusAjouterSensor(PiscinexaBaseSensor):
 
 class PiscinexaChloreAjouterSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
-        super().__init__(hass, entry, entry.data["name"], "chloreaajouter", UNIT_GRAMS, "mdi:water-check")
+        super().__init__(hass, entry, entry.data["name"], "chlore_a_ajouter", UNIT_GRAMS, "mdi:water-check")
+        self._attr_friendly_name = f"{self._name.capitalize()} Chlore à ajouter"
         self._attr_extra_state_attributes = {"message": ""}
 
     @property
