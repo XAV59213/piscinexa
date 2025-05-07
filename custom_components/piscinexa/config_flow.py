@@ -3,7 +3,7 @@ import logging
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
-from homeassistant.const import CONF_NAME, TEMP_CELSIUS
+from homeassistant.const import CONF_NAME
 from .const import (
     DOMAIN,
     POOL_TYPE_SQUARE,
