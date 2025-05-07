@@ -14,7 +14,7 @@
         "title": "Step 2 - Pool Dimensions",
         "description": "Enter your pool's dimensions to calculate its volume.\n\n- For a square pool, provide the length, width, and depth.\n- For a round pool, provide the diameter and depth.\n\nValues must be in meters.",
         "data": {
-          "length": "Length성은 (meters)",
+          "length": "Length (meters)",
           "width": "Width (meters)",
           "depth": "Depth (meters)",
           "diameter": "Diameter (meters)"
@@ -226,6 +226,30 @@
       "piscine_ph_current": {"name": "Current pH"},
       "piscine_ph_target": {"name": "Target pH"},
       "piscine_chlore_current": {"name": "Current Chlorine"}
+    },
+    "input_select": {
+      "piscine_ph_plus_treatment": {
+        "name": "pH+ Treatment Type",
+        "options": {
+          "liquid": "Liquid",
+          "granules": "Granules"
+        }
+      },
+      "piscine_ph_minus_treatment": {
+        "name": "pH- Treatment Type",
+        "options": {
+          "liquid": "Liquid",
+          "granules": "Granules"
+        }
+      },
+      "piscine_chlore_treatment": {
+        "name": "Chlorine Treatment Type",
+        "options": {
+          "shock_powder": "Shock Powder",
+          "slow_tablet": "Slow Tablet",
+          "liquid": "Liquid"
+        }
+      }
     }
   }
 }
