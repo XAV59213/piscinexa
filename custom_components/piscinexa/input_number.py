@@ -15,6 +15,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     _LOGGER.info("Configuration des entités input_number et input_select pour %s", name)
     entities = [
         PiscinexaPhCurrentInput(hass, entry, name),
+        PiscinexaPhTargetInput(hass, entry, name),
         PiscinexaChloreCurrentInput(hass, entry, name),
         PiscinexaPhPlusTreatmentSelect(hass, entry, name),
         PiscinexaPhMinusTreatmentSelect(hass, entry, name),
@@ -53,6 +54,36 @@ class PiscinexaPhCurrentInput(InputNumber):
         self._hass.data[DOMAIN][self._entry.entry_id]["ph_current"] = value
         _LOGGER.debug("pH actuel mis à jour via input_number: %s", value)
 
+class PiscinexaPhTargetInput(InputNumber):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        config = {
+            "min": 0,
+            "max": 14,
+            "step": 0.1,
+            "unit_of_measurement": "pH",
+            "mode": "box",
+            "name": f"{name}_ph_target",
+            "initial": float(entry.data.get("ph_target", 7.4)),
+        }
+        super().__init__(config)
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_unique_id = f"{entry.entry_id}_ph_target"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.2",
+        )
+        _LOGGER.debug("Entité input_number '%s' créée avec valeur initiale %s", self.name, config["initial"])
+
+    async def async_set_value(self, value: float) -> None:
+        await super().async_set_value(value)
+        self._hass.data[DOMAIN][self._entry.entry_id]["ph_target"] = value
+        _LOGGER.debug("pH cible mis à jour via input_number: %s", value)
+
 class PiscinexaChloreCurrentInput(InputNumber):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         config = {
@@ -85,16 +116,15 @@ class PiscinexaChloreCurrentInput(InputNumber):
 
 class PiscinexaPhPlusTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
-        super().__init__(
-            options=["Liquide", "Granulés"],
-            name=f"{name}_ph_plus_treatment",
-            initial=entry.data.get("ph_plus_treatment", "Liquide"),
-        )
+        super().__init__(config={})
         self._hass = hass
         self._entry = entry
         self._name = name
+        self._attr_name = f"{name}_ph_plus_treatment"
         self._attr_unique_id = f"{entry.entry_id}_ph_plus_treatment"
         self._attr_icon = "mdi:water-plus"
+        self._attr_options = ["Liquide", "Granulés"]
+        self._attr_current_option = entry.data.get("ph_plus_treatment", "Liquide")
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
             name=name.capitalize(),
@@ -102,20 +132,19 @@ class PiscinexaPhPlusTreatmentSelect(InputSelect):
             model="Piscine",
             sw_version="1.0.2",
         )
-        _LOGGER.debug("Entité input_select '%s' créée avec valeur initiale %s", self.name, self.current_option)
+        _LOGGER.debug("Entité input_select '%s' créée avec valeur initiale %s", self.name, self._attr_current_option)
 
 class PiscinexaPhMinusTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
-        super().__init__(
-            options=["Liquide", "Granulés"],
-            name=f"{name}_ph_minus_treatment",
-            initial=entry.data.get("ph_minus_treatment", "Liquide"),
-        )
+        super().__init__(config={})
         self._hass = hass
         self._entry = entry
         self._name = name
+        self._attr_name = f"{name}_ph_minus_treatment"
         self._attr_unique_id = f"{entry.entry_id}_ph_minus_treatment"
         self._attr_icon = "mdi:water-minus"
+        self._attr_options = ["Liquide", "Granulés"]
+        self._attr_current_option = entry.data.get("ph_minus_treatment", "Liquide")
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
             name=name.capitalize(),
@@ -123,20 +152,19 @@ class PiscinexaPhMinusTreatmentSelect(InputSelect):
             model="Piscine",
             sw_version="1.0.2",
         )
-        _LOGGER.debug("Entité input_select '%s' créée avec valeur initiale %s", self.name, self.current_option)
+        _LOGGER.debug("Entité input_select '%s' créée avec valeur initiale %s", self.name, self._attr_current_option)
 
 class PiscinexaChloreTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
-        super().__init__(
-            options=["Chlore choc (poudre)", "Pastille lente", "Liquide"],
-            name=f"{name}_chlore_treatment",
-            initial=entry.data.get("chlore_treatment", "Chlore choc (poudre)"),
-        )
+        super().__init__(config={})
         self._hass = hass
         self._entry = entry
         self._name = name
+        self._attr_name = f"{name}_chlore_treatment"
         self._attr_unique_id = f"{entry.entry_id}_chlore_treatment"
         self._attr_icon = "mdi:water-check"
+        self._attr_options = ["Chlore choc (poudre)", "Pastille lente", "Liquide"]
+        self._attr_current_option = entry.data.get("chlore_treatment", "Chlore choc (poudre)")
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
             name=name.capitalize(),
@@ -144,4 +172,4 @@ class PiscinexaChloreTreatmentSelect(InputSelect):
             model="Piscine",
             sw_version="1.0.2",
         )
-        _LOGGER.debug("Entité input_select '%s' créée avec valeur initiale %s", self.name, self.current_option)
+        _LOGGER.debug("Entité input_select '%s' créée avec valeur initiale %s", self.name, self._attr_current_option)

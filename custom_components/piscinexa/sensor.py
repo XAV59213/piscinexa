@@ -9,6 +9,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 
 from .const import (
     DOMAIN,
@@ -29,8 +30,9 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     name = entry.data["name"]
+    volume_sensor = PiscinexaVolumeSensor(hass, entry)
     sensors = [
-        PiscinexaVolumeSensor(hass, entry),
+        volume_sensor,
         PiscinexaTempsFiltrationSensor(hass, entry),
         PiscinexaTemperatureSensor(hass, entry),
         PiscinexaPhSensor(hass, entry),
@@ -73,19 +75,54 @@ class PiscinexaBaseSensor(SensorEntity):
 class PiscinexaVolumeSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
         super().__init__(hass, entry, entry.data["name"], "volume_eau", UNIT_CUBIC_METERS, "mdi:pool")
+        self._attr_extra_state_attributes = {"configuration_error": None}
+
+    @property
+    def available(self):
+        return self.native_value is not None
 
     @property
     def native_value(self):
         try:
             data = self._entry.data
+            required_fields = ["depth", "pool_type"]
+            if data["pool_type"] == POOL_TYPE_SQUARE:
+                required_fields.extend(["length", "width"])
+            else:
+                required_fields.append("diameter")
+
+            missing_fields = [field for field in required_fields if field not in data or data[field] is None]
+            if missing_fields:
+                error_msg = f"Champs manquants dans la configuration pour {self._name}: {', '.join(missing_fields)}"
+                self._attr_extra_state_attributes["configuration_error"] = error_msg
+                _LOGGER.error(error_msg)
+                return None
+
+            for field in required_fields:
+                try:
+                    value = float(data[field])
+                    if value <= 0:
+                        error_msg = f"Valeur invalide pour {field} dans la configuration pour {self._name}: {value}"
+                        self._attr_extra_state_attributes["configuration_error"] = error_msg
+                        _LOGGER.error(error_msg)
+                        return None
+                except (ValueError, TypeError):
+                    error_msg = f"Valeur non numérique pour {field} dans la configuration pour {self._name}: {data[field]}"
+                    self._attr_extra_state_attributes["configuration_error"] = error_msg
+                    _LOGGER.error(error_msg)
+                    return None
+
             depth = float(data["depth"])
             if data["pool_type"] == POOL_TYPE_SQUARE:
                 volume = float(data["length"]) * float(data["width"]) * depth
             else:
                 radius = float(data["diameter"]) / 2
                 volume = PI * radius * radius * depth
+
+            self._attr_extra_state_attributes["configuration_error"] = None
             return round(volume, 2)
         except Exception as e:
+            self._attr_extra_state_attributes["configuration_error"] = str(e)
             _LOGGER.error("Erreur calcul volume pour %s: %s", self._name, e)
             return None
 
@@ -126,7 +163,7 @@ class PiscinexaTemperatureSensor(PiscinexaBaseSensor):
         try:
             if self._sensor_id:
                 state = self._hass.states.get(self._sensor_id)
-                if state and state.state not in ("unknown", "unavailable"):
+                if state and state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN):
                     temp = float(state.state)
                     if state.attributes.get("unit_of_measurement", "").lower() in ("°f", "f", "fahrenheit"):
                         temp = (temp - 32) * 5 / 9
@@ -147,7 +184,7 @@ class PiscinexaPhSensor(PiscinexaBaseSensor):
         try:
             if self._sensor_id:
                 state = self._hass.states.get(self._sensor_id)
-                if state and state.state not in ("unknown", "unavailable"):
+                if state and state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN):
                     ph = round(float(state.state), 1)
                     self._hass.data[DOMAIN][self._entry.entry_id]["ph_current"] = ph
                     return ph
@@ -166,7 +203,7 @@ class PiscinexaChloreSensor(PiscinexaBaseSensor):
         try:
             if self._sensor_id:
                 state = self._hass.states.get(self._sensor_id)
-                if state and state.state not in ("unknown", "unavailable"):
+                if state and state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN):
                     chlore = round(float(state.state), 1)
                     self._hass.data[DOMAIN][self._entry.entry_id]["chlore_current"] = chlore
                     return chlore
@@ -199,7 +236,7 @@ class PiscinexaPowerSensor(PiscinexaBaseSensor):
         try:
             if self._sensor_id:
                 state = self._hass.states.get(self._sensor_id)
-                if state and state.state not in ("unknown", "unavailable"):
+                if state and state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN):
                     return round(float(state.state), 2)
             return None
         except Exception as e:
@@ -253,16 +290,21 @@ class PiscinexaPhAjouterSensor(PiscinexaBaseSensor):
         self._attr_extra_state_attributes = {"treatment_direction": ""}
 
     @property
+    def available(self):
+        volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
+        return volume_entity and volume_entity.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN)
+
+    @property
     def native_value(self):
+        if not self.available:
+            _LOGGER.warning("Capteur de volume indisponible pour %s", self._name)
+            return 0
+
         try:
             data = self._hass.data[DOMAIN][self._entry.entry_id]
             current_ph = float(data.get("ph_current", 7.0))
             target_ph = float(data.get("ph_target", 7.4))
             volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
-            if not volume_entity or volume_entity.state in ("unknown", "unavailable"):
-                _LOGGER.error("Capteur de volume indisponible pour %s", self._name)
-                return 0
-
             volume = float(volume_entity.state)
             delta_ph = target_ph - current_ph
             treatment_form = data.get("ph_plus_treatment" if delta_ph > 0 else "ph_minus_treatment", "Liquide")
@@ -289,16 +331,21 @@ class PiscinexaPhPlusAjouterSensor(PiscinexaBaseSensor):
         self._attr_extra_state_attributes = {"treatment_type": "pH+"}
 
     @property
+    def available(self):
+        volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
+        return volume_entity and volume_entity.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN)
+
+    @property
     def native_value(self):
+        if not self.available:
+            _LOGGER.warning("Capteur de volume indisponible pour %s", self._name)
+            return 0
+
         try:
             data = self._hass.data[DOMAIN][self._entry.entry_id]
             current_ph = float(data.get("ph_current", 7.0))
             target_ph = float(data.get("ph_target", 7.4))
             volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
-            if not volume_entity or volume_entity.state in ("unknown", "unavailable"):
-                _LOGGER.error("Capteur de volume indisponible pour %s", self._name)
-                return 0
-
             volume = float(volume_entity.state)
             delta_ph = target_ph - current_ph
             treatment_form = data.get("ph_plus_treatment", "Liquide")
@@ -322,16 +369,21 @@ class PiscinexaPhMinusAjouterSensor(PiscinexaBaseSensor):
         self._attr_extra_state_attributes = {"treatment_type": "pH-"}
 
     @property
+    def available(self):
+        volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
+        return volume_entity and volume_entity.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN)
+
+    @property
     def native_value(self):
+        if not self.available:
+            _LOGGER.warning("Capteur de volume indisponible pour %s", self._name)
+            return 0
+
         try:
             data = self._hass.data[DOMAIN][self._entry.entry_id]
             current_ph = float(data.get("ph_current", 7.0))
             target_ph = float(data.get("ph_target", 7.4))
             volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
-            if not volume_entity or volume_entity.state in ("unknown", "unavailable"):
-                _LOGGER.error("Capteur de volume indisponible pour %s", self._name)
-                return 0
-
             volume = float(volume_entity.state)
             delta_ph = current_ph - target_ph
             treatment_form = data.get("ph_minus_treatment", "Liquide")
@@ -355,16 +407,21 @@ class PiscinexaChloreAjouterSensor(PiscinexaBaseSensor):
         self._attr_extra_state_attributes = {"message": ""}
 
     @property
+    def available(self):
+        volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
+        return volume_entity and volume_entity.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN)
+
+    @property
     def native_value(self):
+        if not self.available:
+            _LOGGER.warning("Capteur de volume indisponible pour %s", self._name)
+            return 0
+
         try:
             data = self._hass.data[DOMAIN][self._entry.entry_id]
             current_chlore = float(data.get("chlore_current", 1.0))
             target_chlore = float(data.get("chlore_target", 2.0))
             volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
-            if not volume_entity or volume_entity.state in ("unknown", "unavailable"):
-                _LOGGER.error("Capteur de volume indisponible pour %s", self._name)
-                return 0
-
             volume = float(volume_entity.state)
             delta_chlore = target_chlore - current_chlore
             treatment_form = data.get("chlore_treatment", "Chlore choc (poudre)")
