@@ -89,6 +89,20 @@ class PiscinexaVolumeSensor(PiscinexaBaseSensor):
             _LOGGER.error("Erreur calcul volume pour %s: %s", self._name, e)
             return None
 
+class PiscinexaTempsFiltrationSensor(PiscinexaBaseSensor):
+    def __init__(self, hass, entry):
+        super().__init__(hass, entry, entry.data["name"], "tempsfiltration", UNIT_HOURS, "mdi:clock")
+
+    @property
+    def native_value(self):
+        try:
+            temperature = float(self._hass.data[DOMAIN][self._entry.entry_id].get("temperature", 20.0))
+            filtration_time = max(8, min(24, temperature / 2))
+            return round(filtration_time, 1)
+        except Exception as e:
+            _LOGGER.error("Erreur calcul temps de filtration pour %s: %s", self._name, e)
+            return None
+
 class PiscinexaLogSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
         super().__init__(hass, entry, entry.data["name"], "log", None, "mdi:book")
@@ -184,7 +198,7 @@ class PiscinexaPowerSensor(PiscinexaBaseSensor):
     def native_value(self):
         try:
             if self._sensor_id:
-                state = self._hass.states.asdict().get(self._sensor_id)
+                state = self._hass.states.get(self._sensor_id)
                 if state and state.state not in ("unknown", "unavailable"):
                     return round(float(state.state), 2)
             return None

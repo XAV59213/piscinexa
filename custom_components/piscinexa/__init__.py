@@ -18,14 +18,14 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     if entry.entry_id in hass.data[DOMAIN]:
-        _LOGGER.warning("Entrée %s déjà configurée, ignorée", entry.entry_id)
-        return False
-
-    hass.data[DOMAIN][entry.entry_id] = entry.data.copy()
+        _LOGGER.warning("Entrée %s déjà configurée, mise à jour des données", entry.entry_id)
+        hass.data[DOMAIN][entry.entry_id].update(entry.data)
+    else:
+        hass.data[DOMAIN][entry.entry_id] = entry.data.copy()
 
     for key, default_value in DEFAULTS.items():
         if key not in hass.data[DOMAIN][entry.entry_id]:
-            _LOGGER.warning("%s manquant, définition par défaut: %s", key, default_value)
+            _LOGGER.info("%s manquant, définition par défaut: %s", key, default_value)
             hass.data[DOMAIN][entry.entry_id][key] = default_value
 
     async def handle_test_calcul(call: ServiceCall):
@@ -60,8 +60,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN][entry.entry_id].update(data)
 
         for entity_id, value in [
-            (f"input_number.{name}_chlore_current", DEFAULTS["chlore_current"]),
-            (f"input_number.{name}_ph_current", DEFAULTS["ph_current"])
+            (f"input_number.{name}_ph_current", DEFAULTS["ph_current"]),
+            (f"input_number.{name}_chlore_current", DEFAULTS["chlore_current"])
         ]:
             entity = hass.states.get(entity_id)
             if entity:

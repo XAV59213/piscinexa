@@ -451,33 +451,33 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
         if user_input is not None:
             numeric_fields = [
-                ("temperature", "temperature_invalid", lambda x: 0 <= x <= 50, False),
+                ("temperature", "temperature_invalid", lambda x: 0 <= x <= 50, True),
             ]
             for field, error_key, validator, required in numeric_fields:
                 try:
-                    value = user_input.get(field, "20.0")
-                    if value is not None and value != "":
-                        value = str(value).replace(",", ".").strip()
-                        value = float(value)
-                        if not validator(value):
-                            errors[field] = "temperature_invalid"
-                        self._data[field] = value
+                    value = user_input.get(field)
+                    if required and (value is None or value == ""):
+                        errors[field] = "required_field"
+                        continue
+                    value = str(value).replace(",", ".").strip()
+                    value = float(value)
+                    if not validator(value):
+                        errors[field] = error_key
+                    self._data[field] = value
                 except ValueError:
                     errors[field] = "invalid_number"
 
             if not errors:
-                if "temperature" not in self._data or self._data["temperature"] is None:
-                    self._data["temperature"] = 20.0
                 self._data["use_temperature_sensor"] = False
                 self._data["temperature_sensor"] = ""
                 return await self.async_step_power_config()
 
-        description = "Entrez la température actuelle mesurée de votre piscine.\n\n- **Température actuelle (°C)** : La température actuelle de l’eau, mesurée manuellement (facultatif)."
+        description = "Entrez la température actuelle mesurée de votre piscine.\n\n- **Température actuelle (°C)** : La température actuelle de l’eau, mesurée manuellement (obligatoire)."
         if self._no_sensor_message:
             description = "Piscinexa n'a pas trouvé de capteur température compatible. Vous devez configurer les valeurs manuellement.\n\n" + description
 
         schema = vol.Schema({
-            vol.Optional("temperature", default=20.0): vol.Coerce(float),
+            vol.Required("temperature", default=20.0): vol.Coerce(float),
         })
 
         return self.async_show_form(
