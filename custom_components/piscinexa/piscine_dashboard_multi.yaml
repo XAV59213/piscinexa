@@ -15,7 +15,7 @@ views:
             cards:
               - type: button
                 entity: button.piscinexa_papa_test
-                name: Tester
+                name: Calculer l'état de la piscine
               - type: button
                 entity: button.piscinexa_papa_reset
                 name: Réinitialiser
@@ -57,7 +57,7 @@ views:
             cards:
               - type: button
                 entity: button.piscinexa_maman_test
-                name: Tester
+                name: Calculer l'état de la piscine
               - type: button
                 entity: button.piscinexa_maman_reset
                 name: Réinitialiser

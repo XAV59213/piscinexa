@@ -10,7 +10,7 @@ views:
           - button.piscinexa_piscine_reset
             name: Réinitialiser
           - button.piscinexa_piscine_test
-            name: Tester
+            name: Calculer l'état de la piscine
       - type: entities
         title: Saisie manuelle
         entities:
