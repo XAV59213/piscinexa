@@ -1,4 +1,14 @@
 ChangelogAll notable changes to the Piscinexa Home Assistant integration will be documented in this file.The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
+[1.0.7] - 2025-05-10Added
+
+Added PiscinexaTempsFiltrationSensor to calculate recommended filtration time based on pool temperature.
+
+Fixed
+
+Resolved "PiscinexaTempsFiltrationSensor is not defined" error by adding the missing sensor class.
+Fixed "temperature manquant" warning by making temperature input required in config_flow.py.
+Improved handling of existing config entries in __init__.py to prevent "Entrée déjà configurée" errors.
+
 [1.0.6] - 2025-05-09Added
 
 Added new sensors for pH+ to add (sensor.piscinexa_piscine_phplusaajouter) and pH- to add (sensor.piscinexa_piscine_phminusaajouter).
@@ -52,4 +62,6 @@ Configuration flow to set up pool type, dimensions, and sensor or manual inputs 
 French translations (translations/fr.json) for configuration and entities.
 Support for square and round pools.
 Integration with HACS via hacs.json.
+
+
 
