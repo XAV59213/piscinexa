@@ -1,3 +1,4 @@
+
 {
   "title": "Piscinexa - Configuration",
   "config": {
@@ -219,7 +220,7 @@
       }
     },
     "button": {
-      "piscinexa_piscine_test": {"name": "Tester"},
+      "piscinexa_piscine_test": {"name": "Calculer l'état de la piscine"},
       "piscinexa_piscine_reset": {"name": "Réinitialiser"}
     },
     "input_number": {
