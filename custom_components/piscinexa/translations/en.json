@@ -219,7 +219,7 @@
       }
     },
     "button": {
-      "piscinexa_piscine_test": {"name": "Test"},
+      "piscinexa_piscine_test": {"name": "Calculate Pool State"},
       "piscinexa_piscine_reset": {"name": "Reset"}
     },
     "input_number": {
