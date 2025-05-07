@@ -226,6 +226,30 @@
       "piscine_ph_current": {"name": "pH Actuel"},
       "piscine_ph_target": {"name": "pH Cible"},
       "piscine_chlore_current": {"name": "Chlore Actuel"}
+    },
+    "input_select": {
+      "piscine_ph_plus_treatment": {
+        "name": "Type de traitement pH+",
+        "options": {
+          "liquid": "Liquide",
+          "granules": "Granulés"
+        }
+      },
+      "piscine_ph_minus_treatment": {
+        "name": "Type de traitement pH-",
+        "options": {
+          "liquid": "Liquide",
+          "granules": "Granulés"
+        }
+      },
+      "piscine_chlore_treatment": {
+        "name": "Type de traitement Chlore",
+        "options": {
+          "shock_powder": "Chlore choc (poudre)",
+          "slow_tablet": "Pastille lente",
+          "liquid": "Liquide"
+        }
+      }
     }
   }
 }
