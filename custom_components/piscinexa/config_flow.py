@@ -679,6 +679,22 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_summary(self, user_input=None):
         """Step 8 : récapitulatif avant validation."""
         if user_input is not None:
+            # Validation finale des champs requis
+            required_fields = ["name", "pool_type", "ph_target", "chlore_target", "temperature"]
+            if self._data["pool_type"] == POOL_TYPE_SQUARE:
+                required_fields.extend(["length", "width", "depth"])
+            else:
+                required_fields.extend(["diameter", "depth"])
+            
+            missing_fields = [field for field in required_fields if field not in self._data or self._data[field] is None]
+            if missing_fields:
+                _LOGGER.error("Configuration incomplète pour %s: champs manquants: %s", self._data["name"], missing_fields)
+                return self.async_show_form(
+                    step_id="summary",
+                    description_placeholders={"summary": f"Erreur : Configuration incomplète. Champs manquants : {', '.join(missing_fields)}"},
+                    data_schema=vol.Schema({}),
+                )
+            
             return self.async_create_entry(title=f"Piscinexa {self._data['name']}", data=self._data)
 
         summary = [
