@@ -1,4 +1,3 @@
-
 # Fichier sensor.py optimisé pour l'intégration Piscinexa
 import logging
 from datetime import datetime
@@ -37,6 +36,8 @@ async def async_setup_entry(
         PiscinexaPhSensor(hass, entry),
         PiscinexaChloreSensor(hass, entry),
         PiscinexaPhAjouterSensor(hass, entry),
+        PiscinexaPhPlusAjouterSensor(hass, entry),
+        PiscinexaPhMinusAjouterSensor(hass, entry),
         PiscinexaChloreAjouterSensor(hass, entry),
         PiscinexaChloreDifferenceSensor(hass, entry),
         PiscinexaPoolStateSensor(hass, entry),
@@ -183,7 +184,7 @@ class PiscinexaPowerSensor(PiscinexaBaseSensor):
     def native_value(self):
         try:
             if self._sensor_id:
-                state = self._hass.states.get(self._sensor_id)
+                state = self._hass.states.asdict().get(self._sensor_id)
                 if state and state.state not in ("unknown", "unavailable"):
                     return round(float(state.state), 2)
             return None
@@ -231,3 +232,142 @@ class PiscinexaPoolStateSensor(PiscinexaBaseSensor):
         except Exception as e:
             _LOGGER.error("Erreur évaluation état piscine : %s", e)
             return "Indisponible"
+
+class PiscinexaPhAjouterSensor(PiscinexaBaseSensor):
+    def __init__(self, hass, entry):
+        super().__init__(hass, entry, entry.data["name"], "phaajouter", UNIT_LITERS, "mdi:water-plus")
+        self._attr_extra_state_attributes = {"treatment_direction": ""}
+
+    @property
+    def native_value(self):
+        try:
+            data = self._hass.data[DOMAIN][self._entry.entry_id]
+            current_ph = float(data.get("ph_current", 7.0))
+            target_ph = float(data.get("ph_target", 7.4))
+            volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
+            if not volume_entity or volume_entity.state in ("unknown", "unavailable"):
+                _LOGGER.error("Capteur de volume indisponible pour %s", self._name)
+                return 0
+
+            volume = float(volume_entity.state)
+            delta_ph = target_ph - current_ph
+            treatment_form = data.get("ph_plus_treatment" if delta_ph > 0 else "ph_minus_treatment", "Liquide")
+            self._attr_extra_state_attributes["treatment_direction"] = "pH+" if delta_ph > 0 else "pH-" if delta_ph < 0 else "Aucun ajustement"
+
+            if delta_ph == 0:
+                return 0
+
+            if treatment_form == "Liquide":
+                factor = 0.01 if delta_ph > 0 else 0.012
+                quantity = abs(delta_ph) * volume * factor
+            else:  # Granulés
+                factor = 1.0 if delta_ph > 0 else 1.2
+                quantity = abs(delta_ph) * volume * factor
+
+            return round(quantity, 2)
+        except Exception as e:
+            _LOGGER.error("Erreur calcul pH à ajouter pour %s: %s", self._name, e)
+            return 0
+
+class PiscinexaPhPlusAjouterSensor(PiscinexaBaseSensor):
+    def __init__(self, hass, entry):
+        super().__init__(hass, entry, entry.data["name"], "phplusaajouter", UNIT_LITERS, "mdi:water-plus")
+        self._attr_extra_state_attributes = {"treatment_type": "pH+"}
+
+    @property
+    def native_value(self):
+        try:
+            data = self._hass.data[DOMAIN][self._entry.entry_id]
+            current_ph = float(data.get("ph_current", 7.0))
+            target_ph = float(data.get("ph_target", 7.4))
+            volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
+            if not volume_entity or volume_entity.state in ("unknown", "unavailable"):
+                _LOGGER.error("Capteur de volume indisponible pour %s", self._name)
+                return 0
+
+            volume = float(volume_entity.state)
+            delta_ph = target_ph - current_ph
+            treatment_form = data.get("ph_plus_treatment", "Liquide")
+
+            if delta_ph <= 0:
+                return 0
+
+            if treatment_form == "Liquide":
+                quantity = delta_ph * volume * 0.01
+            else:  # Granulés
+                quantity = delta_ph * volume * 1.0
+
+            return round(quantity, 2)
+        except Exception as e:
+            _LOGGER.error("Erreur calcul pH+ à ajouter pour %s: %s", self._name, e)
+            return 0
+
+class PiscinexaPhMinusAjouterSensor(PiscinexaBaseSensor):
+    def __init__(self, hass, entry):
+        super().__init__(hass, entry, entry.data["name"], "phminusaajouter", UNIT_LITERS, "mdi:water-minus")
+        self._attr_extra_state_attributes = {"treatment_type": "pH-"}
+
+    @property
+    def native_value(self):
+        try:
+            data = self._hass.data[DOMAIN][self._entry.entry_id]
+            current_ph = float(data.get("ph_current", 7.0))
+            target_ph = float(data.get("ph_target", 7.4))
+            volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
+            if not volume_entity or volume_entity.state in ("unknown", "unavailable"):
+                _LOGGER.error("Capteur de volume indisponible pour %s", self._name)
+                return 0
+
+            volume = float(volume_entity.state)
+            delta_ph = current_ph - target_ph
+            treatment_form = data.get("ph_minus_treatment", "Liquide")
+
+            if delta_ph <= 0:
+                return 0
+
+            if treatment_form == "Liquide":
+                quantity = delta_ph * volume * 0.012
+            else:  # Granulés
+                quantity = delta_ph * volume * 1.2
+
+            return round(quantity, 2)
+        except Exception as e:
+            _LOGGER.error("Erreur calcul pH- à ajouter pour %s: %s", self._name, e)
+            return 0
+
+class PiscinexaChloreAjouterSensor(PiscinexaBaseSensor):
+    def __init__(self, hass, entry):
+        super().__init__(hass, entry, entry.data["name"], "chloreaajouter", UNIT_GRAMS, "mdi:water-check")
+        self._attr_extra_state_attributes = {"message": ""}
+
+    @property
+    def native_value(self):
+        try:
+            data = self._hass.data[DOMAIN][self._entry.entry_id]
+            current_chlore = float(data.get("chlore_current", 1.0))
+            target_chlore = float(data.get("chlore_target", 2.0))
+            volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
+            if not volume_entity or volume_entity.state in ("unknown", "unavailable"):
+                _LOGGER.error("Capteur de volume indisponible pour %s", self._name)
+                return 0
+
+            volume = float(volume_entity.state)
+            delta_chlore = target_chlore - current_chlore
+            treatment_form = data.get("chlore_treatment", "Chlore choc (poudre)")
+            self._attr_extra_state_attributes["message"] = ""
+
+            if delta_chlore <= 0:
+                self._attr_extra_state_attributes["message"] = "Retirer le chlore, pas de besoin actuellement"
+                return 0
+
+            if treatment_form == "Liquide":
+                quantity = delta_chlore * volume * 0.1
+            elif treatment_form == "Pastille lente":
+                quantity = delta_chlore * volume / 20
+            else:  # Chlore choc (poudre)
+                quantity = delta_chlore * volume * 0.01
+
+            return round(quantity, 2)
+        except Exception as e:
+            _LOGGER.error("Erreur calcul chlore à ajouter pour %s: %s", self._name, e)
+            return 0
