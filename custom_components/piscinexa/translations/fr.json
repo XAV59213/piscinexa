@@ -201,7 +201,22 @@
       "piscinexa_piscine_chlore_a_ajouter": {"name": "Chlore à ajouter", "unit_of_measurement": "g"},
       "piscinexa_piscine_consopuissance": {"name": "Consommation Puissance", "unit_of_measurement": "W"},
       "piscinexa_piscine_log": {"name": "Journal"},
-      "piscinexa_piscine_pool_state": {"name": "État de la piscine"}
+      "piscinexa_piscine_pool_state": {
+        "name": "État de la piscine",
+        "states": {
+          "temperature_ideal": "Température idéale",
+          "too_cold": "Trop froide",
+          "too_hot": "Trop chaude",
+          "chlorine_ideal": "Chlore idéal",
+          "chlorine_low": "Chlore bas",
+          "chlorine_high": "Chlore haut",
+          "ph_ideal": "pH idéal",
+          "ph_low": "pH bas",
+          "ph_high": "pH haut",
+          "swimming_allowed": "Baignade autorisée",
+          "unavailable": "Indisponible"
+        }
+      }
     },
     "button": {
       "piscinexa_piscine_test": {"name": "Tester"},
