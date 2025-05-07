@@ -10,6 +10,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
+from homeassistant.helpers.translation import async_get_translations
 
 from .const import (
     DOMAIN,
@@ -86,7 +87,13 @@ class PiscinexaVolumeSensor(PiscinexaBaseSensor):
     def native_value(self):
         try:
             data = self._entry.data
-            required_fields = ["depth", "pool_type"]
+            required_fields = ["depth"]
+            if "pool_type" not in data or data["pool_type"] not in (POOL_TYPE_SQUARE, POOL_TYPE_ROUND):
+                error_msg = f"Valeur invalide pour pool_type dans la configuration pour {self._name}: {data.get('pool_type', 'non défini')}"
+                self._attr_extra_state_attributes["configuration_error"] = error_msg
+                _LOGGER.error(error_msg)
+                return None
+
             if data["pool_type"] == POOL_TYPE_SQUARE:
                 required_fields.extend(["length", "width"])
             else:
@@ -146,13 +153,19 @@ class PiscinexaLogSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
         super().__init__(hass, entry, entry.data["name"], "log", None, "mdi:book")
         self._attr_friendly_name = f"{self._name.capitalize()} Journal"
+        self._state = deque(maxlen=10)
 
     def log_action(self, action: str):
+        if not hasattr(self, '_state') or self._state is None:
+            self._state = deque(maxlen=10)
         self._state.append(f"{datetime.now()}: {action}")
         self.async_write_ha_state()
 
     @property
     def native_value(self):
+        if not hasattr(self, '_state') or self._state is None:
+            self._state = deque(maxlen=10)
+            return "Aucune action"
         return "\n".join(self._state) if self._state else "Aucune action"
 
 class PiscinexaTemperatureSensor(PiscinexaBaseSensor):
@@ -254,10 +267,51 @@ class PiscinexaPoolStateSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
         super().__init__(hass, entry, entry.data["name"], "pool_state", None, "mdi:pool")
         self._attr_friendly_name = f"{self._name.capitalize()} État de la piscine"
+        self._translations = None
+
+    async def async_update_translations(self):
+        # Récupérer la langue de l'utilisateur
+        language = self.hass.config.language
+        # Charger les traductions pour l'entité pool_state
+        self._translations = await async_get_translations(
+            self.hass, language, "entity", components=[DOMAIN]
+        )
 
     @property
     def native_value(self):
         try:
+            # Charger les traductions si elles ne sont pas encore chargées
+            if self._translations is None:
+                self.hass.async_create_task(self.async_update_translations())
+                # Valeurs par défaut en cas de traduction non disponible
+                translations = {
+                    "temperature_ideal": "Température idéale",
+                    "too_cold": "Trop froide",
+                    "too_hot": "Trop chaude",
+                    "chlorine_ideal": "Chlore idéal",
+                    "chlorine_low": "Chlore bas",
+                    "chlorine_high": "Chlore haut",
+                    "ph_ideal": "pH idéal",
+                    "ph_low": "pH bas",
+                    "ph_high": "pH haut",
+                    "swimming_allowed": "Baignade autorisée",
+                    "unavailable": "Indisponible"
+                }
+            else:
+                translations = {
+                    "temperature_ideal": self._translations.get("entity.sensor.piscinexa_piscine_pool_state.states.temperature_ideal", "Température idéale"),
+                    "too_cold": self._translations.get("entity.sensor.piscinexa_piscine_pool_state.states.too_cold", "Trop froide"),
+                    "too_hot": self._translations.get("entity.sensor.piscinexa_piscine_pool_state.states.too_hot", "Trop chaude"),
+                    "chlorine_ideal": self._translations.get("entity.sensor.piscinexa_piscine_pool_state.states.chlorine_ideal", "Chlore idéal"),
+                    "chlorine_low": self._translations.get("entity.sensor.piscinexa_piscine_pool_state.states.chlorine_low", "Chlore bas"),
+                    "chlorine_high": self._translations.get("entity.sensor.piscinexa_piscine_pool_state.states.chlorine_high", "Chlore haut"),
+                    "ph_ideal": self._translations.get("entity.sensor.piscinexa_piscine_pool_state.states.ph_ideal", "pH idéal"),
+                    "ph_low": self._translations.get("entity.sensor.piscinexa_piscine_pool_state.states.ph_low", "pH bas"),
+                    "ph_high": self._translations.get("entity.sensor.piscinexa_piscine_pool_state.states.ph_high", "pH haut"),
+                    "swimming_allowed": self._translations.get("entity.sensor.piscinexa_piscine_pool_state.states.swimming_allowed", "Baignade autorisée"),
+                    "unavailable": self._translations.get("entity.sensor.piscinexa_piscine_pool_state.states.unavailable", "Indisponible")
+                }
+
             data = self._hass.data[DOMAIN][self._entry.entry_id]
             temperature = data.get("temperature", 20.0)
             chlore = data.get("chlore_current", 1.0)
@@ -265,32 +319,32 @@ class PiscinexaPoolStateSensor(PiscinexaBaseSensor):
 
             status = []
             if 22 <= temperature <= 28:
-                status.append("Température idéale")
+                status.append(translations["temperature_ideal"])
             elif temperature < 22:
-                status.append("Trop froide")
+                status.append(translations["too_cold"])
             else:
-                status.append("Trop chaude")
+                status.append(translations["too_hot"])
 
             if 1 <= chlore <= 3:
-                status.append("Chlore idéal")
+                status.append(translations["chlorine_ideal"])
             elif chlore < 1:
-                status.append("Chlore bas")
+                status.append(translations["chlorine_low"])
             else:
-                status.append("Chlore haut")
+                status.append(translations["chlorine_high"])
 
             if 7.2 <= ph <= 7.6:
-                status.append("pH idéal")
+                status.append(translations["ph_ideal"])
             elif ph < 7.2:
-                status.append("pH bas")
+                status.append(translations["ph_low"])
             else:
-                status.append("pH haut")
+                status.append(translations["ph_high"])
 
-            if all("idéal" in s for s in status):
-                return "Baignade autorisée"
+            if all("ideal" in s.lower() for s in status):
+                return translations["swimming_allowed"]
             return ", ".join(status)
         except Exception as e:
             _LOGGER.error("Erreur évaluation état piscine : %s", e)
-            return "Indisponible"
+            return translations.get("unavailable", "Indisponible")
 
 class PiscinexaPhAjouterSensor(PiscinexaBaseSensor):
     def __init__(self, hass, entry):
