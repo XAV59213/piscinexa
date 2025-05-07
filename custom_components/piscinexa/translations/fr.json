@@ -194,6 +194,8 @@
       "piscinexa_piscine_temperature": {"name": "Piscine Température", "unit_of_measurement": "°C"},
       "piscinexa_piscine_ph": {"name": "Piscine pH"},
       "piscinexa_piscine_phaajouter": {"name": "Piscine pH à ajouter", "unit_of_measurement": "L"},
+      "piscinexa_piscine_phplusaajouter": {"name": "Piscine pH+ à ajouter", "unit_of_measurement": "L"},
+      "piscinexa_piscine_phminusaajouter": {"name": "Piscine pH- à ajouter", "unit_of_measurement": "L"},
       "piscinexa_piscine_chlore": {"name": "Piscine Chlore", "unit_of_measurement": "mg/L"},
       "piscinexa_piscine_chloredifference": {"name": "Piscine Différence Chlore", "unit_of_measurement": "mg/L"},
       "piscinexa_piscine_chloreaajouter": {"name": "Piscine Chlore à ajouter", "unit_of_measurement": "g"},
@@ -204,6 +206,11 @@
     "button": {
       "piscinexa_piscine_test": {"name": "Piscine Tester"},
       "piscinexa_piscine_reset": {"name": "Piscine Réinitialiser"}
+    },
+    "input_number": {
+      "piscine_ph_current": {"name": "Piscine pH Actuel"},
+      "piscine_ph_target": {"name": "Piscine pH Cible"},
+      "piscine_chlore_current": {"name": "Piscine Chlore Actuel"}
     }
   }
 }
