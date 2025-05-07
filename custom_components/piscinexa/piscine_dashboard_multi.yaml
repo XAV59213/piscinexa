@@ -14,10 +14,10 @@ views:
           - type: horizontal-stack
             cards:
               - type: button
-                entity: button.piscinexa_papa_test
+                entity: button.papatest
                 name: Tester
               - type: button
-                entity: button.piscinexa_papa_reset
+                entity: button.papareset
                 name: Réinitialiser
           - type: entities
             title: Saisie manuelle
@@ -28,23 +28,23 @@ views:
                 name: Chlore Actuel
           - type: entities
             entities:
-              - sensor.piscinexa_papa_volume_eau
-              - sensor.piscinexa_papa_tempsfiltration
-              - sensor.piscinexa_papa_ph
-              - sensor.piscinexa_papa_chlore
-              - sensor.piscinexa_papa_chloredifference
+              - sensor.papavolumeeau
+              - sensor.papatempsfiltration
+              - sensor.papaph
+              - sensor.papachlore
+              - sensor.papachloredifference
                 unit: mg/L
                 name: Différence Chlore
               - type: template
-                entity_id: sensor.piscinexa_papa_chloreaajouter
+                entity_id: sensor.papachloreaajouter
                 name: Chlore à ajouter
                 content: >
-                  {% if states('sensor.piscinexa_papa_chloreaajouter') | float(default=0) > 0 %}
-                    {{ states('sensor.piscinexa_papa_chloreaajouter') }} {{ state_attr('sensor.piscinexa_papa_chloreaajouter', 'unit_of_measurement') }}
+                  {% if states('sensor.papachloreaajouter') | float(default=0) > 0 %}
+                    {{ states('sensor.papachloreaajouter') }} g
                   {% else %}
-                    {{ state_attr('sensor.piscinexa_papa_chloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
+                    {{ state_attr('sensor.papachloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
                   {% endif %}
-              - sensor.piscinexa_papa_log
+              - sensor.papalog
               - entity: sensor.piscinexa_papa_pool_state
                 name: État de la piscine
 
@@ -56,10 +56,10 @@ views:
           - type: horizontal-stack
             cards:
               - type: button
-                entity: button.piscinexa_maman_test
+                entity: button.mamantest
                 name: Tester
               - type: button
-                entity: button.piscinexa_maman_reset
+                entity: button.mamanreset
                 name: Réinitialiser
           - type: entities
             title: Saisie manuelle
@@ -70,23 +70,23 @@ views:
                 name: Chlore Actuel
           - type: entities
             entities:
-              - sensor.piscinexa_maman_volume_eau
-              - sensor.piscinexa_maman_tempsfiltration
-              - sensor.piscinexa_maman_ph
-              - sensor.piscinexa_maman_chlore
-              - sensor.piscinexa_maman_chloredifference
+              - sensor.mamanvolumeeau
+              - sensor.mamantempsfiltration
+              - sensor.mamanph
+              - sensor.mamanchlore
+              - sensor.mamanchloredifference
                 unit: mg/L
                 name: Différence Chlore
               - type: template
-                entity_id: sensor.piscinexa_maman_chloreaajouter
+                entity_id: sensor.mamanchloreaajouter
                 name: Chlore à ajouter
                 content: >
-                  {% if states('sensor.piscinexa_maman_chloreaajouter') | float(default=0) > 0 %}
-                    {{ states('sensor.piscinexa_maman_chloreaajouter') }} {{ state_attr('sensor.piscinexa_maman_chloreaajouter', 'unit_of_measurement') }}
+                  {% if states('sensor.mamanchloreaajouter') | float(default=0) > 0 %}
+                    {{ states('sensor.mamanchloreaajouter') }} g
                   {% else %}
-                    {{ state_attr('sensor.piscinexa_maman_chloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
+                    {{ state_attr('sensor.mamanchloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
                   {% endif %}
-              - sensor.piscinexa_maman_log
+              - sensor.mamanlog
               - entity: sensor.piscinexa_maman_pool_state
                 name: État de la piscine
 
@@ -99,7 +99,7 @@ views:
             hours_to_show: 48
             refresh_interval: 300
             entities:
-              - sensor.piscinexa_papa_ph
-              - sensor.piscinexa_papa_chlore
-              - sensor.piscinexa_maman_ph
-              - sensor.piscinexa_maman_chlore
+              - sensor.papaph
+              - sensor.papachlore
+              - sensor.mamanph
+              - sensor.mamanchlore

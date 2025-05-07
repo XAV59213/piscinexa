@@ -189,67 +189,21 @@
   },
   "entity": {
     "sensor": {
-      "piscinexa_piscine_volume_eau": {"name": "Volume d'eau", "unit_of_measurement": "m³"},
-      "piscinexa_piscine_temps_filtration": {"name": "Temps de filtration", "unit_of_measurement": "h"},
-      "piscinexa_piscine_temperature": {"name": "Température", "unit_of_measurement": "°C"},
-      "piscinexa_piscine_ph": {"name": "pH"},
-      "piscinexa_piscine_ph_a_ajouter": {"name": "pH à ajouter", "unit_of_measurement": "L"},
-      "piscinexa_piscine_ph_plus_a_ajouter": {"name": "pH+ à ajouter", "unit_of_measurement": "L"},
-      "piscinexa_piscine_ph_minus_a_ajouter": {"name": "pH- à ajouter", "unit_of_measurement": "L"},
-      "piscinexa_piscine_chlore": {"name": "Chlore", "unit_of_measurement": "mg/L"},
-      "piscinexa_piscine_chlore_difference": {"name": "Différence Chlore", "unit_of_measurement": "mg/L"},
-      "piscinexa_piscine_chlore_a_ajouter": {"name": "Chlore à ajouter", "unit_of_measurement": "g"},
-      "piscinexa_piscine_consopuissance": {"name": "Consommation Puissance", "unit_of_measurement": "W"},
-      "piscinexa_piscine_log": {"name": "Journal"},
-      "piscinexa_piscine_pool_state": {
-        "name": "État de la piscine",
-        "states": {
-          "temperature_ideal": "Température idéale",
-          "too_cold": "Trop froide",
-          "too_hot": "Trop chaude",
-          "chlorine_ideal": "Chlore idéal",
-          "chlorine_low": "Chlore bas",
-          "chlorine_high": "Chlore haut",
-          "ph_ideal": "pH idéal",
-          "ph_low": "pH bas",
-          "ph_high": "pH haut",
-          "swimming_allowed": "Baignade autorisée",
-          "unavailable": "Indisponible"
-        }
-      }
+      "piscinexa_piscine_volume_eau": {"name": "Piscine Volume d'eau", "unit_of_measurement": "m³"},
+      "piscinexa_piscine_tempsfiltration": {"name": "Piscine Temps de filtration", "unit_of_measurement": "h"},
+      "piscinexa_piscine_temperature": {"name": "Piscine Température", "unit_of_measurement": "°C"},
+      "piscinexa_piscine_ph": {"name": "Piscine pH"},
+      "piscinexa_piscine_phaajouter": {"name": "Piscine pH à ajouter", "unit_of_measurement": "L"},
+      "piscinexa_piscine_chlore": {"name": "Piscine Chlore", "unit_of_measurement": "mg/L"},
+      "piscinexa_piscine_chloredifference": {"name": "Piscine Différence Chlore", "unit_of_measurement": "mg/L"},
+      "piscinexa_piscine_chloreaajouter": {"name": "Piscine Chlore à ajouter", "unit_of_measurement": "g"},
+      "piscinexa_piscine_consopuissance": {"name": "Piscine Consommation puissance", "unit_of_measurement": "W"},
+      "piscinexa_piscine_log": {"name": "Piscine Journal"},
+      "piscinexa_piscine_pool_state": {"name": "Piscine État de la piscine"}
     },
     "button": {
-      "piscinexa_piscine_test": {"name": "Calculer l'état de la piscine"},
-      "piscinexa_piscine_reset": {"name": "Réinitialiser"}
-    },
-    "input_number": {
-      "piscine_ph_current": {"name": "pH Actuel"},
-      "piscine_ph_target": {"name": "pH Cible"},
-      "piscine_chlore_current": {"name": "Chlore Actuel"}
-    },
-    "input_select": {
-      "piscine_ph_plus_treatment": {
-        "name": "Type de traitement pH+",
-        "options": {
-          "liquid": "Liquide",
-          "granules": "Granulés"
-        }
-      },
-      "piscine_ph_minus_treatment": {
-        "name": "Type de traitement pH-",
-        "options": {
-          "liquid": "Liquide",
-          "granules": "Granulés"
-        }
-      },
-      "piscine_chlore_treatment": {
-        "name": "Type de traitement Chlore",
-        "options": {
-          "shock_powder": "Chlore choc (poudre)",
-          "slow_tablet": "Pastille lente",
-          "liquid": "Liquide"
-        }
-      }
+      "piscinexa_piscine_test": {"name": "Piscine Tester"},
+      "piscinexa_piscine_reset": {"name": "Piscine Réinitialiser"}
     }
   }
 }
