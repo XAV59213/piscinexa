@@ -6,7 +6,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.helpers.translation import async_get_translations
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -16,7 +15,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     _LOGGER.info("Configuration des entités input_number et input_select pour %s", name)
     entities = [
         PiscinexaPhCurrentInput(hass, entry, name),
-        PiscinexaPhTargetInput(hass, entry, name),
         PiscinexaChloreCurrentInput(hass, entry, name),
         PiscinexaPhPlusTreatmentSelect(hass, entry, name),
         PiscinexaPhMinusTreatmentSelect(hass, entry, name),
@@ -55,36 +53,6 @@ class PiscinexaPhCurrentInput(InputNumber):
         self._hass.data[DOMAIN][self._entry.entry_id]["ph_current"] = value
         _LOGGER.debug("pH actuel mis à jour via input_number: %s", value)
 
-class PiscinexaPhTargetInput(InputNumber):
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
-        config = {
-            "min": 0,
-            "max": 14,
-            "step": 0.1,
-            "unit_of_measurement": "pH",
-            "mode": "box",
-            "name": f"{name}_ph_target",
-            "initial": float(entry.data.get("ph_target", 7.4)),
-        }
-        super().__init__(config)
-        self._hass = hass
-        self._entry = entry
-        self._name = name
-        self._attr_unique_id = f"{entry.entry_id}_ph_target"
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=name.capitalize(),
-            manufacturer="Piscinexa",
-            model="Piscine",
-            sw_version="1.0.2",
-        )
-        _LOGGER.debug("Entité input_number '%s' créée avec valeur initiale %s", self.name, config["initial"])
-
-    async def async_set_value(self, value: float) -> None:
-        await super().async_set_value(value)
-        self._hass.data[DOMAIN][self._entry.entry_id]["ph_target"] = value
-        _LOGGER.debug("pH cible mis à jour via input_number: %s", value)
-
 class PiscinexaChloreCurrentInput(InputNumber):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         config = {
@@ -117,20 +85,14 @@ class PiscinexaChloreCurrentInput(InputNumber):
 
 class PiscinexaPhPlusTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        super().__init__(
+            options=["Liquide", "Granulés"],
+            name=f"{name}_ph_plus_treatment",
+            initial=entry.data.get("ph_plus_treatment", "Liquide"),
+        )
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._translations = None
-        self._options_keys = ["liquid", "granules"]
-        self._default_options = ["Liquide", "Granulés"]
-        self._default_initial = "Liquide"
-
-        config = {
-            "options": self._default_options,
-            "name": f"{name}_ph_plus_treatment",
-            "initial": entry.data.get("ph_plus_treatment", self._default_initial),
-        }
-        super().__init__(config)
         self._attr_unique_id = f"{entry.entry_id}_ph_plus_treatment"
         self._attr_icon = "mdi:water-plus"
         self._attr_device_info = DeviceInfo(
@@ -140,43 +102,18 @@ class PiscinexaPhPlusTreatmentSelect(InputSelect):
             model="Piscine",
             sw_version="1.0.2",
         )
-        hass.async_create_task(self.async_update_translations())
-
-    async def async_update_translations(self):
-        language = self._hass.config.language
-        self._translations = await async_get_translations(
-            self._hass, language, "entity", components=[DOMAIN]
-        )
-        translated_options = [
-            self._translations.get(f"entity.input_select.piscine_ph_plus_treatment.options.{key}", self._default_options[i])
-            for i, key in enumerate(self._options_keys)
-        ]
-        translated_initial = self._translations.get(
-            f"entity.input_select.piscine_ph_plus_treatment.options.{self._options_keys[self._default_options.index(self._default_initial)]}",
-            self._default_initial
-        )
-        # Mettre à jour les options et la valeur initiale
-        self._attr_options = translated_options
-        if self._attr_current_option is None or self._attr_current_option not in translated_options:
-            self._attr_current_option = translated_initial
-        self.async_write_ha_state()
+        _LOGGER.debug("Entité input_select '%s' créée avec valeur initiale %s", self.name, self.current_option)
 
 class PiscinexaPhMinusTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        super().__init__(
+            options=["Liquide", "Granulés"],
+            name=f"{name}_ph_minus_treatment",
+            initial=entry.data.get("ph_minus_treatment", "Liquide"),
+        )
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._translations = None
-        self._options_keys = ["liquid", "granules"]
-        self._default_options = ["Liquide", "Granulés"]
-        self._default_initial = "Liquide"
-
-        config = {
-            "options": self._default_options,
-            "name": f"{name}_ph_minus_treatment",
-            "initial": entry.data.get("ph_minus_treatment", self._default_initial),
-        }
-        super().__init__(config)
         self._attr_unique_id = f"{entry.entry_id}_ph_minus_treatment"
         self._attr_icon = "mdi:water-minus"
         self._attr_device_info = DeviceInfo(
@@ -186,42 +123,18 @@ class PiscinexaPhMinusTreatmentSelect(InputSelect):
             model="Piscine",
             sw_version="1.0.2",
         )
-        hass.async_create_task(self.async_update_translations())
-
-    async def async_update_translations(self):
-        language = self._hass.config.language
-        self._translations = await async_get_translations(
-            self._hass, language, "entity", components=[DOMAIN]
-        )
-        translated_options = [
-            self._translations.get(f"entity.input_select.piscine_ph_minus_treatment.options.{key}", self._default_options[i])
-            for i, key in enumerate(self._options_keys)
-        ]
-        translated_initial = self._translations.get(
-            f"entity.input_select.piscine_ph_minus_treatment.options.{self._options_keys[self._default_options.index(self._default_initial)]}",
-            self._default_initial
-        )
-        self._attr_options = translated_options
-        if self._attr_current_option is None or self._attr_current_option not in translated_options:
-            self._attr_current_option = translated_initial
-        self.async_write_ha_state()
+        _LOGGER.debug("Entité input_select '%s' créée avec valeur initiale %s", self.name, self.current_option)
 
 class PiscinexaChloreTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        super().__init__(
+            options=["Chlore choc (poudre)", "Pastille lente", "Liquide"],
+            name=f"{name}_chlore_treatment",
+            initial=entry.data.get("chlore_treatment", "Chlore choc (poudre)"),
+        )
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._translations = None
-        self._options_keys = ["shock_powder", "slow_tablet", "liquid"]
-        self._default_options = ["Chlore choc (poudre)", "Pastille lente", "Liquide"]
-        self._default_initial = "Chlore choc (poudre)"
-
-        config = {
-            "options": self._default_options,
-            "name": f"{name}_chlore_treatment",
-            "initial": entry.data.get("chlore_treatment", self._default_initial),
-        }
-        super().__init__(config)
         self._attr_unique_id = f"{entry.entry_id}_chlore_treatment"
         self._attr_icon = "mdi:water-check"
         self._attr_device_info = DeviceInfo(
@@ -231,22 +144,4 @@ class PiscinexaChloreTreatmentSelect(InputSelect):
             model="Piscine",
             sw_version="1.0.2",
         )
-        hass.async_create_task(self.async_update_translations())
-
-    async def async_update_translations(self):
-        language = self._hass.config.language
-        self._translations = await async_get_translations(
-            self._hass, language, "entity", components=[DOMAIN]
-        )
-        translated_options = [
-            self._translations.get(f"entity.input_select.piscine_chlore_treatment.options.{key}", self._default_options[i])
-            for i, key in enumerate(self._options_keys)
-        ]
-        translated_initial = self._translations.get(
-            f"entity.input_select.piscine_chlore_treatment.options.{self._options_keys[self._default_options.index(self._default_initial)]}",
-            self._default_initial
-        )
-        self._attr_options = translated_options
-        if self._attr_current_option is None or self._attr_current_option not in translated_options:
-            self._attr_current_option = translated_initial
-        self.async_write_ha_state()
+        _LOGGER.debug("Entité input_select '%s' créée avec valeur initiale %s", self.name, self.current_option)

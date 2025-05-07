@@ -15,7 +15,7 @@ views:
             cards:
               - type: button
                 entity: button.piscinexa_papa_test
-                name: Calculer l'état de la piscine
+                name: Tester
               - type: button
                 entity: button.piscinexa_papa_reset
                 name: Réinitialiser
@@ -29,20 +29,20 @@ views:
           - type: entities
             entities:
               - sensor.piscinexa_papa_volume_eau
-              - sensor.piscinexa_papa_temps_filtration
+              - sensor.piscinexa_papa_tempsfiltration
               - sensor.piscinexa_papa_ph
               - sensor.piscinexa_papa_chlore
-              - sensor.piscinexa_papa_chlore_difference
+              - sensor.piscinexa_papa_chloredifference
                 unit: mg/L
                 name: Différence Chlore
               - type: template
-                entity_id: sensor.piscinexa_papa_chlore_a_ajouter
+                entity_id: sensor.piscinexa_papa_chloreaajouter
                 name: Chlore à ajouter
                 content: >
-                  {% if states('sensor.piscinexa_papa_chlore_a_ajouter') | float(default=0) > 0 %}
-                    {{ states('sensor.piscinexa_papa_chlore_a_ajouter') }} {{ state_attr('sensor.piscinexa_papa_chlore_a_ajouter', 'unit_of_measurement') }}
+                  {% if states('sensor.piscinexa_papa_chloreaajouter') | float(default=0) > 0 %}
+                    {{ states('sensor.piscinexa_papa_chloreaajouter') }} {{ state_attr('sensor.piscinexa_papa_chloreaajouter', 'unit_of_measurement') }}
                   {% else %}
-                    {{ state_attr('sensor.piscinexa_papa_chlore_a_ajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
+                    {{ state_attr('sensor.piscinexa_papa_chloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
                   {% endif %}
               - sensor.piscinexa_papa_log
               - entity: sensor.piscinexa_papa_pool_state
@@ -57,7 +57,7 @@ views:
             cards:
               - type: button
                 entity: button.piscinexa_maman_test
-                name: Calculer l'état de la piscine
+                name: Tester
               - type: button
                 entity: button.piscinexa_maman_reset
                 name: Réinitialiser
@@ -71,20 +71,20 @@ views:
           - type: entities
             entities:
               - sensor.piscinexa_maman_volume_eau
-              - sensor.piscinexa_maman_temps_filtration
+              - sensor.piscinexa_maman_tempsfiltration
               - sensor.piscinexa_maman_ph
               - sensor.piscinexa_maman_chlore
-              - sensor.piscinexa_maman_chlore_difference
+              - sensor.piscinexa_maman_chloredifference
                 unit: mg/L
                 name: Différence Chlore
               - type: template
-                entity_id: sensor.piscinexa_maman_chlore_a_ajouter
+                entity_id: sensor.piscinexa_maman_chloreaajouter
                 name: Chlore à ajouter
                 content: >
-                  {% if states('sensor.piscinexa_maman_chlore_a_ajouter') | float(default=0) > 0 %}
-                    {{ states('sensor.piscinexa_maman_chlore_a_ajouter') }} {{ state_attr('sensor.piscinexa_maman_chlore_a_ajouter', 'unit_of_measurement') }}
+                  {% if states('sensor.piscinexa_maman_chloreaajouter') | float(default=0) > 0 %}
+                    {{ states('sensor.piscinexa_maman_chloreaajouter') }} {{ state_attr('sensor.piscinexa_maman_chloreaajouter', 'unit_of_measurement') }}
                   {% else %}
-                    {{ state_attr('sensor.piscinexa_maman_chlore_a_ajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
+                    {{ state_attr('sensor.piscinexa_maman_chloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
                   {% endif %}
               - sensor.piscinexa_maman_log
               - entity: sensor.piscinexa_maman_pool_state

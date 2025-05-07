@@ -1,141 +1,145 @@
-"""Intégration Piscinexa pour Home Assistant."""
+"""Initialisation du composant Piscinexa."""
 import logging
-from datetime import datetime
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.const import Platform
-from .const import DOMAIN
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_NAME
+from .const import DOMAIN, POOL_TYPE_SQUARE
+
+DEFAULTS = {
+    "chlore_target": 2.0,
+    "ph_target": 7.4,
+    "temperature": 20.0,
+    "ph_current": 7.0,
+    "chlore_current": 1.0,
+}
 
 _LOGGER = logging.getLogger(__name__)
 
-# Utilisation des chaînes de caractères pour les plateformes
-PLATFORMS = ["button", "sensor", "input_number", "input_select"]
-
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Configurer l'intégration Piscinexa via une entrée de configuration."""
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = {
-        "ph_current": float(entry.data.get("ph_current", 7.0)),
-        "ph_target": float(entry.data.get("ph_target", 7.4)),
-        "chlore_current": float(entry.data.get("chlore_current", 1.0)),
-        "chlore_target": float(entry.data.get("chlore_target", 2.0)),
-        "temperature": float(entry.data.get("temperature", 20.0)),
-    }
+    if entry.entry_id in hass.data[DOMAIN]:
+        _LOGGER.warning("Entrée %s déjà configurée, ignorée", entry.entry_id)
+        return False
 
-    # Enregistrer les services personnalisés
-    async def handle_test_calcul(call: ServiceCall) -> None:
-        """Service pour tester les calculs de Piscinexa."""
-        entry_id = call.data.get("entry_id")
-        if entry_id not in hass.data[DOMAIN]:
-            _LOGGER.error("Entrée %s non trouvée pour le service test_calcul", entry_id)
-            return
+    hass.data[DOMAIN][entry.entry_id] = entry.data.copy()
+
+    for key, default_value in DEFAULTS.items():
+        if key not in hass.data[DOMAIN][entry.entry_id]:
+            _LOGGER.warning("%s manquant, définition par défaut: %s", key, default_value)
+            hass.data[DOMAIN][entry.entry_id][key] = default_value
+
+    async def handle_test_calcul(call: ServiceCall):
+        name = hass.data[DOMAIN][entry.entry_id]["name"]
+        _LOGGER.info("Service test_calcul appelé pour %s", name)
+        log_sensor = hass.data[DOMAIN].get("log")
+        if log_sensor and name in getattr(log_sensor, "_name", ""):
+            log_sensor.log_action("Test de calcul déclenché")
+
+    async def handle_reset_valeurs(call: ServiceCall):
+        name = hass.data[DOMAIN][entry.entry_id]["name"]
+        _LOGGER.info("Service reset_valeurs appelé pour %s", name)
+
+        data = {
+            "name": name,
+            "pool_type": hass.data[DOMAIN][entry.entry_id]["pool_type"],
+            **DEFAULTS
+        }
+
+        if data["pool_type"] == POOL_TYPE_SQUARE:
+            data.update({
+                "length": entry.data.get("length", 5.0),
+                "width": entry.data.get("width", 4.0),
+                "depth": entry.data.get("depth", 1.5)
+            })
+        else:
+            data.update({
+                "diameter": entry.data.get("diameter", 4.0),
+                "depth": entry.data.get("depth", 1.5)
+            })
+
+        hass.data[DOMAIN][entry.entry_id].update(data)
+
+        for entity_id, value in [
+            (f"input_number.{name}_chlore_current", DEFAULTS["chlore_current"]),
+            (f"input_number.{name}_ph_current", DEFAULTS["ph_current"])
+        ]:
+            entity = hass.states.get(entity_id)
+            if entity:
+                await hass.services.async_call(
+                    "input_number", "set_value",
+                    {"entity_id": entity_id, "value": value}
+                )
 
         log_sensor = hass.data[DOMAIN].get("log")
-        if not log_sensor:
-            _LOGGER.error("Capteur de journal non trouvé pour enregistrer les résultats")
+        if log_sensor and name in getattr(log_sensor, "_name", ""):
+            log_sensor.log_action("Valeurs réinitialisées")
+
+        await hass.config_entries.async_reload(entry.entry_id)
+
+    async def handle_apply_treatment(call: ServiceCall):
+        name = call.data.get("name", hass.data[DOMAIN][entry.entry_id]["name"])
+        treatment_type = call.data.get("treatment_type")
+        treatment_form = call.data.get("treatment_form")
+        quantity = float(call.data.get("quantity", 0.0))
+
+        _LOGGER.info("Service apply_treatment appelé pour %s: %s, %s, %s", name, treatment_type, treatment_form, quantity)
+
+        volume_entity = hass.states.get(f"sensor.{DOMAIN}_{name}_volume_eau")
+        if not volume_entity or volume_entity.state in ("unknown", "unavailable"):
+            _LOGGER.error("Capteur de volume indisponible pour %s", name)
             return
 
-        # Récupérer les valeurs actuelles des capteurs et des entrées
-        ph_current = hass.states.get(f"sensor.{DOMAIN}_{entry.data['name']}_ph")
-        ph_target = hass.states.get(f"input_number.{entry.data['name']}_ph_target")
-        chlore_current = hass.states.get(f"sensor.{DOMAIN}_{entry.data['name']}_chlore")
-        chlore_difference = hass.states.get(f"sensor.{DOMAIN}_{entry.data['name']}_chlore_difference")
-        volume = hass.states.get(f"sensor.{DOMAIN}_{entry.data['name']}_volume_eau")
-        ph_plus_to_add = hass.states.get(f"sensor.{DOMAIN}_{entry.data['name']}_ph_plus_a_ajouter")
-        ph_minus_to_add = hass.states.get(f"sensor.{DOMAIN}_{entry.data['name']}_ph_minus_a_ajouter")
-        chlore_to_add = hass.states.get(f"sensor.{DOMAIN}_{entry.data['name']}_chlore_a_ajouter")
-        filtration_time = hass.states.get(f"sensor.{DOMAIN}_{entry.data['name']}_temps_filtration")
-        pool_state = hass.states.get(f"sensor.{DOMAIN}_{entry.data['name']}_pool_state")
-
-        # Construire le message de journal avec plus de clarté
-        log_message = []
-        log_message.append(f"===== Rapport d'état de la piscine ({datetime.now()}) =====")
-        log_message.append(f"Nom de la piscine: {entry.data['name'].capitalize()}")
-
-        # Section Volume
-        volume_value = volume.state if volume and volume.state != 'unavailable' else 'Indisponible'
-        volume_error = volume.attributes.get('configuration_error', '') if volume and volume.state == 'unavailable' else ''
-        log_message.append(f"Volume d'eau: {volume_value} m³{'' if not volume_error else f' (Erreur: {volume_error})'}")
-
-        # Section pH
-        log_message.append(f"--- État du pH ---")
-        log_message.append(f"pH Actuel: {ph_current.state if ph_current and ph_current.state != 'unavailable' else 'Indisponible (vérifiez le capteur pH ou la configuration)'}")
-        log_message.append(f"pH Cible: {ph_target.state if ph_target and ph_target.state != 'unavailable' else 'Indisponible'}")
-        log_message.append(f"pH+ à ajouter: {ph_plus_to_add.state if ph_plus_to_add and ph_plus_to_add.state != 'unavailable' else '0'} L")
-        log_message.append(f"pH- à ajouter: {ph_minus_to_add.state if ph_minus_to_add and ph_minus_to_add.state != 'unavailable' else '0'} L")
-
-        # Section Chlore
-        log_message.append(f"--- État du Chlore ---")
-        log_message.append(f"Chlore Actuel: {chlore_current.state if chlore_current and chlore_current.state != 'unavailable' else 'Indisponible (vérifiez le capteur chlore ou la configuration)'} mg/L")
-        log_message.append(f"Différence Chlore: {chlore_difference.state if chlore_difference and chlore_difference.state != 'unavailable' else 'Indisponible'} mg/L")
-        log_message.append(f"Chlore à ajouter: {chlore_to_add.state if chlore_to_add and chlore_to_add.state != 'unavailable' else '0'} g")
-
-        # Autres informations
-        log_message.append(f"--- Autres informations ---")
-        log_message.append(f"Temps de filtration recommandé: {filtration_time.state if filtration_time and filtration_time.state != 'unavailable' else 'Indisponible'} h")
-        log_message.append(f"État global de la piscine: {pool_state.state if pool_state and pool_state.state != 'unavailable' else 'Indisponible'}")
-        log_message.append(f"==========================================")
-
-        # Enregistrer dans le capteur de journal
-        log_sensor.log_action("\n".join(log_message))
-        _LOGGER.info("Rapport d'état généré pour %s", entry.data["name"])
-
-    async def handle_reset_valeurs(call: ServiceCall) -> None:
-        """Service pour réinitialiser les valeurs de Piscinexa."""
-        entry_id = call.data.get("entry_id")
-        if entry_id not in hass.data[DOMAIN]:
-            _LOGGER.error("Entrée %s non trouvée pour le service reset_valeurs", entry_id)
+        try:
+            volume = float(volume_entity.state)
+        except ValueError:
+            _LOGGER.error("Volume non numérique pour %s", name)
             return
+
+        if treatment_type in ["pH+", "pH-"]:
+            ph_current = float(hass.data[DOMAIN][entry.entry_id].get("ph_current", 7.0))
+            if treatment_form == "Liquide":
+                ph_change = quantity / (volume * (0.01 if treatment_type == "pH+" else 0.012))
+            else:  # Granulés
+                ph_change = quantity / (volume * (1.0 if treatment_type == "pH+" else 1.2))
+            new_ph = ph_current + ph_change if treatment_type == "pH+" else ph_current - ph_change
+            new_ph = round(new_ph, 1)
+            hass.data[DOMAIN][entry.entry_id]["ph_current"] = new_ph
+            await hass.services.async_call("input_number", "set_value", {
+                "entity_id": f"input_number.{name}_ph_current", "value": new_ph
+            })
+
+        elif treatment_type == "Chlore":
+            chlore_current = float(hass.data[DOMAIN][entry.entry_id].get("chlore_current", 1.0))
+            if treatment_form == "Liquide":
+                chlore_change = quantity / (volume * 0.1)
+            elif treatment_form == "Pastille lente":
+                chlore_change = quantity * 20 / volume
+            else:  # Chlore choc (poudre)
+                chlore_change = quantity / (volume * 0.01)
+            new_chlore = round(chlore_current + chlore_change, 1)
+            hass.data[DOMAIN][entry.entry_id]["chlore_current"] = new_chlore
+            await hass.services.async_call("input_number", "set_value", {
+                "entity_id": f"input_number.{name}_chlore_current", "value": new_chlore
+            })
 
         log_sensor = hass.data[DOMAIN].get("log")
-        if not log_sensor:
-            _LOGGER.error("Capteur de journal non trouvé pour enregistrer les résultats")
-            return
+        if log_sensor and name in getattr(log_sensor, "_name", ""):
+            log_sensor.log_action(f"Traitement appliqué: {treatment_type} ({treatment_form}, {quantity})")
 
-        # Réinitialiser les valeurs
-        hass.data[DOMAIN][entry_id]["ph_current"] = float(entry.data.get("ph_current", 7.0))
-        hass.data[DOMAIN][entry_id]["ph_target"] = float(entry.data.get("ph_target", 7.4))
-        hass.data[DOMAIN][entry_id]["chlore_current"] = float(entry.data.get("chlore_current", 1.0))
-        hass.data[DOMAIN][entry_id]["chlore_target"] = float(entry.data.get("chlore_target", 2.0))
-        hass.data[DOMAIN][entry_id]["temperature"] = float(entry.data.get("temperature", 20.0))
-
-        # Mettre à jour les entités correspondantes
-        ph_current_input = hass.states.get(f"input_number.{entry.data['name']}_ph_current")
-        if ph_current_input:
-            await hass.services.async_call(
-                "input_number", "set_value",
-                {"entity_id": f"input_number.{entry.data['name']}_ph_current", "value": hass.data[DOMAIN][entry_id]["ph_current"]}
-            )
-
-        ph_target_input = hass.states.get(f"input_number.{entry.data['name']}_ph_target")
-        if ph_target_input:
-            await hass.services.async_call(
-                "input_number", "set_value",
-                {"entity_id": f"input_number.{entry.data['name']}_ph_target", "value": hass.data[DOMAIN][entry_id]["ph_target"]}
-            )
-
-        chlore_current_input = hass.states.get(f"input_number.{entry.data['name']}_chlore_current")
-        if chlore_current_input:
-            await hass.services.async_call(
-                "input_number", "set_value",
-                {"entity_id": f"input_number.{entry.data['name']}_chlore_current", "value": hass.data[DOMAIN][entry_id]["chlore_current"]}
-            )
-
-        log_sensor.log_action(f"Réinitialisation des valeurs pour {entry.data['name']} effectuée à {datetime.now()}")
-        _LOGGER.info("Valeurs réinitialisées pour %s", entry.data["name"])
+        await hass.config_entries.async_reload(entry.entry_id)
 
     hass.services.async_register(DOMAIN, "test_calcul", handle_test_calcul)
     hass.services.async_register(DOMAIN, "reset_valeurs", handle_reset_valeurs)
+    hass.services.async_register(DOMAIN, "apply_treatment", handle_apply_treatment)
 
-    # Charger les plateformes (button, sensor, input_number, input_select)
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(entry, ["sensor", "button"])
+
+    from .input_number import async_setup_entry as input_number_setup
+    await input_number_setup(hass, entry, None)
+
     return True
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Décharger l'intégration Piscinexa."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id, None)
-        hass.services.async_remove(DOMAIN, "test_calcul")
-        hass.services.async_remove(DOMAIN, "reset_valeurs")
-    return unload_ok
+    await hass.config_entries.async_unload_platforms(entry, ["sensor", "button"])
+    hass.data[DOMAIN].pop(entry.entry_id, None)
+    return True

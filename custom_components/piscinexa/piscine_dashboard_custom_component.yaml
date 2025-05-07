@@ -10,14 +10,12 @@ views:
           - button.piscinexa_piscine_reset
             name: Réinitialiser
           - button.piscinexa_piscine_test
-            name: Calculer l'état de la piscine
+            name: Tester
       - type: entities
         title: Saisie manuelle
         entities:
           - entity: input_number.piscine_ph_current
             name: pH Actuel
-          - entity: input_number.piscine_ph_target
-            name: pH Cible
           - entity: input_number.piscine_chlore_current
             name: Chlore Actuel
       - type: entities
@@ -35,44 +33,38 @@ views:
           - entity: sensor.piscinexa_piscine_chlore
             unit: mg/L
             name: Chlore
-          - entity: sensor.piscinexa_piscine_chlore_difference
+          - entity: sensor.piscinexa_piscine_chloredifference
             unit: mg/L
             name: Différence Chlore
           - type: template
-            entity_id: sensor.piscinexa_piscine_chlore_a_ajouter
+            entity_id: sensor.piscinexa_piscine_chloreaajouter
             name: Chlore à ajouter
             content: >
-              {% if states('sensor.piscinexa_piscine_chlore_a_ajouter') | float(default=0) > 0 %}
-                {{ states('sensor.piscinexa_piscine_chlore_a_ajouter') }} {{ state_attr('sensor.piscinexa_piscine_chlore_a_ajouter', 'unit_of_measurement') }}
+              {% if states('sensor.piscinexa_piscine_chloreaajouter') | float(default=0) > 0 %}
+                {{ states('sensor.piscinexa_piscine_chloreaajouter') }} {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'unit_of_measurement') }}
               {% else %}
-                {{ state_attr('sensor.piscinexa_piscine_chlore_a_ajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
+                {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
               {% endif %}
           - entity: sensor.piscinexa_piscine_consopuissance
             unit: W
-            name: Consommation Puissance
+            name: Consommation puissance
           - entity: sensor.piscinexa_piscine_log
             name: Journal
           - entity: sensor.piscinexa_piscine_ph
             name: pH
           - type: template
-            entity_id: sensor.piscinexa_piscine_ph_a_ajouter
+            entity_id: sensor.piscinexa_piscine_phaajouter
             name: pH à ajouter
             content: >
-              {% if states('sensor.piscinexa_piscine_ph_a_ajouter') | float(default=0) > 0 %}
-                {{ states('sensor.piscinexa_piscine_ph_a_ajouter') }} {{ state_attr('sensor.piscinexa_piscine_ph_a_ajouter', 'unit_of_measurement') }} ({{ state_attr('sensor.piscinexa_piscine_ph_a_ajouter', 'treatment_direction') }})
+              {% if states('sensor.piscinexa_piscine_phaajouter') | float(default=0) > 0 %}
+                {{ states('sensor.piscinexa_piscine_phaajouter') }} {{ state_attr('sensor.piscinexa_piscine_phaajouter', 'unit_of_measurement') }} ({{ state_attr('sensor.piscinexa_piscine_phaajouter', 'treatment_direction') }})
               {% else %}
-                {{ state_attr('sensor.piscinexa_piscine_ph_a_ajouter', 'treatment_direction') }}
+                {{ state_attr('sensor.piscinexa_piscine_phaajouter', 'treatment_direction') }}
               {% endif %}
-          - entity: sensor.piscinexa_piscine_ph_plus_a_ajouter
-            unit: L
-            name: pH+ à ajouter
-          - entity: sensor.piscinexa_piscine_ph_minus_a_ajouter
-            unit: L
-            name: pH- à ajouter
           - entity: sensor.piscinexa_piscine_temperature
             unit: °C
             name: Température
-          - entity: sensor.piscinexa_piscine_temps_filtration
+          - entity: sensor.piscinexa_piscine_tempsfiltration
             unit: h
             name: Temps de filtration
           - entity: sensor.piscinexa_piscine_volume_eau
