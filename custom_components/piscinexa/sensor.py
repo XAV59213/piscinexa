@@ -35,9 +35,9 @@ async def async_setup_entry(
         PiscinexaTempsFiltrationSensor(hass, entry, name),
         PiscinexaTemperatureSensor(hass, entry, name),
         PiscinexaPhSensor(hass, entry, name),
-        PiscinexaPhPlusAjouterSensor(hass, entry, name),  # Nouveau capteur pH+ à ajouter
-        PiscinexaPhMinusAjouterSensor(hass, entry, name),  # Nouveau capteur pH- à ajouter
-        PiscinexaPhTargetSensor(hass, entry, name),  # Nouveau capteur pH Cible
+        PiscinexaPhPlusAjouterSensor(hass, entry, name),
+        PiscinexaPhMinusAjouterSensor(hass, entry, name),
+        PiscinexaPhTargetSensor(hass, entry, name),
         PiscinexaChloreSensor(hass, entry, name),
         PiscinexaChloreTargetSensor(hass, entry, name),
         PiscinexaChloreAjouterSensor(hass, entry, name),
@@ -758,33 +758,60 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
     @property
     def native_value(self):
         try:
+            # Récupérer les valeurs actuelles et cibles de chlore
             chlore_current = float(self._entry.data["chlore_current"])
             chlore_target = float(self._entry.data["chlore_target"])
+            chlore_difference = chlore_target - chlore_current
+            if chlore_difference <= 0:
+                self._message = "Retirer le chlore, pas de besoin actuellement"
+                return 0
+
+            # Récupérer le volume d'eau de la piscine
             volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume_entity and volume_entity.state not in ("unknown", "unavailable"):
                 volume_val = float(volume_entity.state)
-                temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
-                if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
-                    temperature = float(temp_entity.state)
-                    temp_factor = max(1, 1 + (temperature - 20) * 0.02)
-                    chlore_difference = chlore_target - chlore_current
-                    select_state = self._hass.states.get(f"input_select.{self._name}_chlore_treatment")
-                    treatment = select_state.state if select_state else "Chlore choc (poudre)"
-                    if treatment == "Liquide":
-                        dose = chlore_difference * volume_val * 0.1 * temp_factor  # 100 mL par mg/L par m³
-                    elif treatment == "Pastille lente":
-                        dose = (chlore_difference * volume_val / 20) * temp_factor  # 1 pastille par 20 m³ pour 1 mg/L
-                    else:  # Chlore choc (poudre)
-                        dose = chlore_difference * volume_val * 0.01 * temp_factor  # 10 g par mg/L par m³
-                    if dose <= 0:
-                        self._message = "Retirer le chlore, pas de besoin actuellement"
-                        return 0
-                    self._message = None
-                    return round(dose, 2)
+            else:
+                self._message = "Volume indisponible"
+                return None
+
+            # Récupérer la température pour ajuster la dose
+            temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
+            if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
+                temperature = float(temp_entity.state)
+                temp_factor = max(1, 1 + (temperature - 20) * 0.02)  # Augmente de 2% par degré au-dessus de 20°C
+            else:
                 self._message = "Température indisponible"
                 return None
-            self._message = "Volume indisponible"
-            return None
+
+            # Récupérer le type de traitement
+            select_state = self._hass.states.get(f"input_select.{self._name}_chlore_treatment")
+            treatment = select_state.state if select_state else "Chlore choc (poudre)"
+            self._treatment_type = treatment
+
+            # Calculer la dose totale nécessaire pour augmenter le chlore de chlore_difference mg/L
+            if treatment == "Liquide":
+                # Pour augmenter de 1 mg/L dans toute la piscine, il faut 0.1 L par m³
+                # Donc pour volume_val m³, il faut volume_val * 0.1 L par mg/L
+                dose_per_mg_L = volume_val * 0.1  # Quantité totale pour 1 mg/L
+                dose = chlore_difference * dose_per_mg_L * temp_factor  # Quantité totale ajustée
+                self._dose_unit = UNIT_LITERS
+            elif treatment == "Pastille lente":
+                # Pour augmenter de 1 mg/L dans toute la piscine, il faut 1 pastille par 20 m³
+                # Donc pour volume_val m³, il faut volume_val / 20 pastilles par mg/L
+                dose_per_mg_L = volume_val / 20  # Quantité totale pour 1 mg/L
+                dose = chlore_difference * dose_per_mg_L * temp_factor  # Quantité totale ajustée
+                self._dose_unit = "unités"
+            else:  # Chlore choc (poudre)
+                # Pour augmenter de 1 mg/L dans toute la piscine, il faut 10 g par m³
+                # Donc pour volume_val m³, il faut volume_val * 10 g par mg/L
+                dose_per_mg_L = volume_val * 10  # Quantité totale pour 1 mg/L
+                dose = chlore_difference * dose_per_mg_L * temp_factor  # Quantité totale ajustée
+                self._dose_unit = UNIT_GRAMS
+
+            self._calculated_dose = dose
+            self._dose_per_mg_L = dose_per_mg_L
+            self._message = None
+            return round(dose, 2)
         except Exception as e:
             _LOGGER.error("Erreur calcul dose chlore pour %s: %s", self._name, e)
             self._message = "Erreur de calcul"
@@ -805,6 +832,10 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
                 attributes["temp_factor"] = max(1, 1 + (attributes["temperature"] - 20) * 0.02)
             if self._message:
                 attributes["message"] = self._message
+            attributes["treatment_type"] = getattr(self, '_treatment_type', "Chlore choc (poudre)")
+            attributes["dose_unit"] = getattr(self, '_dose_unit', UNIT_GRAMS)
+            attributes["calculated_dose"] = getattr(self, '_calculated_dose', 0.0)
+            attributes["dose_per_mg_L"] = getattr(self, '_dose_per_mg_L', 0.0)  # Quantité pour 1 mg/L
         except Exception as e:
             _LOGGER.error("Erreur récupération attributs supplémentaires: %s", e)
         return attributes
@@ -868,7 +899,7 @@ class PiscinexaLogSensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_log"
         self._state = deque(maxlen=10)
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{self._name}")},
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
             name=self._name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
