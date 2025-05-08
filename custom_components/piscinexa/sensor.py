@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.const import CONF_NAME, CONF_OPTIONS
+from homeassistant.const import CONF_NAME
 from homeassistant.helpers.event import async_track_state_change_event
 from .const import (
     DOMAIN,
@@ -124,7 +124,7 @@ class PiscinexaChloreCurrentInput(InputNumber):
 class PiscinexaPhPlusTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         super().__init__(config={
-            CONF_OPTIONS: ["Liquide", "Granulés"],
+            "options": ["Liquide", "Granulés"],
         })
         self._hass = hass
         self._entry = entry
@@ -146,7 +146,7 @@ class PiscinexaPhPlusTreatmentSelect(InputSelect):
 class PiscinexaPhMinusTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         super().__init__(config={
-            CONF_OPTIONS: ["Liquide", "Granulés"],
+            "options": ["Liquide", "Granulés"],
         })
         self._hass = hass
         self._entry = entry
@@ -168,7 +168,7 @@ class PiscinexaPhMinusTreatmentSelect(InputSelect):
 class PiscinexaChloreTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         super().__init__(config={
-            CONF_OPTIONS: ["Chlore choc (poudre)", "Pastille lente", "Liquide"],
+            "options": ["Chlore choc (poudre)", "Pastille lente", "Liquide"],
         })
         self._hass = hass
         self._entry = entry
@@ -379,7 +379,7 @@ class PiscinexaPhSensor(SensorEntity):
         )
 
     async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
+        for subscription Emanuella self._subscriptions:
             subscription()
         self._subscriptions.clear()
 
