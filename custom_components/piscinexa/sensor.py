@@ -1029,6 +1029,7 @@ class PiscinexaPoolStateSensor(SensorEntity):
         try:
             issues = []
             temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
+            temperature = None
             if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
                 temperature = float(temp_entity.state)
                 if temperature < 22:
@@ -1047,6 +1048,7 @@ class PiscinexaPoolStateSensor(SensorEntity):
                 issues.append(self._get_translation(
                     "entity.sensor.piscinexa_{name}_pool_state.states.temperature_unavailable"
                 ))
+
             chlore_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_chlore")
             if chlore_entity and chlore_entity.state not in ("unknown", "unavailable"):
                 chlore = float(chlore_entity.state)
@@ -1066,6 +1068,7 @@ class PiscinexaPoolStateSensor(SensorEntity):
                 issues.append(self._get_translation(
                     "entity.sensor.piscinexa_{name}_pool_state.states.chlore_unavailable"
                 ))
+
             ph_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_ph")
             if ph_entity and ph_entity.state not in ("unknown", "unavailable"):
                 ph = float(ph_entity.state)
@@ -1085,6 +1088,7 @@ class PiscinexaPoolStateSensor(SensorEntity):
                 issues.append(self._get_translation(
                     "entity.sensor.piscinexa_{name}_pool_state.states.ph_unavailable"
                 ))
+
             filtration_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_tempsfiltration")
             if filtration_entity and filtration_entity.state not in ("unknown", "unavailable") and temp_entity:
                 filtration_time = float(filtration_entity.state)
@@ -1101,6 +1105,7 @@ class PiscinexaPoolStateSensor(SensorEntity):
                 issues.append(self._get_translation(
                     "entity.sensor.piscinexa_{name}_pool_state.states.filtration_unavailable"
                 ))
+
             ideal_states = [
                 self._get_translation(
                     "entity.sensor.piscinexa_{name}_pool_state.states.temperature_ideal"
@@ -1115,12 +1120,15 @@ class PiscinexaPoolStateSensor(SensorEntity):
                     "entity.sensor.piscinexa_{name}_pool_state.states.filtration_ideal"
                 ),
             ]
+
+            # Si tous les états sont idéaux, retourner "Swimming allowed"
             if all(issue in ideal_states for issue in issues):
                 return self._get_translation(
                     "entity.sensor.piscinexa_{name}_pool_state.states.swimming_allowed"
                 )
             else:
-                return ", ".join(issues)
+                # Retourner uniquement le premier problème pour respecter la limite de longueur
+                return issues[0]
         except Exception as e:
             _LOGGER.error("Erreur calcul état piscine pour %s: %s", self._name, e)
             return self._get_translation(
@@ -1131,18 +1139,96 @@ class PiscinexaPoolStateSensor(SensorEntity):
     def extra_state_attributes(self):
         attributes = {}
         try:
+            issues = []
             temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
-            if temp_entity:
-                attributes["temperature"] = str(float(temp_entity.state))
+            if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
+                temperature = float(temp_entity.state)
+                attributes["temperature"] = str(temperature)
+                if temperature < 22:
+                    issues.append(self._get_translation(
+                        "entity.sensor.piscinexa_{name}_pool_state.states.temperature_too_cold"
+                    ))
+                elif temperature > 28:
+                    issues.append(self._get_translation(
+                        "entity.sensor.piscinexa_{name}_pool_state.states.temperature_too_hot"
+                    ))
+                else:
+                    issues.append(self._get_translation(
+                        "entity.sensor.piscinexa_{name}_pool_state.states.temperature_ideal"
+                    ))
+            else:
+                issues.append(self._get_translation(
+                    "entity.sensor.piscinexa_{name}_pool_state.states.temperature_unavailable"
+                ))
+
             chlore_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_chlore")
-            if chlore_entity:
-                attributes["chlore"] = str(float(chlore_entity.state))
+            if chlore_entity and chlore_entity.state not in ("unknown", "unavailable"):
+                chlore = float(chlore_entity.state)
+                attributes["chlore"] = str(chlore)
+                if chlore < 1:
+                    issues.append(self._get_translation(
+                        "entity.sensor.piscinexa_{name}_pool_state.states.chlore_too_low"
+                    ))
+                elif chlore > 3:
+                    issues.append(self._get_translation(
+                        "entity.sensor.piscinexa_{name}_pool_state.states.chlore_too_high"
+                    ))
+                else:
+                    issues.append(self._get_translation(
+                        "entity.sensor.piscinexa_{name}_pool_state.states.chlore_ideal"
+                    ))
+            else:
+                issues.append(self._get_translation(
+                    "entity.sensor.piscinexa_{name}_pool_state.states.chlore_unavailable"
+                ))
+
             ph_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_ph")
-            if ph_entity:
-                attributes["ph"] = str(float(ph_entity.state))
+            if ph_entity and ph_entity.state not in ("unknown", "unavailable"):
+                ph = float(ph_entity.state)
+                attributes["ph"] = str(ph)
+                if ph < 7.2:
+                    issues.append(self._get_translation(
+                        "entity.sensor.piscinexa_{name}_pool_state.states.ph_too_low"
+                    ))
+                elif ph > 7.6:
+                    issues.append(self._get_translation(
+                        "entity.sensor.piscinexa_{name}_pool_state.states.ph_too_high"
+                    ))
+                else:
+                    issues.append(self._get_translation(
+                        "entity.sensor.piscinexa_{name}_pool_state.states.ph_ideal"
+                    ))
+            else:
+                issues.append(self._get_translation(
+                    "entity.sensor.piscinexa_{name}_pool_state.states.ph_unavailable"
+                ))
+
             filtration_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_tempsfiltration")
-            if filtration_entity:
-                attributes["temps_filtration"] = str(float(filtration_entity.state))
+            if filtration_entity and filtration_entity.state not in ("unknown", "unavailable"):
+                filtration_time = float(filtration_entity.state)
+                attributes["temps_filtration"] = str(filtration_time)
+                if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
+                    temperature = float(temp_entity.state)
+                    required_filtration = temperature / 2
+                    if filtration_time < required_filtration:
+                        issues.append(self._get_translation(
+                            "entity.sensor.piscinexa_{name}_pool_state.states.filtration_insufficient"
+                        ))
+                    else:
+                        issues.append(self._get_translation(
+                            "entity.sensor.piscinexa_{name}_pool_state.states.filtration_ideal"
+                        ))
+                else:
+                    issues.append(self._get_translation(
+                        "entity.sensor.piscinexa_{name}_pool_state.states.filtration_unavailable"
+                    ))
+            else:
+                issues.append(self._get_translation(
+                    "entity.sensor.piscinexa_{name}_pool_state.states.filtration_unavailable"
+                ))
+
+            # Ajouter tous les problèmes dans les attributs supplémentaires
+            attributes["issues"] = ", ".join(issues)
         except Exception as e:
             _LOGGER.error("Erreur récupération attributs état piscine: %s", e)
         return attributes
