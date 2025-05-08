@@ -415,5 +415,58 @@
         }
       }
     }
+  },
+  "services": {
+    "test_calcul": {
+      "description": "Tests the calculation for a specific pool",
+      "fields": {
+        "name": {
+          "description": "Pool name",
+          "example": "papa"
+        }
+      }
+    },
+    "reset_valeurs": {
+      "description": "Resets the values for a specific pool",
+      "fields": {
+        "name": {
+          "description": "Pool name",
+          "example": "papa"
+        }
+      }
+    },
+    "apply_treatment": {
+      "description": "Applies a treatment to the pool and updates the sensors",
+      "fields": {
+        "name": {
+          "description": "Pool name",
+          "example": "papa"
+        },
+        "treatment_type": {
+          "description": "Treatment type (pH+, pH-, Chlorine)",
+          "example": "Chlorine"
+        },
+        "treatment_form": {
+          "description": "Treatment form (Liquid, Granules, Chlorine shock (powder), Slow-release tablet)",
+          "example": "Liquid"
+        },
+        "quantity": {
+          "description": "Applied quantity (in liters, grams, or units depending on the form)",
+          "example": 5.0
+        }
+      }
+    }
+  },
+  "logs": {
+    "test_calcul_called": "Service test_calcul called for {name}",
+    "reset_valeurs_called": "Service reset_valeurs called for {name}",
+    "apply_treatment_called": "Service apply_treatment called for {name}: {treatment_type}, {treatment_form}, {quantity}",
+    "test_calcul_action": "Calculation test triggered",
+    "reset_valeurs_action": "Values reset",
+    "apply_treatment_action": "Treatment applied: {treatment_type} ({treatment_form}, {quantity})",
+    "platform_load_error": "Error loading platforms for Piscinexa: {error}",
+    "platform_unload_error": "Error unloading platforms for Piscinexa: {error}",
+    "chlore_target_missing": "chlore_target missing, setting default: 2.0",
+    "ph_target_missing": "ph_target missing, setting default: 7.4"
   }
 }
