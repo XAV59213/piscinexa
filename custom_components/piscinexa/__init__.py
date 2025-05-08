@@ -22,7 +22,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass,
         hass.config.language,
         "logs",
-        components=[DOMAIN],
+        integrations={DOMAIN},  # Changé de components=[DOMAIN] à integrations={DOMAIN}
     )
 
     def get_translation(key: str, placeholders: dict = None) -> str:
@@ -196,7 +196,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass,
         hass.config.language,
         "logs",
-        components=[DOMAIN],
+        integrations={DOMAIN},  # Changé de components=[DOMAIN] à integrations={DOMAIN}
     )
 
     def get_translation(key: str, placeholders: dict = None) -> str:
