@@ -899,7 +899,7 @@ class PiscinexaLogSensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_log"
         self._state = deque(maxlen=10)
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            identifiers={(DOMAIN, f"piscinexa_{self._name}")},  # Correction ici : utiliser self._name
             name=self._name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
