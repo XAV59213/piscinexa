@@ -29,7 +29,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.hass,
                 self.hass.config.language,
                 "config",
-                components=[DOMAIN],
+                # Supprimé l'argument components
             )
 
         errors = {}
@@ -673,7 +673,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self.hass,
                 self.hass.config.language,
                 "config",
-                components=[DOMAIN],
+                # Supprimé l'argument components
             )
 
         def get_translation(key: str, placeholders: dict = None) -> str:
