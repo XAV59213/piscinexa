@@ -3,6 +3,7 @@ import logging
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
+from homeassistant.helpers.translation import async_get_translations
 from .const import DOMAIN, POOL_TYPE_SQUARE, POOL_TYPE_ROUND
 
 _LOGGER = logging.getLogger(__name__)
@@ -18,9 +19,19 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._temperature_config_choice = None
         self._power_config_choice = None
         self._no_sensor_message = False
+        self._translations = None
 
     async def async_step_user(self, user_input=None):
         """Step 1 : demander le nom et le type de piscine."""
+        # Charger les traductions
+        if not self._translations:
+            self._translations = await async_get_translations(
+                self.hass,
+                self.hass.config.language,
+                "config",
+                components=[DOMAIN],
+            )
+
         errors = {}
         if user_input is not None:
             try:
@@ -656,6 +667,25 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     data_to_save[key] = value
             return self.async_create_entry(title=f"Piscinexa {self._data['name']}", data=data_to_save)
 
+        # Charger les traductions pour le récapitulatif
+        if not self._translations:
+            self._translations = await async_get_translations(
+                self.hass,
+                self.hass.config.language,
+                "config",
+                components=[DOMAIN],
+            )
+
+        def get_translation(key: str, placeholders: dict = None) -> str:
+            translation_key = key
+            translated = self._translations.get(translation_key, translation_key)
+            if placeholders:
+                try:
+                    return translated.format(**placeholders)
+                except (KeyError, ValueError):
+                    return translated
+            return translated
+
         pool_type_label = "config.step.summary.labels.pool_type_square" if self._data["pool_type"] == POOL_TYPE_SQUARE else "config.step.summary.labels.pool_type_round"
         ph_source = "config.step.summary.labels.sensor" if self._data.get("use_ph_sensor", False) else "config.step.summary.labels.manual"
         chlore_source = "config.step.summary.labels.sensor" if self._data.get("use_chlore_sensor", False) else "config.step.summary.labels.manual"
@@ -663,21 +693,21 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         power_source = "config.step.summary.labels.sensor" if self._data.get("use_power_sensor", False) else "config.step.summary.labels.manual"
 
         summary = [
-            f"config.step.summary.labels.pool_name: {self._data['name']}",
-            f"config.step.summary.labels.pool_type: {pool_type_label}",
-            f"config.step.summary.labels.dimensions: {self._get_dimensions_summary()}",
-            f"config.step.summary.labels.ph_current: {str(self._data.get('ph_current', 'config.step.summary.labels.not_defined'))}",
-            f"config.step.summary.labels.ph_target: {str(self._data['ph_target'])}",
-            f"config.step.summary.labels.ph_source: {ph_source} ({self._data.get('ph_sensor', 'config.step.summary.labels.no_selection')})",
-            f"config.step.summary.labels.ph_plus_treatment: {self._data.get('ph_plus_treatment', 'Liquide')}",
-            f"config.step.summary.labels.ph_minus_treatment: {self._data.get('ph_minus_treatment', 'Liquide')}",
-            f"config.step.summary.labels.chlore_current: {str(self._data.get('chlore_current', 'config.step.summary.labels.not_defined'))} config.step.summary.labels.unit_mg_per_liter",
-            f"config.step.summary.labels.chlore_target: {str(self._data['chlore_target'])} config.step.summary.labels.unit_mg_per_liter",
-            f"config.step.summary.labels.chlore_source: {chlore_source} ({self._data.get('chlore_sensor', 'config.step.summary.labels.no_selection')})",
-            f"config.step.summary.labels.chlore_treatment: {self._data.get('chlore_treatment', 'Chlore choc (poudre)')}",
-            f"config.step.summary.labels.temperature: {str(self._data.get('temperature', 'config.step.summary.labels.not_defined'))} config.step.summary.labels.unit_degrees_celsius",
-            f"config.step.summary.labels.temperature_source: {temperature_source} ({self._data.get('temperature_sensor', 'config.step.summary.labels.no_selection')})",
-            f"config.step.summary.labels.power_source: {power_source} ({self._data.get('power_sensor_entity_id', 'config.step.summary.labels.no_selection')})",
+            f"{get_translation('config.step.summary.labels.pool_name')}: {self._data['name']}",
+            f"{get_translation('config.step.summary.labels.pool_type')}: {get_translation(pool_type_label)}",
+            f"{get_translation('config.step.summary.labels.dimensions')}: {self._get_dimensions_summary()}",
+            f"{get_translation('config.step.summary.labels.ph_current')}: {str(self._data.get('ph_current', get_translation('config.step.summary.labels.not_defined')))}",
+            f"{get_translation('config.step.summary.labels.ph_target')}: {str(self._data['ph_target'])}",
+            f"{get_translation('config.step.summary.labels.ph_source')}: {get_translation(ph_source)} ({self._data.get('ph_sensor', get_translation('config.step.summary.labels.no_selection'))})",
+            f"{get_translation('config.step.summary.labels.ph_plus_treatment')}: {self._data.get('ph_plus_treatment', 'Liquide')}",
+            f"{get_translation('config.step.summary.labels.ph_minus_treatment')}: {self._data.get('ph_minus_treatment', 'Liquide')}",
+            f"{get_translation('config.step.summary.labels.chlore_current')}: {str(self._data.get('chlore_current', get_translation('config.step.summary.labels.not_defined')))} {get_translation('config.step.summary.labels.unit_mg_per_liter')}",
+            f"{get_translation('config.step.summary.labels.chlore_target')}: {str(self._data['chlore_target'])} {get_translation('config.step.summary.labels.unit_mg_per_liter')}",
+            f"{get_translation('config.step.summary.labels.chlore_source')}: {get_translation(chlore_source)} ({self._data.get('chlore_sensor', get_translation('config.step.summary.labels.no_selection'))})",
+            f"{get_translation('config.step.summary.labels.chlore_treatment')}: {self._data.get('chlore_treatment', 'Chlore choc (poudre)')}",
+            f"{get_translation('config.step.summary.labels.temperature')}: {str(self._data.get('temperature', get_translation('config.step.summary.labels.not_defined')))} {get_translation('config.step.summary.labels.unit_degrees_celsius')}",
+            f"{get_translation('config.step.summary.labels.temperature_source')}: {get_translation(temperature_source)} ({self._data.get('temperature_sensor', get_translation('config.step.summary.labels.no_selection'))})",
+            f"{get_translation('config.step.summary.labels.power_source')}: {get_translation(power_source)} ({self._data.get('power_sensor_entity_id', get_translation('config.step.summary.labels.no_selection'))})",
         ]
 
         return self.async_show_form(
