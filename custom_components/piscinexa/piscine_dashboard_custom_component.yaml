@@ -32,10 +32,13 @@ views:
         entities:
           - entity: sensor.piscinexa_piscine_chlore
             unit: mg/L
-            name: Chlore
+            name: Chlore Actuel
+          - entity: sensor.piscinexa_piscine_chlore_target
+            unit: mg/L
+            name: Chlore Cible
           - entity: sensor.piscinexa_piscine_chloredifference
             unit: mg/L
-            name: Différence Chlore
+            name: Chlore Différence
           - type: template
             entity_id: sensor.piscinexa_piscine_chloreaajouter
             name: Chlore à ajouter
@@ -52,14 +55,25 @@ views:
             name: Journal
           - entity: sensor.piscinexa_piscine_ph
             name: pH
+          - entity: sensor.piscinexa_piscine_ph_target
+            name: pH Cible
           - type: template
-            entity_id: sensor.piscinexa_piscine_phaajouter
-            name: pH à ajouter
+            entity_id: sensor.piscinexa_piscine_ph_plus_ajouter
+            name: pH+ à ajouter
             content: >
-              {% if states('sensor.piscinexa_piscine_phaajouter') | float(default=0) > 0 %}
-                {{ states('sensor.piscinexa_piscine_phaajouter') }} {{ state_attr('sensor.piscinexa_piscine_phaajouter', 'unit_of_measurement') }} ({{ state_attr('sensor.piscinexa_piscine_phaajouter', 'treatment_direction') }})
+              {% if states('sensor.piscinexa_piscine_ph_plus_ajouter') | float(default=0) > 0 %}
+                {{ states('sensor.piscinexa_piscine_ph_plus_ajouter') }} {{ state_attr('sensor.piscinexa_piscine_ph_plus_ajouter', 'unit_of_measurement') }}
               {% else %}
-                {{ state_attr('sensor.piscinexa_piscine_phaajouter', 'treatment_direction') }}
+                Aucun ajustement nécessaire
+              {% endif %}
+          - type: template
+            entity_id: sensor.piscinexa_piscine_ph_minus_ajouter
+            name: pH- à ajouter
+            content: >
+              {% if states('sensor.piscinexa_piscine_ph_minus_ajouter') | float(default=0) > 0 %}
+                {{ states('sensor.piscinexa_piscine_ph_minus_ajouter') }} {{ state_attr('sensor.piscinexa_piscine_ph_minus_ajouter', 'unit_of_measurement') }}
+              {% else %}
+                Aucun ajustement nécessaire
               {% endif %}
           - entity: sensor.piscinexa_piscine_temperature
             unit: °C
