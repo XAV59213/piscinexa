@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from collections import deque
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.input_number import InputNumber
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -30,6 +31,11 @@ async def async_setup_entry(
     log_sensor = PiscinexaLogSensor(hass, entry)
     hass.data[DOMAIN]["log"] = log_sensor
     name = entry.data["name"]
+    # Création des entités input_number
+    input_numbers = [
+        PiscinexaPhCurrentInput(hass, entry, name),
+        PiscinexaChloreCurrentInput(hass, entry, name),
+    ]
     sensors = [
         PiscinexaVolumeSensor(hass, entry, name),
         PiscinexaTempsFiltrationSensor(hass, entry, name),
@@ -46,7 +52,68 @@ async def async_setup_entry(
         PiscinexaPoolStateSensor(hass, entry, name),
         log_sensor,
     ]
-    async_add_entities(sensors, True)
+    # Ajouter les input_numbers et les sensors en même temps
+    async_add_entities(input_numbers + sensors, True)
+
+class PiscinexaPhCurrentInput(InputNumber):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        super().__init__(
+            min_value=0,
+            max_value=14,
+            step=0.1,
+            unit_of_measurement="pH",
+            mode="box",
+        )
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{name}_ph_current"
+        self._attr_friendly_name = f"{name.capitalize()} pH Actuel"
+        self._attr_unique_id = f"{entry.entry_id}_ph_current"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.2",
+        )
+        self._attr_value = float(self._entry.data["ph_current"])
+        _LOGGER.debug("Entité input_number %s créée avec valeur initiale %s", self._attr_name, self._attr_value)
+
+    async def async_set_value(self, value: float) -> None:
+        await super().async_set_value(value)
+        self._hass.data[DOMAIN][self._entry.entry_id]["ph_current"] = value
+        _LOGGER.debug("pH actuel mis à jour via input_number: %s", value)
+
+class PiscinexaChloreCurrentInput(InputNumber):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        super().__init__(
+            min_value=0,
+            max_value=10,
+            step=0.1,
+            unit_of_measurement="mg/L",
+            mode="box",
+        )
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{name}_chlore_current"
+        self._attr_friendly_name = f"{name.capitalize()} Chlore Actuel"
+        self._attr_unique_id = f"{entry.entry_id}_chlore_current"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.2",
+        )
+        self._attr_value = float(self._entry.data["chlore_current"])
+        _LOGGER.debug("Entité input_number %s créée avec valeur initiale %s", self._attr_name, self._attr_value)
+
+    async def async_set_value(self, value: float) -> None:
+        await super().async_set_value(value)
+        self._hass.data[DOMAIN][self._entry.entry_id]["chlore_current"] = value
+        _LOGGER.debug("Chlore actuel mis à jour via input_number: %s mg/L", value)
 
 class PiscinexaVolumeSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
@@ -268,17 +335,6 @@ class PiscinexaPhSensor(SensorEntity):
                 try:
                     value = round(float(state.state), 1)
                     self._hass.data[DOMAIN][self._entry.entry_id]["ph_current"] = value
-                    self._hass.states.async_set(
-                        f"input_number.{self._name}_ph_current",
-                        value,
-                        {
-                            "friendly_name": f"{self._name.capitalize()} pH Actuel",
-                            "min": 0,
-                            "max": 14,
-                            "step": 0.1,
-                            "unit_of_measurement": "pH",
-                        },
-                    )
                     return value
                 except ValueError as e:
                     _LOGGER.error("Valeur non numérique pour capteur %s: %s", sensor_id, state.state)
@@ -607,17 +663,6 @@ class PiscinexaChloreSensor(SensorEntity):
                 try:
                     value = round(float(state.state), 1)
                     self._hass.data[DOMAIN][self._entry.entry_id]["chlore_current"] = value
-                    self._hass.states.async_set(
-                        f"input_number.{self._name}_chlore_current",
-                        value,
-                        {
-                            "friendly_name": f"{self._name.capitalize()} Chlore Actuel",
-                            "min": 0,
-                            "max": 10,
-                            "step": 0.1,
-                            "unit_of_measurement": "mg/L",
-                        },
-                    )
                     return value
                 except Exception as e:
                     _LOGGER.warning("Erreur lecture chlore depuis capteur %s : %s", sensor_id, e)
@@ -899,7 +944,7 @@ class PiscinexaLogSensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_log"
         self._state = deque(maxlen=10)
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{self._name}")},  # Correction ici : utiliser self._name
+            identifiers={(DOMAIN, f"piscinexa_{self._name}")},
             name=self._name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
