@@ -415,5 +415,58 @@
         }
       }
     }
+  },
+  "services": {
+    "test_calcul": {
+      "description": "Teste le calcul pour une piscine spécifique",
+      "fields": {
+        "name": {
+          "description": "Nom de la piscine",
+          "example": "papa"
+        }
+      }
+    },
+    "reset_valeurs": {
+      "description": "Réinitialise les valeurs pour une piscine spécifique",
+      "fields": {
+        "name": {
+          "description": "Nom de la piscine",
+          "example": "papa"
+        }
+      }
+    },
+    "apply_treatment": {
+      "description": "Applique un traitement à la piscine et met à jour les capteurs",
+      "fields": {
+        "name": {
+          "description": "Nom de la piscine",
+          "example": "papa"
+        },
+        "treatment_type": {
+          "description": "Type de traitement (pH+, pH-, Chlore)",
+          "example": "Chlore"
+        },
+        "treatment_form": {
+          "description": "Forme du traitement (Liquide, Granulés, Chlore choc (poudre), Pastille lente)",
+          "example": "Liquide"
+        },
+        "quantity": {
+          "description": "Quantité appliquée (en litres, grammes ou unités selon la forme)",
+          "example": 5.0
+        }
+      }
+    }
+  },
+  "logs": {
+    "test_calcul_called": "Service test_calcul appelé pour {name}",
+    "reset_valeurs_called": "Service reset_valeurs appelé pour {name}",
+    "apply_treatment_called": "Service apply_treatment appelé pour {name}: {treatment_type}, {treatment_form}, {quantity}",
+    "test_calcul_action": "Test de calcul déclenché",
+    "reset_valeurs_action": "Valeurs réinitialisées",
+    "apply_treatment_action": "Traitement appliqué: {treatment_type} ({treatment_form}, {quantity})",
+    "platform_load_error": "Erreur lors du chargement des plateformes pour Piscinexa : {error}",
+    "platform_unload_error": "Erreur lors du déchargement des plateformes pour Piscinexa : {error}",
+    "chlore_target_missing": "chlore_target manquant, définition par défaut: 2.0",
+    "ph_target_missing": "ph_target manquant, définition par défaut: 7.4"
   }
 }
