@@ -44,7 +44,7 @@ views:
             name: Chlore à ajouter
             content: >
               {% if states('sensor.piscinexa_piscine_chloreaajouter') | float(default=0) > 0 %}
-                {{ states('sensor.piscinexa_piscine_chloreaajouter') }} {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'unit_of_measurement') }}
+                {{ states('sensor.piscinexa_piscine_chloreaajouter') }} {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'dose_unit') }} ({{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'treatment_type') }} pour {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'volume') }} m³)
               {% else %}
                 {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
               {% endif %}
