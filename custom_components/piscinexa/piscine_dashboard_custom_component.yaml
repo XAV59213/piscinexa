@@ -7,9 +7,9 @@ views:
       - type: buttons
         title: dashboard.single_pool.cards.controls.title
         entities:
-          - button.piscinexa_piscine_reset
+          - entity: button.piscinexa_piscine_reset
             name: entity.button.piscinexa_piscine_reset.name
-          - button.piscinexa_piscine_test
+          - entity: button.piscinexa_piscine_test
             name: entity.button.piscinexa_piscine_test.name
       - type: entities
         title: dashboard.single_pool.cards.manual_input.title
@@ -46,7 +46,7 @@ views:
               {% if states('sensor.piscinexa_piscine_chloreaajouter') | float(default=0) > 0 %}
                 {{ states('sensor.piscinexa_piscine_chloreaajouter') }} {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'dose_unit') }} ({{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'treatment_type') }} pour {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'volume') }} m³)
               {% else %}
-                {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'message') or 'entity.sensor.piscinexa_piscine_chloreaajouter.messages.remove_chlorine' }}
+                {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'message') | default('entity.sensor.piscinexa_piscine_chloreaajouter.messages.remove_chlorine') }}
               {% endif %}
           - entity: sensor.piscinexa_piscine_consopuissance
             unit: W
