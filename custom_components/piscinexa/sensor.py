@@ -123,7 +123,10 @@ class PiscinexaChloreCurrentInput(InputNumber):
 
 class PiscinexaPhPlusTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        unique_id = f"{entry.entry_id}_ph_plus_treatment"
         super().__init__(config={
+            "id": unique_id,
+            "name": f"{name}_ph_plus_treatment",
             "options": ["Liquide", "Granulés"],
         })
         self._hass = hass
@@ -131,7 +134,7 @@ class PiscinexaPhPlusTreatmentSelect(InputSelect):
         self._name = name
         self._attr_name = f"{name}_ph_plus_treatment"
         self._attr_friendly_name = f"{name.capitalize()} Type de traitement pH+"
-        self._attr_unique_id = f"{entry.entry_id}_ph_plus_treatment"
+        self._attr_unique_id = unique_id
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
             name=name.capitalize(),
@@ -145,7 +148,10 @@ class PiscinexaPhPlusTreatmentSelect(InputSelect):
 
 class PiscinexaPhMinusTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        unique_id = f"{entry.entry_id}_ph_minus_treatment"
         super().__init__(config={
+            "id": unique_id,
+            "name": f"{name}_ph_minus_treatment",
             "options": ["Liquide", "Granulés"],
         })
         self._hass = hass
@@ -153,7 +159,7 @@ class PiscinexaPhMinusTreatmentSelect(InputSelect):
         self._name = name
         self._attr_name = f"{name}_ph_minus_treatment"
         self._attr_friendly_name = f"{name.capitalize()} Type de traitement pH-"
-        self._attr_unique_id = f"{entry.entry_id}_ph_minus_treatment"
+        self._attr_unique_id = unique_id
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
             name=name.capitalize(),
@@ -167,7 +173,10 @@ class PiscinexaPhMinusTreatmentSelect(InputSelect):
 
 class PiscinexaChloreTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        unique_id = f"{entry.entry_id}_chlore_treatment"
         super().__init__(config={
+            "id": unique_id,
+            "name": f"{name}_chlore_treatment",
             "options": ["Chlore choc (poudre)", "Pastille lente", "Liquide"],
         })
         self._hass = hass
@@ -175,7 +184,7 @@ class PiscinexaChloreTreatmentSelect(InputSelect):
         self._name = name
         self._attr_name = f"{name}_chlore_treatment"
         self._attr_friendly_name = f"{name.capitalize()} Type de traitement Chlore"
-        self._attr_unique_id = f"{entry.entry_id}_chlore_treatment"
+        self._attr_unique_id = unique_id
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
             name=name.capitalize(),
