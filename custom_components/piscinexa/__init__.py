@@ -3,14 +3,20 @@ import logging
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_NAME
+from homeassistant.exceptions import ConfigEntryNotReady
 from .const import DOMAIN, POOL_TYPE_SQUARE
 
 _LOGGER = logging.getLogger(__name__)
 
+# Liste des plateformes à charger
+PLATFORMS = ["sensor", "button", "input_select"]
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Configurez une entrée de configuration pour Piscinexa."""
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = entry.data.copy()
 
+    # Vérification et définition des valeurs par défaut pour chlore_target et ph_target
     if "chlore_target" not in hass.data[DOMAIN][entry.entry_id]:
         _LOGGER.warning("chlore_target manquant, définition par défaut: 2.0")
         hass.data[DOMAIN][entry.entry_id]["chlore_target"] = 2.0
@@ -116,14 +122,29 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             log_sensor.log_action(f"Traitement appliqué: {treatment_type} ({treatment_form}, {quantity})")
         await hass.config_entries.async_reload(entry.entry_id)
 
+    # Enregistrement des services
     hass.services.async_register(DOMAIN, "test_calcul", handle_test_calcul)
     hass.services.async_register(DOMAIN, "reset_valeurs", handle_reset_valeurs)
     hass.services.async_register(DOMAIN, "apply_treatment", handle_apply_treatment)
 
-    await hass.config_entries.async_forward_entry_setups(entry, ["sensor", "button", "input_number"])
+    # Chargement des plateformes
+    try:
+        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    except Exception as e:
+        _LOGGER.error("Erreur lors du chargement des plateformes pour Piscinexa : %s", e)
+        raise ConfigEntryNotReady from e
+
     return True
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    await hass.config_entries.async_unload_platforms(entry, ["sensor", "button", "input_number"])
+    """Déchargez une entrée de configuration pour Piscinexa."""
+    # Décharger les plateformes
+    try:
+        await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    except Exception as e:
+        _LOGGER.error("Erreur lors du déchargement des plateformes pour Piscinexa : %s", e)
+        return False
+
+    # Nettoyer les données globales
     hass.data[DOMAIN].pop(entry.entry_id)
     return True
