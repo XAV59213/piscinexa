@@ -37,7 +37,7 @@ async def async_setup_entry(
         PiscinexaPhSensor(hass, entry, name),
         PiscinexaPhAjouterSensor(hass, entry, name),
         PiscinexaChloreSensor(hass, entry, name),
-        PiscinexaChloreTargetSensor(hass, entry, name),  # Nouveau capteur ajouté
+        PiscinexaChloreTargetSensor(hass, entry, name),
         PiscinexaChloreAjouterSensor(hass, entry, name),
         PiscinexaChloreDifferenceSensor(hass, entry, name),
         PiscinexaPowerSensor(hass, entry, name),
@@ -425,7 +425,7 @@ class PiscinexaChloreSensor(SensorEntity):
         self._name = name
         self._hass = hass
         self._attr_name = f"{DOMAIN}_{name}_chlore"
-        self._attr_friendly_name = f"{name.capitalize()} Chlore Actuel"  # Renommé ici
+        self._attr_friendly_name = f"{name.capitalize()} Chlore Actuel"
         self._attr_unit_of_measurement = UNIT_MG_PER_LITER
         self._attr_icon = "mdi:water-check"
         self._attr_unique_id = f"{entry.entry_id}_chlore"
@@ -523,7 +523,6 @@ class PiscinexaChloreTargetSensor(SensorEntity):
             sw_version="1.0.2",
         )
         self._subscriptions = []
-        # Écoute des changements dans les options pour mettre à jour la valeur cible
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"input_number.{name}_chlore_target"], self._async_update_from_input
@@ -686,7 +685,7 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_chloredifference"
-        self._attr_friendly_name = f"{name.capitalize()} Différence Chlore"
+        self._attr_friendly_name = f"{name.capitalize()} Chlore Différence"  # Modifié ici
         self._attr_unit_of_measurement = UNIT_MG_PER_LITER
         self._attr_icon = "mdi:delta"
         self._attr_unique_id = f"{entry.entry_id}_chlore_difference"
