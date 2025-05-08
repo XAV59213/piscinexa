@@ -35,7 +35,9 @@ async def async_setup_entry(
         PiscinexaTempsFiltrationSensor(hass, entry, name),
         PiscinexaTemperatureSensor(hass, entry, name),
         PiscinexaPhSensor(hass, entry, name),
-        PiscinexaPhAjouterSensor(hass, entry, name),
+        PiscinexaPhPlusAjouterSensor(hass, entry, name),  # Nouveau capteur pH+ à ajouter
+        PiscinexaPhMinusAjouterSensor(hass, entry, name),  # Nouveau capteur pH- à ajouter
+        PiscinexaPhTargetSensor(hass, entry, name),  # Nouveau capteur pH Cible
         PiscinexaChloreSensor(hass, entry, name),
         PiscinexaChloreTargetSensor(hass, entry, name),
         PiscinexaChloreAjouterSensor(hass, entry, name),
@@ -295,15 +297,15 @@ class PiscinexaPhSensor(SensorEntity):
             _LOGGER.error("Erreur lecture pH: %s", e)
             return None
 
-class PiscinexaPhAjouterSensor(SensorEntity):
+class PiscinexaPhPlusAjouterSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_phaajouter"
-        self._attr_friendly_name = f"{name.capitalize()} pH à ajouter"
+        self._attr_name = f"{DOMAIN}_{name}_ph_plus_ajouter"
+        self._attr_friendly_name = f"{name.capitalize()} pH+ à ajouter"
         self._attr_icon = "mdi:bottle-tonic-plus"
-        self._attr_unique_id = f"{entry.entry_id}_ph_a_ajouter"
+        self._attr_unique_id = f"{entry.entry_id}_ph_plus_ajouter"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
             name=name.capitalize(),
@@ -325,6 +327,105 @@ class PiscinexaPhAjouterSensor(SensorEntity):
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"input_select.{name}_ph_plus_treatment"], self._async_update_from_select
+            )
+        )
+
+    async def async_will_remove_from_hass(self):
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_ph(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @callback
+    def _async_update_from_volume(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @callback
+    def _async_update_from_select(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
+    def unit_of_measurement(self):
+        try:
+            select_state = self._hass.states.get(f"input_select.{self._name}_ph_plus_treatment")
+            if select_state and select_state.state == "Liquide":
+                return UNIT_LITERS
+            return UNIT_GRAMS
+        except Exception as e:
+            _LOGGER.error("Erreur détermination unité pH+: %s", e)
+            return UNIT_LITERS
+
+    @property
+    def native_value(self):
+        try:
+            ph_current = float(self._entry.data["ph_current"])
+            ph_target = float(self._entry.data["ph_target"])
+            if ph_current >= ph_target:
+                return 0  # Pas besoin de pH+ si le pH est déjà trop élevé ou correct
+
+            volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
+            if volume and volume.state not in ("unknown", "unavailable"):
+                volume_val = float(volume.state)
+                ph_difference = ph_target - ph_current
+                select_state = self._hass.states.get(f"input_select.{self._name}_ph_plus_treatment")
+                treatment = select_state.state if select_state else "Liquide"
+                if treatment == "Liquide":
+                    dose = ph_difference * volume_val * 0.01  # 10 mL par m³ pour 0.1 pH
+                else:  # Granulés
+                    dose = ph_difference * volume_val * 1.0  # 100 g par m³ pour 0.1 pH
+                return round(dose, 2)
+            return None
+        except Exception as e:
+            _LOGGER.error("Erreur calcul dose pH+ pour %s: %s", self._name, e)
+            return None
+
+    @property
+    def extra_state_attributes(self):
+        attributes = {}
+        try:
+            ph_current = float(self._entry.data["ph_current"])
+            ph_target = float(self._entry.data["ph_target"])
+            volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
+            if volume:
+                attributes["volume"] = float(volume.state)
+            attributes["ph_current"] = ph_current
+            attributes["ph_target"] = ph_target
+        except Exception as e:
+            _LOGGER.error("Erreur récupération attributs pH+: %s", e)
+        return attributes
+
+class PiscinexaPhMinusAjouterSensor(SensorEntity):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_ph_minus_ajouter"
+        self._attr_friendly_name = f"{name.capitalize()} pH- à ajouter"
+        self._attr_icon = "mdi:bottle-tonic-minus"
+        self._attr_unique_id = f"{entry.entry_id}_ph_minus_ajouter"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.2",
+        )
+        self._subscriptions = []
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_ph"], self._async_update_from_ph
+            )
+        )
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_volume_eau"], self._async_update_from_volume
             )
         )
         self._subscriptions.append(
@@ -357,15 +458,12 @@ class PiscinexaPhAjouterSensor(SensorEntity):
     @property
     def unit_of_measurement(self):
         try:
-            ph_current = float(self._entry.data["ph_current"])
-            ph_target = float(self._entry.data["ph_target"])
-            treatment_type = "ph_plus_treatment" if ph_current < ph_target else "ph_minus_treatment"
-            select_state = self._hass.states.get(f"input_select.{self._name}_{treatment_type}")
+            select_state = self._hass.states.get(f"input_select.{self._name}_ph_minus_treatment")
             if select_state and select_state.state == "Liquide":
                 return UNIT_LITERS
             return UNIT_GRAMS
         except Exception as e:
-            _LOGGER.error("Erreur détermination unité pH: %s", e)
+            _LOGGER.error("Erreur détermination unité pH-: %s", e)
             return UNIT_LITERS
 
     @property
@@ -373,32 +471,27 @@ class PiscinexaPhAjouterSensor(SensorEntity):
         try:
             ph_current = float(self._entry.data["ph_current"])
             ph_target = float(self._entry.data["ph_target"])
+            if ph_current <= ph_target:
+                return 0  # Pas besoin de pH- si le pH est déjà trop bas ou correct
+
             volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume and volume.state not in ("unknown", "unavailable"):
                 volume_val = float(volume.state)
-                ph_difference = abs(ph_target - ph_current)
-                treatment_type = "ph_plus_treatment" if ph_current < ph_target else "ph_minus_treatment"
-                select_state = self._hass.states.get(f"input_select.{self._name}_{treatment_type}")
+                ph_difference = ph_current - ph_target
+                select_state = self._hass.states.get(f"input_select.{self._name}_ph_minus_treatment")
                 treatment = select_state.state if select_state else "Liquide"
-                if treatment_type == "ph_plus_treatment":
-                    if treatment == "Liquide":
-                        dose = ph_difference * volume_val * 0.01  # 10 mL par m³ pour 0.1 pH
-                    else:  # Granulés
-                        dose = ph_difference * volume_val * 1.0  # 100 g par m³ pour 0.1 pH
-                else:  # pH-
-                    if treatment == "Liquide":
-                        dose = ph_difference * volume_val * 0.012  # 12 mL par m³ pour 0.1 pH
-                    else:  # Granulés
-                        dose = ph_difference * volume_val * 1.2  # 120 g par m³ pour 0.1 pH
-                return round(dose, 2) if ph_difference > 0 else 0
+                if treatment == "Liquide":
+                    dose = ph_difference * volume_val * 0.012  # 12 mL par m³ pour 0.1 pH
+                else:  # Granulés
+                    dose = ph_difference * volume_val * 1.2  # 120 g par m³ pour 0.1 pH
+                return round(dose, 2)
             return None
         except Exception as e:
-            _LOGGER.error("Erreur calcul dose pH: %s", e)
+            _LOGGER.error("Erreur calcul dose pH- pour %s: %s", self._name, e)
             return None
 
     @property
     def extra_state_attributes(self):
-        """Retourne des attributs supplémentaires pour indiquer si c'est pH+ ou pH-."""
         attributes = {}
         try:
             ph_current = float(self._entry.data["ph_current"])
@@ -406,18 +499,55 @@ class PiscinexaPhAjouterSensor(SensorEntity):
             volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume:
                 attributes["volume"] = float(volume.state)
-            if ph_current < ph_target:
-                attributes["treatment_direction"] = "pH+"
-            elif ph_current > ph_target:
-                attributes["treatment_direction"] = "pH-"
-            else:
-                attributes["treatment_direction"] = "Aucun ajustement"
             attributes["ph_current"] = ph_current
             attributes["ph_target"] = ph_target
         except Exception as e:
-            _LOGGER.error("Erreur récupération attributs pH: %s", e)
-            attributes["treatment_direction"] = "Erreur"
+            _LOGGER.error("Erreur récupération attributs pH-: %s", e)
         return attributes
+
+class PiscinexaPhTargetSensor(SensorEntity):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._entry = entry
+        self._name = name
+        self._hass = hass
+        self._attr_name = f"{DOMAIN}_{name}_ph_target"
+        self._attr_friendly_name = f"{name.capitalize()} pH Cible"
+        self._attr_icon = "mdi:target"
+        self._attr_unique_id = f"{entry.entry_id}_ph_target"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.2",
+        )
+        self._subscriptions = []
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"input_number.{name}_ph_target"], self._async_update_from_input
+            )
+        )
+
+    async def async_will_remove_from_hass(self):
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_input(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
+    def native_value(self):
+        try:
+            return round(float(self._entry.data["ph_target"]), 1)
+        except Exception as e:
+            _LOGGER.error("Erreur lecture pH cible: %s", e)
+            return None
 
 class PiscinexaChloreSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
@@ -685,7 +815,7 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_chloredifference"
-        self._attr_friendly_name = f"{name.capitalize()} Chlore Différence"  # Modifié ici
+        self._attr_friendly_name = f"{name.capitalize()} Chlore Différence"
         self._attr_unit_of_measurement = UNIT_MG_PER_LITER
         self._attr_icon = "mdi:delta"
         self._attr_unique_id = f"{entry.entry_id}_chlore_difference"
