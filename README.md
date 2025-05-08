@@ -1,3 +1,5 @@
+![Logo](./images/logo.png)
+
 [![GitHub release](https://img.shields.io/github/v/release/XAV59213/piscinexa)](https://github.com/XAV59213/piscinexa/releases)
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg?logo=home-assistant)](https://hacs.xyz/)
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](./LICENSE)
