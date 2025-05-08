@@ -178,7 +178,32 @@
       "summary": {
         "title": "Step 8 - Récapitulatif",
         "description": "Voici un récapitulatif de votre configuration. Vérifiez les informations avant de valider.\n\n{summary}",
-        "data": {}
+        "data": {},
+        "labels": {
+          "pool_name": "Nom de la piscine",
+          "pool_type": "Type de piscine",
+          "dimensions": "Dimensions",
+          "ph_current": "pH actuel",
+          "ph_target": "pH cible",
+          "ph_source": "Source pH",
+          "ph_plus_treatment": "Traitement pH+",
+          "ph_minus_treatment": "Traitement pH-",
+          "chlore_current": "Chlore actuel",
+          "chlore_target": "Chlore cible",
+          "chlore_source": "Source chlore",
+          "chlore_treatment": "Traitement Chlore",
+          "temperature": "Température",
+          "temperature_source": "Source température",
+          "power_source": "Source puissance",
+          "sensor": "Capteur",
+          "manual": "Valeur manuelle",
+          "no_selection": "Aucune sélection",
+          "not_defined": "Non défini",
+          "unit_mg_per_liter": "mg/L",
+          "unit_degrees_celsius": "°C",
+          "pool_type_square": "Carrée",
+          "pool_type_round": "Ronde"
+        }
       },
       "init": {
         "title": "Options de Piscinexa",
@@ -213,24 +238,182 @@
   },
   "entity": {
     "sensor": {
-      "piscinexa_piscine_volume_eau": {"name": "Piscine Volume d'eau", "unit_of_measurement": "m³"},
-      "piscinexa_piscine_tempsfiltration": {"name": "Piscine Temps de filtration", "unit_of_measurement": "h"},
-      "piscinexa_piscine_temperature": {"name": "Piscine Température", "unit_of_measurement": "°C"},
-      "piscinexa_piscine_ph": {"name": "Piscine pH"},
-      "piscinexa_piscine_ph_plus_ajouter": {"name": "Piscine pH+ à ajouter", "unit_of_measurement": "L"},
-      "piscinexa_piscine_ph_minus_ajouter": {"name": "Piscine pH- à ajouter", "unit_of_measurement": "L"},
-      "piscinexa_piscine_ph_target": {"name": "Piscine pH Cible"},
-      "piscinexa_piscine_chlore": {"name": "Piscine Chlore Actuel", "unit_of_measurement": "mg/L"},
-      "piscinexa_piscine_chlore_target": {"name": "Piscine Chlore Cible", "unit_of_measurement": "mg/L"},
-      "piscinexa_piscine_chloredifference": {"name": "Piscine Chlore Différence", "unit_of_measurement": "mg/L"},
-      "piscinexa_piscine_chloreaajouter": {"name": "Piscine Chlore à ajouter", "unit_of_measurement": "g"},
-      "piscinexa_piscine_consopuissance": {"name": "Piscine Consommation puissance", "unit_of_measurement": "W"},
-      "piscinexa_piscine_log": {"name": "Piscine Journal"},
-      "piscinexa_piscine_pool_state": {"name": "Piscine État de la piscine"}
+      "piscinexa_{name}_volume_eau": {
+        "name": "{name} Volume d'eau",
+        "unit_of_measurement": "m³"
+      },
+      "piscinexa_{name}_tempsfiltration": {
+        "name": "{name} Temps de filtration",
+        "unit_of_measurement": "h"
+      },
+      "piscinexa_{name}_temperature": {
+        "name": "{name} Température",
+        "unit_of_measurement": "°C"
+      },
+      "piscinexa_{name}_ph": {
+        "name": "{name} pH"
+      },
+      "piscinexa_{name}_ph_plus_ajouter": {
+        "name": "{name} pH+ à ajouter",
+        "unit_of_measurement": "L"
+      },
+      "piscinexa_{name}_ph_minus_ajouter": {
+        "name": "{name} pH- à ajouter",
+        "unit_of_measurement": "L"
+      },
+      "piscinexa_{name}_ph_target": {
+        "name": "{name} pH Cible"
+      },
+      "piscinexa_{name}_chlore": {
+        "name": "{name} Chlore Actuel",
+        "unit_of_measurement": "mg/L"
+      },
+      "piscinexa_{name}_chlore_target": {
+        "name": "{name} Chlore Cible",
+        "unit_of_measurement": "mg/L"
+      },
+      "piscinexa_{name}_chloredifference": {
+        "name": "{name} Chlore Différence",
+        "unit_of_measurement": "mg/L"
+      },
+      "piscinexa_{name}_chloreaajouter": {
+        "name": "{name} Chlore à ajouter",
+        "unit_of_measurement": "g",
+        "messages": {
+          "remove_chlorine": "Retirer le chlore, pas de besoin actuellement",
+          "volume_unavailable": "Volume indisponible",
+          "temperature_unavailable": "Température indisponible",
+          "calculation_error": "Erreur de calcul"
+        }
+      },
+      "piscinexa_{name}_consopuissance": {
+        "name": "{name} Consommation puissance",
+        "unit_of_measurement": "W"
+      },
+      "piscinexa_{name}_log": {
+        "name": "{name} Journal",
+        "default_value": "Aucune action"
+      },
+      "piscinexa_{name}_pool_state": {
+        "name": "{name} État de la piscine",
+        "states": {
+          "swimming_allowed": "Baignade autorisée, profitez-en !",
+          "temperature_too_cold": "Température trop froide",
+          "temperature_too_hot": "Température trop chaude",
+          "temperature_ideal": "Température idéale",
+          "temperature_unavailable": "Température indisponible",
+          "chlore_too_low": "Chlore trop bas",
+          "chlore_too_high": "Chlore trop élevé",
+          "chlore_ideal": "Chlore idéal",
+          "chlore_unavailable": "Chlore indisponible",
+          "ph_too_low": "pH trop bas",
+          "ph_too_high": "pH trop élevé",
+          "ph_ideal": "pH idéal",
+          "ph_unavailable": "pH indisponible",
+          "filtration_insufficient": "Temps de filtration insuffisant",
+          "filtration_ideal": "Temps de filtration idéal",
+          "filtration_unavailable": "Temps de filtration indisponible",
+          "evaluation_error": "Erreur d'évaluation"
+        }
+      }
     },
     "button": {
-      "piscinexa_piscine_test": {"name": "Piscine Tester"},
-      "piscinexa_piscine_reset": {"name": "Piscine Réinitialiser"}
+      "piscinexa_{name}_test": {
+        "name": "{name} Tester"
+      },
+      "piscinexa_{name}_reset": {
+        "name": "{name} Réinitialiser"
+      }
+    },
+    "input_number": {
+      "{name}_ph_current": {
+        "name": "{name} pH Actuel"
+      },
+      "{name}_chlore_current": {
+        "name": "{name} Chlore Actuel"
+      }
+    },
+    "input_select": {
+      "{name}_ph_plus_treatment": {
+        "name": "{name} Type de traitement pH+",
+        "options": {
+          "liquid": "Liquide",
+          "granules": "Granulés"
+        }
+      },
+      "{name}_ph_minus_treatment": {
+        "name": "{name} Type de traitement pH-",
+        "options": {
+          "liquid": "Liquide",
+          "granules": "Granulés"
+        }
+      },
+      "{name}_chlore_treatment": {
+        "name": "{name} Type de traitement Chlore",
+        "options": {
+          "liquid": "Liquide",
+          "shock": "Chlore choc (poudre)",
+          "tablet": "Pastille lente"
+        }
+      }
+    }
+  },
+  "dashboard": {
+    "single_pool": {
+      "title": "Piscine",
+      "views": {
+        "piscine": {
+          "title": "Piscine"
+        }
+      },
+      "cards": {
+        "controls": {
+          "title": "Contrôles"
+        },
+        "manual_input": {
+          "title": "Saisie manuelle"
+        },
+        "treatment_choices": {
+          "title": "Choix des traitements"
+        },
+        "sensors": {
+          "title": "Capteurs"
+        },
+        "template_ph_plus": {
+          "no_adjustment": "Aucun ajustement nécessaire"
+        },
+        "template_ph_minus": {
+          "no_adjustment": "Aucun ajustement nécessaire"
+        }
+      }
+    },
+    "multi_pool": {
+      "title": "Tableau de bord Piscinexa",
+      "views": {
+        "piscinexa": {
+          "title": "Piscines"
+        }
+      },
+      "cards": {
+        "piscine_section": {
+          "title": "Piscine"
+        },
+        "spa_section": {
+          "title": "Piscine Spa"
+        },
+        "history_section": {
+          "title": "Historique pH / Chlore"
+        },
+        "manual_input": {
+          "title": "Saisie manuelle"
+        },
+        "template_ph_plus": {
+          "no_adjustment": "Aucun ajustement nécessaire"
+        },
+        "template_ph_minus": {
+          "no_adjustment": "Aucun ajustement nécessaire"
+        }
+      }
     }
   }
 }
