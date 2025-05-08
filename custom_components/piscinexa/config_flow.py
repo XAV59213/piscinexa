@@ -657,7 +657,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         summary = [
             f"config.step.summary.labels.pool_name: {self._data['name']}",
-            f"config.step.summary.labels.pool_type: {self.hass.config_entries.async_get_entry(self.context['entry_id']).data.get('pool_type', pool_type_label)}",
+            f"config.step.summary.labels.pool_type: {pool_type_label}",
             f"config.step.summary.labels.dimensions: {self._get_dimensions_summary()}",
             f"config.step.summary.labels.ph_current: {self._data.get('ph_current', 'config.step.summary.labels.not_defined')}",
             f"config.step.summary.labels.ph_target: {self._data['ph_target']}",
