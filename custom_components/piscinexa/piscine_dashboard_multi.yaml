@@ -29,9 +29,13 @@ views:
           - type: entities
             entities:
               - entity: sensor.piscinexa_piscine_volume_eau
+                name: entity.sensor.piscinexa_piscine_volume_eau.name
               - entity: sensor.piscinexa_piscine_tempsfiltration
+                name: entity.sensor.piscinexa_piscine_tempsfiltration.name
               - entity: sensor.piscinexa_piscine_consopuissance
+                name: entity.sensor.piscinexa_piscine_consopuissance.name
               - entity: sensor.piscinexa_piscine_ph
+                name: entity.sensor.piscinexa_piscine_ph.name
               - entity: sensor.piscinexa_piscine_ph_target
                 name: entity.sensor.piscinexa_piscine_ph_target.name
               - type: template
@@ -41,4 +45,5 @@ views:
                   {% if states('sensor.piscinexa_piscine_ph_plus_ajouter') | float(default=0) > 0 %}
                     {{ states('sensor.piscinexa_piscine_ph_plus_ajouter') }} {{ state_attr('sensor.piscinexa_piscine_ph_plus_ajouter', 'unit_of_measurement') }}
                   {% else %}
-                    dashboard.multi_pool.cards.template_ph_plus.no
+                    dashboard.multi_pool.cards.template_ph_plus.no_adjustment
+                  {% endif %}
