@@ -1,4 +1,4 @@
-# Tableau de bord pour plusieurs piscines. Adaptez les noms ('papa', 'maman') aux noms configurés dans l'intégration.
+# Tableau de bord pour plusieurs piscines : 'piscine' et 'spa'.
 title: Tableau de bord Piscinexa
 views:
   - title: Piscines
@@ -10,84 +10,130 @@ views:
         cards:
           - type: markdown
             content: |
-              ## Piscine Papa
+              ## Piscine
           - type: horizontal-stack
             cards:
               - type: button
-                entity: button.papatest
+                entity: button.piscinexa_piscine_test
                 name: Tester
               - type: button
-                entity: button.papareset
+                entity: button.piscinexa_piscine_reset
                 name: Réinitialiser
           - type: entities
             title: Saisie manuelle
             entities:
-              - input_number.papa_ph_current
+              - input_number.piscine_ph_current
                 name: pH Actuel
-              - input_number.papa_chlore_current
+              - input_number.piscine_chlore_current
                 name: Chlore Actuel
           - type: entities
             entities:
-              - sensor.papavolumeeau
-              - sensor.papatempsfiltration
-              - sensor.papaph
-              - sensor.papachlore
-              - sensor.papachloredifference
+              - sensor.piscinexa_piscine_volume_eau
+              - sensor.piscinexa_piscine_tempsfiltration
+              - sensor.piscinexa_piscine_consopuissance
+              - sensor.piscinexa_piscine_ph
+              - sensor.piscinexa_piscine_ph_target
+                name: pH Cible
+              - type: template
+                entity_id: sensor.piscinexa_piscine_ph_plus_ajouter
+                name: pH+ à ajouter
+                content: >
+                  {% if states('sensor.piscinexa_piscine_ph_plus_ajouter') | float(default=0) > 0 %}
+                    {{ states('sensor.piscinexa_piscine_ph_plus_ajouter') }} {{ state_attr('sensor.piscinexa_piscine_ph_plus_ajouter', 'unit_of_measurement') }}
+                  {% else %}
+                    Aucun ajustement nécessaire
+                  {% endif %}
+              - type: template
+                entity_id: sensor.piscinexa_piscine_ph_minus_ajouter
+                name: pH- à ajouter
+                content: >
+                  {% if states('sensor.piscinexa_piscine_ph_minus_ajouter') | float(default=0) > 0 %}
+                    {{ states('sensor.piscinexa_piscine_ph_minus_ajouter') }} {{ state_attr('sensor.piscinexa_piscine_ph_minus_ajouter', 'unit_of_measurement') }}
+                  {% else %}
+                    Aucun ajustement nécessaire
+                  {% endif %}
+              - sensor.piscinexa_piscine_chlore
+              - sensor.piscinexa_piscine_chlore_target
+                name: Chlore Cible
+              - sensor.piscinexa_piscine_chloredifference
                 unit: mg/L
                 name: Différence Chlore
               - type: template
-                entity_id: sensor.papachloreaajouter
+                entity_id: sensor.piscinexa_piscine_chloreaajouter
                 name: Chlore à ajouter
                 content: >
-                  {% if states('sensor.papachloreaajouter') | float(default=0) > 0 %}
-                    {{ states('sensor.papachloreaajouter') }} g
+                  {% if states('sensor.piscinexa_piscine_chloreaajouter') | float(default=0) > 0 %}
+                    {{ states('sensor.piscinexa_piscine_chloreaajouter') }} g
                   {% else %}
-                    {{ state_attr('sensor.papachloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
+                    {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
                   {% endif %}
-              - sensor.papalog
-              - entity: sensor.piscinexa_papa_pool_state
+              - sensor.piscinexa_piscine_log
+              - entity: sensor.piscinexa_piscine_pool_state
                 name: État de la piscine
 
       - type: vertical-stack
         cards:
           - type: markdown
             content: |
-              ## Piscine Maman
+              ## Piscine Spa
           - type: horizontal-stack
             cards:
               - type: button
-                entity: button.mamantest
+                entity: button.piscinexa_spa_test
                 name: Tester
               - type: button
-                entity: button.mamanreset
+                entity: button.piscinexa_spa_reset
                 name: Réinitialiser
           - type: entities
             title: Saisie manuelle
             entities:
-              - input_number.maman_ph_current
+              - input_number.spa_ph_current
                 name: pH Actuel
-              - input_number.maman_chlore_current
+              - input_number.spa_chlore_current
                 name: Chlore Actuel
           - type: entities
             entities:
-              - sensor.mamanvolumeeau
-              - sensor.mamantempsfiltration
-              - sensor.mamanph
-              - sensor.mamanchlore
-              - sensor.mamanchloredifference
+              - sensor.piscinexa_spa_volume_eau
+              - sensor.piscinexa_spa_tempsfiltration
+              - sensor.piscinexa_spa_consopuissance
+              - sensor.piscinexa_spa_ph
+              - sensor.piscinexa_spa_ph_target
+                name: pH Cible
+              - type: template
+                entity_id: sensor.piscinexa_spa_ph_plus_ajouter
+                name: pH+ à ajouter
+                content: >
+                  {% if states('sensor.piscinexa_spa_ph_plus_ajouter') | float(default=0) > 0 %}
+                    {{ states('sensor.piscinexa_spa_ph_plus_ajouter') }} {{ state_attr('sensor.piscinexa_spa_ph_plus_ajouter', 'unit_of_measurement') }}
+                  {% else %}
+                    Aucun ajustement nécessaire
+                  {% endif %}
+              - type: template
+                entity_id: sensor.piscinexa_spa_ph_minus_ajouter
+                name: pH- à ajouter
+                content: >
+                  {% if states('sensor.piscinexa_spa_ph_minus_ajouter') | float(default=0) > 0 %}
+                    {{ states('sensor.piscinexa_spa_ph_minus_ajouter') }} {{ state_attr('sensor.piscinexa_spa_ph_minus_ajouter', 'unit_of_measurement') }}
+                  {% else %}
+                    Aucun ajustement nécessaire
+                  {% endif %}
+              - sensor.piscinexa_spa_chlore
+              - sensor.piscinexa_spa_chlore_target
+                name: Chlore Cible
+              - sensor.piscinexa_spa_chloredifference
                 unit: mg/L
                 name: Différence Chlore
               - type: template
-                entity_id: sensor.mamanchloreaajouter
+                entity_id: sensor.piscinexa_spa_chloreaajouter
                 name: Chlore à ajouter
                 content: >
-                  {% if states('sensor.mamanchloreaajouter') | float(default=0) > 0 %}
-                    {{ states('sensor.mamanchloreaajouter') }} g
+                  {% if states('sensor.piscinexa_spa_chloreaajouter') | float(default=0) > 0 %}
+                    {{ states('sensor.piscinexa_spa_chloreaajouter') }} g
                   {% else %}
-                    {{ state_attr('sensor.mamanchloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
+                    {{ state_attr('sensor.piscinexa_spa_chloreaajouter', 'message') or 'Retirer le chlore, pas de besoin actuellement' }}
                   {% endif %}
-              - sensor.mamanlog
-              - entity: sensor.piscinexa_maman_pool_state
+              - sensor.piscinexa_spa_log
+              - entity: sensor.piscinexa_spa_pool_state
                 name: État de la piscine
 
       - type: vertical-stack
@@ -99,7 +145,9 @@ views:
             hours_to_show: 48
             refresh_interval: 300
             entities:
-              - sensor.papaph
-              - sensor.papachlore
-              - sensor.mamanph
-              - sensor.mamanchlore
+              - sensor.piscinexa_piscine_ph
+              - sensor.piscinexa_piscine_ph_target
+              - sensor.piscinexa_piscine_chlore
+              - sensor.piscinexa_spa_ph
+              - sensor.piscinexa_spa_ph_target
+              - sensor.piscinexa_spa_chlore
