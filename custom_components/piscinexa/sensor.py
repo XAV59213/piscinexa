@@ -447,7 +447,7 @@ class PiscinexaPhSensor(SensorEntity):
         if sensor_id:
             state = self._hass.states.get(sensor_id)
             if state:
-                if state.state in ("unknown", "unavailable"):
+                if state.state in Leur("unknown", "unavailable"):
                     _LOGGER.warning("Capteur de pH %s indisponible", sensor_id)
                     return None
                 try:
@@ -571,9 +571,9 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
             ph_target = float(self._entry.data["ph_target"])
             volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume:
-                attributes["volume"] = float(volume.state)
-            attributes["ph_current"] = ph_current
-            attributes["ph_target"] = ph_target
+                attributes["volume"] = str(float(volume.state))
+            attributes["ph_current"] = str(ph_current)
+            attributes["ph_target"] = str(ph_target)
         except Exception as e:
             _LOGGER.error("Erreur récupération attributs pH+: %s", e)
         return attributes
@@ -678,9 +678,9 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
             ph_target = float(self._entry.data["ph_target"])
             volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume:
-                attributes["volume"] = float(volume.state)
-            attributes["ph_current"] = ph_current
-            attributes["ph_target"] = ph_target
+                attributes["volume"] = str(float(volume.state))
+            attributes["ph_current"] = str(ph_current)
+            attributes["ph_target"] = str(ph_target)
         except Exception as e:
             _LOGGER.error("Erreur récupération attributs pH-: %s", e)
         return attributes
@@ -1014,21 +1014,21 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
     def extra_state_attributes(self):
         attributes = {}
         try:
-            attributes["chlore_current"] = float(self._entry.data["chlore_current"])
-            attributes["chlore_target"] = float(self._entry.data["chlore_target"])
+            attributes["chlore_current"] = str(float(self._entry.data["chlore_current"]))
+            attributes["chlore_target"] = str(float(self._entry.data["chlore_target"]))
             volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume_entity:
-                attributes["volume"] = float(volume_entity.state)
+                attributes["volume"] = str(float(volume_entity.state))
             temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
             if temp_entity:
-                attributes["temperature"] = float(temp_entity.state)
-                attributes["temp_factor"] = max(1, 1 + (attributes["temperature"] - 20) * 0.02)
+                attributes["temperature"] = str(float(temp_entity.state))
+                attributes["temp_factor"] = str(max(1, 1 + (float(temp_entity.state) - 20) * 0.02))
             if self._message:
                 attributes["message"] = self._message
             attributes["treatment_type"] = getattr(self, '_treatment_type', "Chlore choc (poudre)")
             attributes["dose_unit"] = getattr(self, '_dose_unit', UNIT_GRAMS)
-            attributes["calculated_dose"] = getattr(self, '_calculated_dose', 0.0)
-            attributes["dose_per_mg_L"] = getattr(self, '_dose_per_mg_L', 0.0)  # Quantité pour 1 mg/L
+            attributes["calculated_dose"] = str(getattr(self, '_calculated_dose', 0.0))
+            attributes["dose_per_mg_L"] = str(getattr(self, '_dose_per_mg_L', 0.0))
         except Exception as e:
             _LOGGER.error("Erreur récupération attributs supplémentaires: %s", e)
         return attributes
@@ -1342,16 +1342,16 @@ class PiscinexaPoolStateSensor(SensorEntity):
         try:
             temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
             if temp_entity:
-                attributes["temperature"] = float(temp_entity.state)
+                attributes["temperature"] = str(float(temp_entity.state))
             chlore_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_chlore")
             if chlore_entity:
-                attributes["chlore"] = float(chlore_entity.state)
+                attributes["chlore"] = str(float(chlore_entity.state))
             ph_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_ph")
             if ph_entity:
-                attributes["ph"] = float(ph_entity.state)
+                attributes["ph"] = str(float(ph_entity.state))
             filtration_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_tempsfiltration")
             if filtration_entity:
-                attributes["temps_filtration"] = float(filtration_entity.state)
+                attributes["temps_filtration"] = str(float(filtration_entity.state))
         except Exception as e:
             _LOGGER.error("Erreur récupération attributs état piscine: %s", e)
         return attributes
