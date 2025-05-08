@@ -37,6 +37,7 @@ async def async_setup_entry(
         PiscinexaPhSensor(hass, entry, name),
         PiscinexaPhAjouterSensor(hass, entry, name),
         PiscinexaChloreSensor(hass, entry, name),
+        PiscinexaChloreTargetSensor(hass, entry, name),  # Nouveau capteur ajouté
         PiscinexaChloreAjouterSensor(hass, entry, name),
         PiscinexaChloreDifferenceSensor(hass, entry, name),
         PiscinexaPowerSensor(hass, entry, name),
@@ -424,7 +425,7 @@ class PiscinexaChloreSensor(SensorEntity):
         self._name = name
         self._hass = hass
         self._attr_name = f"{DOMAIN}_{name}_chlore"
-        self._attr_friendly_name = f"{name.capitalize()} Chlore"
+        self._attr_friendly_name = f"{name.capitalize()} Chlore Actuel"  # Renommé ici
         self._attr_unit_of_measurement = UNIT_MG_PER_LITER
         self._attr_icon = "mdi:water-check"
         self._attr_unique_id = f"{entry.entry_id}_chlore"
@@ -502,6 +503,52 @@ class PiscinexaChloreSensor(SensorEntity):
             return round(float(self._entry.data["chlore_current"]), 1)
         except Exception as e:
             _LOGGER.error("Erreur lecture chlore: %s", e)
+            return None
+
+class PiscinexaChloreTargetSensor(SensorEntity):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._entry = entry
+        self._name = name
+        self._hass = hass
+        self._attr_name = f"{DOMAIN}_{name}_chlore_target"
+        self._attr_friendly_name = f"{name.capitalize()} Chlore Cible"
+        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
+        self._attr_icon = "mdi:target"
+        self._attr_unique_id = f"{entry.entry_id}_chlore_target"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.2",
+        )
+        self._subscriptions = []
+        # Écoute des changements dans les options pour mettre à jour la valeur cible
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"input_number.{name}_chlore_target"], self._async_update_from_input
+            )
+        )
+
+    async def async_will_remove_from_hass(self):
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_input(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
+    def native_value(self):
+        try:
+            return round(float(self._entry.data["chlore_target"]), 1)
+        except Exception as e:
+            _LOGGER.error("Erreur lecture chlore cible: %s", e)
             return None
 
 class PiscinexaChloreAjouterSensor(SensorEntity):
