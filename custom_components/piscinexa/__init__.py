@@ -22,48 +22,47 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass,
         hass.config.language,
         "logs",
-        integrations={DOMAIN},  # Changé de components=[DOMAIN] à integrations={DOMAIN}
+        integrations={DOMAIN},
     )
 
     def get_translation(key: str, placeholders: dict = None) -> str:
         """Récupère une traduction avec des placeholders."""
         try:
-            translation_key = key
-            translated = translations.get(translation_key, translation_key)
+            translated = translations(key)
             if placeholders:
                 return translated.format(**placeholders)
             return translated
-        except (KeyError, ValueError, AttributeError) as e:
+        except Exception as e:
             _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
             return key  # Retourne la clé brute si la traduction échoue
 
     # Vérification et définition des valeurs par défaut pour chlore_target et ph_target
     if "chlore_target" not in hass.data[DOMAIN][entry.entry_id]:
         _LOGGER.warning(
-            get_translation("logs.chlore_target_missing", {"default_value": "2.0"})
+            get_translation("chlore_target_missing", {"default_value": "2.0"})
         )
         hass.data[DOMAIN][entry.entry_id]["chlore_target"] = 2.0
     if "ph_target" not in hass.data[DOMAIN][entry.entry_id]:
         _LOGGER.warning(
-            get_translation("logs.ph_target_missing", {"default_value": "7.4"})
+            get_translation("ph_target_missing", {"default_value": "7.4"})
         )
         hass.data[DOMAIN][entry.entry_id]["ph_target"] = 7.4
 
     async def handle_test_calcul(call: ServiceCall):
         name = hass.data[DOMAIN][entry.entry_id]["name"]
         _LOGGER.info(
-            get_translation("logs.test_calcul_called", {"name": name})
+            get_translation("test_calcul_called", {"name": name})
         )
         log_sensor = hass.data[DOMAIN].get("log")
         if log_sensor and name in log_sensor._name:
             log_sensor.log_action(
-                get_translation("logs.test_calcul_action")
+                get_translation("test_calcul_action")
             )
 
     async def handle_reset_valeurs(call: ServiceCall):
         name = hass.data[DOMAIN][entry.entry_id]["name"]
         _LOGGER.info(
-            get_translation("logs.reset_valeurs_called", {"name": name})
+            get_translation("reset_valeurs_called", {"name": name})
         )
         data = {
             "name": name,
@@ -104,19 +103,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         log_sensor = hass.data[DOMAIN].get("log")
         if log_sensor and name in log_sensor._name:
             log_sensor.log_action(
-                get_translation("logs.reset_valeurs_action")
+                get_translation("reset_valeurs_action")
             )
         await hass.config_entries.async_reload(entry.entry_id)
 
     async def handle_apply_treatment(call: ServiceCall):
         name = call.data.get("name", hass.data[DOMAIN][entry.entry_id]["name"])
-        treatment_type = call.data.get("treatment_type")  # pH+, pH-, Chlore
-        treatment_form = call.data.get("treatment_form")  # Liquide, Granulés, etc.
+        treatment_type = call.data.get("treatment_type")
+        treatment_form = call.data.get("treatment_form")
         quantity = float(call.data.get("quantity", 0.0))
 
         _LOGGER.info(
             get_translation(
-                "logs.apply_treatment_called",
+                "apply_treatment_called",
                 {
                     "name": name,
                     "treatment_type": treatment_type,
@@ -126,15 +125,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             )
         )
 
-        # Mettre à jour les capteurs en fonction du traitement
         if treatment_type in ["pH+", "pH-"]:
             ph_current = float(hass.data[DOMAIN][entry.entry_id]["ph_current"])
             volume = float(hass.states.get(f"sensor.{DOMAIN}_{name}_volume_eau").state)
-            # Facteurs de conversion (hypothétiques, ajuster selon produits réels)
             if treatment_form == "Liquide":
-                ph_change = quantity / (volume * 10)  # 10 L par unité de pH par m³
-            else:  # Granulés
-                ph_change = quantity / (volume * 100)  # 100 g par unité de pH par m³
+                ph_change = quantity / (volume * 10)
+            else:
+                ph_change = quantity / (volume * 100)
             if treatment_type == "pH+":
                 new_ph = ph_current + ph_change
             else:
@@ -148,11 +145,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             chlore_current = float(hass.data[DOMAIN][entry.entry_id]["chlore_current"])
             volume = float(hass.states.get(f"sensor.{DOMAIN}_{name}_volume_eau").state)
             if treatment_form == "Liquide":
-                chlore_change = quantity / (volume * 10)  # 10 L par mg/L par m³
+                chlore_change = quantity / (volume * 10)
             elif treatment_form == "Pastille lente":
-                chlore_change = quantity / (volume * 0.5)  # 0.5 unité par mg/L par m³
-            else:  # Chlore choc (poudre)
-                chlore_change = quantity / (volume * 10)  # 10 g par mg/L par m³
+                chlore_change = quantity / (volume * 0.5)
+            else:
+                chlore_change = quantity / (volume * 10)
             new_chlore = chlore_current + chlore_change
             hass.data[DOMAIN][entry.entry_id]["chlore_current"] = round(new_chlore, 1)
             await hass.services.async_call(
@@ -164,7 +161,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if log_sensor and name in log_sensor._name:
             log_sensor.log_action(
                 get_translation(
-                    "logs.apply_treatment_action",
+                    "apply_treatment_action",
                     {
                         "treatment_type": treatment_type,
                         "treatment_form": treatment_form,
@@ -174,17 +171,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             )
         await hass.config_entries.async_reload(entry.entry_id)
 
-    # Enregistrement des services avec descriptions traduites
     hass.services.async_register(DOMAIN, "test_calcul", handle_test_calcul)
     hass.services.async_register(DOMAIN, "reset_valeurs", handle_reset_valeurs)
     hass.services.async_register(DOMAIN, "apply_treatment", handle_apply_treatment)
 
-    # Chargement des plateformes
     try:
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     except Exception as e:
         _LOGGER.error(
-            get_translation("logs.platform_load_error", {"error": str(e)})
+            get_translation("platform_load_error", {"error": str(e)})
         )
         raise ConfigEntryNotReady from e
 
@@ -192,35 +187,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Déchargez une entrée de configuration pour Piscinexa."""
-    # Charger les traductions
     translations = await async_get_translations(
         hass,
         hass.config.language,
         "logs",
-        integrations={DOMAIN},  # Changé de components=[DOMAIN] à integrations={DOMAIN}
+        integrations={DOMAIN},
     )
 
     def get_translation(key: str, placeholders: dict = None) -> str:
         """Récupère une traduction avec des placeholders."""
         try:
-            translation_key = key
-            translated = translations.get(translation_key, translation_key)
+            translated = translations(key)
             if placeholders:
                 return translated.format(**placeholders)
             return translated
-        except (KeyError, ValueError, AttributeError) as e:
+        except Exception as e:
             _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
             return key  # Retourne la clé brute si la traduction échoue
 
-    # Décharger les plateformes
     try:
         await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     except Exception as e:
         _LOGGER.error(
-            get_translation("logs.platform_unload_error", {"error": str(e)})
+            get_translation("platform_unload_error", {"error": str(e)})
         )
         return False
 
-    # Nettoyer les données globales
     hass.data[DOMAIN].pop(entry.entry_id)
     return True
