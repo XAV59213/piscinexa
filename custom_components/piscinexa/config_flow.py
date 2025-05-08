@@ -649,22 +649,28 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             return self.async_create_entry(title=f"Piscinexa {self._data['name']}", data=self._data)
 
+        pool_type_label = "config.step.summary.labels.pool_type_square" if self._data["pool_type"] == POOL_TYPE_SQUARE else "config.step.summary.labels.pool_type_round"
+        ph_source = "config.step.summary.labels.sensor" if self._data.get("use_ph_sensor", False) else "config.step.summary.labels.manual"
+        chlore_source = "config.step.summary.labels.sensor" if self._data.get("use_chlore_sensor", False) else "config.step.summary.labels.manual"
+        temperature_source = "config.step.summary.labels.sensor" if self._data.get("use_temperature_sensor", False) else "config.step.summary.labels.manual"
+        power_source = "config.step.summary.labels.sensor" if self._data.get("use_power_sensor", False) else "config.step.summary.labels.manual"
+
         summary = [
-            f"Nom de la piscine: {self._data['name']}",
-            f"Type de piscine: {self._data['pool_type']}",
-            f"Dimensions: {self._get_dimensions_summary()}",
-            f"pH actuel: {self._data.get('ph_current', 'Non défini')}",
-            f"pH cible: {self._data['ph_target']}",
-            f"Source pH: {'Capteur' if self._data.get('use_ph_sensor', False) else 'Valeur manuelle'} ({self._data.get('ph_sensor', 'Aucune sélection')})",
-            f"Traitement pH+: {self._data.get('ph_plus_treatment', 'Liquide')}",
-            f"Traitement pH-: {self._data.get('ph_minus_treatment', 'Liquide')}",
-            f"Chlore actuel: {self._data.get('chlore_current', 'Non défini')} mg/L",
-            f"Chlore cible: {self._data['chlore_target']} mg/L",
-            f"Source chlore: {'Capteur' if self._data.get('use_chlore_sensor', False) else 'Valeur manuelle'} ({self._data.get('chlore_sensor', 'Aucune sélection')})",
-            f"Traitement Chlore: {self._data.get('chlore_treatment', 'Chlore choc (poudre)')}",
-            f"Température: {self._data.get('temperature', 'Non défini')} °C",
-            f"Source température: {'Capteur' if self._data.get('use_temperature_sensor', False) else 'Valeur manuelle'} ({self._data.get('temperature_sensor', 'Aucune sélection')})",
-            f"Source puissance: {'Capteur' if self._data.get('use_power_sensor', False) else 'Valeur manuelle'} ({self._data.get('power_sensor_entity_id', 'Aucune sélection')})",
+            f"config.step.summary.labels.pool_name: {self._data['name']}",
+            f"config.step.summary.labels.pool_type: {self.hass.config_entries.async_get_entry(self.context['entry_id']).data.get('pool_type', pool_type_label)}",
+            f"config.step.summary.labels.dimensions: {self._get_dimensions_summary()}",
+            f"config.step.summary.labels.ph_current: {self._data.get('ph_current', 'config.step.summary.labels.not_defined')}",
+            f"config.step.summary.labels.ph_target: {self._data['ph_target']}",
+            f"config.step.summary.labels.ph_source: {ph_source} ({self._data.get('ph_sensor', 'config.step.summary.labels.no_selection')})",
+            f"config.step.summary.labels.ph_plus_treatment: {self._data.get('ph_plus_treatment', 'Liquide')}",
+            f"config.step.summary.labels.ph_minus_treatment: {self._data.get('ph_minus_treatment', 'Liquide')}",
+            f"config.step.summary.labels.chlore_current: {self._data.get('chlore_current', 'config.step.summary.labels.not_defined')} config.step.summary.labels.unit_mg_per_liter",
+            f"config.step.summary.labels.chlore_target: {self._data['chlore_target']} config.step.summary.labels.unit_mg_per_liter",
+            f"config.step.summary.labels.chlore_source: {chlore_source} ({self._data.get('chlore_sensor', 'config.step.summary.labels.no_selection')})",
+            f"config.step.summary.labels.chlore_treatment: {self._data.get('chlore_treatment', 'Chlore choc (poudre)')}",
+            f"config.step.summary.labels.temperature: {self._data.get('temperature', 'config.step.summary.labels.not_defined')} config.step.summary.labels.unit_degrees_celsius",
+            f"config.step.summary.labels.temperature_source: {temperature_source} ({self._data.get('temperature_sensor', 'config.step.summary.labels.no_selection')})",
+            f"config.step.summary.labels.power_source: {power_source} ({self._data.get('power_sensor_entity_id', 'config.step.summary.labels.no_selection')})",
         ]
 
         return self.async_show_form(
