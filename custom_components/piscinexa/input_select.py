@@ -6,6 +6,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.translation import async_get_translations
+from homeassistant.const import CONF_ID, ATTR_EDITABLE
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -25,7 +26,7 @@ class PiscinexaPhPlusTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         unique_id = f"{entry.entry_id}_ph_plus_treatment"
         super().__init__(config={
-            "id": unique_id,
+            CONF_ID: unique_id,
             "name": f"{name}_ph_plus_treatment",
             "options": [
                 "Liquide",
@@ -47,6 +48,7 @@ class PiscinexaPhPlusTreatmentSelect(InputSelect):
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:water-plus"
+        self._attr_editable = True  # Ajout de l'attribut editable
         self._attr_current_option = self._entry.data.get("ph_plus_treatment", "Liquide")
         self._translations = None
         _LOGGER.debug("Entité input_select %s créée avec valeur initiale %s", self._attr_name, self._attr_current_option)
@@ -57,7 +59,7 @@ class PiscinexaPhPlusTreatmentSelect(InputSelect):
             self._hass,
             self._hass.config.language,
             "entity",
-            components=[DOMAIN],
+            integrations={DOMAIN},  # Changé de components à integrations
         )
         # Mettre à jour les options avec les traductions
         options = [
@@ -71,7 +73,7 @@ class PiscinexaPhMinusTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         unique_id = f"{entry.entry_id}_ph_minus_treatment"
         super().__init__(config={
-            "id": unique_id,
+            CONF_ID: unique_id,
             "name": f"{name}_ph_minus_treatment",
             "options": [
                 "Liquide",
@@ -93,6 +95,7 @@ class PiscinexaPhMinusTreatmentSelect(InputSelect):
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:water-minus"
+        self._attr_editable = True  # Ajout de l'attribut editable
         self._attr_current_option = self._entry.data.get("ph_minus_treatment", "Liquide")
         self._translations = None
         _LOGGER.debug("Entité input_select %s créée avec valeur initiale %s", self._attr_name, self._attr_current_option)
@@ -103,7 +106,7 @@ class PiscinexaPhMinusTreatmentSelect(InputSelect):
             self._hass,
             self._hass.config.language,
             "entity",
-            components=[DOMAIN],
+            integrations={DOMAIN},  # Changé de components à integrations
         )
         # Mettre à jour les options avec les traductions
         options = [
@@ -117,7 +120,7 @@ class PiscinexaChloreTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         unique_id = f"{entry.entry_id}_chlore_treatment"
         super().__init__(config={
-            "id": unique_id,
+            CONF_ID: unique_id,
             "name": f"{name}_chlore_treatment",
             "options": [
                 "Chlore choc (poudre)",
@@ -140,6 +143,7 @@ class PiscinexaChloreTreatmentSelect(InputSelect):
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:water-check"
+        self._attr_editable = True  # Ajout de l'attribut editable
         self._attr_current_option = self._entry.data.get("chlore_treatment", "Chlore choc (poudre)")
         self._translations = None
         _LOGGER.debug("Entité input_select %s créée avec valeur initiale %s", self._attr_name, self._attr_current_option)
@@ -150,7 +154,7 @@ class PiscinexaChloreTreatmentSelect(InputSelect):
             self._hass,
             self._hass.config.language,
             "entity",
-            components=[DOMAIN],
+            integrations={DOMAIN},  # Changé de components à integrations
         )
         # Mettre à jour les options avec les traductions
         options = [
