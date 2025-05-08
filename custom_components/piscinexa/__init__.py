@@ -27,14 +27,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     def get_translation(key: str, placeholders: dict = None) -> str:
         """Récupère une traduction avec des placeholders."""
-        translation_key = key
-        translated = translations.get(translation_key, translation_key)
-        if placeholders:
-            try:
+        try:
+            translation_key = key
+            translated = translations.get(translation_key, translation_key)
+            if placeholders:
                 return translated.format(**placeholders)
-            except (KeyError, ValueError):
-                return translated
-        return translated
+            return translated
+        except (KeyError, ValueError, AttributeError) as e:
+            _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
+            return key  # Retourne la clé brute si la traduction échoue
 
     # Vérification et définition des valeurs par défaut pour chlore_target et ph_target
     if "chlore_target" not in hass.data[DOMAIN][entry.entry_id]:
@@ -200,14 +201,16 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     def get_translation(key: str, placeholders: dict = None) -> str:
-        translation_key = key
-        translated = translations.get(translation_key, translation_key)
-        if placeholders:
-            try:
+        """Récupère une traduction avec des placeholders."""
+        try:
+            translation_key = key
+            translated = translations.get(translation_key, translation_key)
+            if placeholders:
                 return translated.format(**placeholders)
-            except (KeyError, ValueError):
-                return translated
-        return translated
+            return translated
+        except (KeyError, ValueError, AttributeError) as e:
+            _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
+            return key  # Retourne la clé brute si la traduction échoue
 
     # Décharger les plateformes
     try:
