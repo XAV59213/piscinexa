@@ -28,7 +28,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     def get_translation(key: str, placeholders: dict = None) -> str:
         """Récupère une traduction avec des placeholders."""
         try:
-            translated = translations(key)
+            translated = translations.get(key, key)
             if placeholders:
                 return translated.format(**placeholders)
             return translated
@@ -197,7 +197,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     def get_translation(key: str, placeholders: dict = None) -> str:
         """Récupère une traduction avec des placeholders."""
         try:
-            translated = translations(key)
+            translated = translations.get(key, key)
             if placeholders:
                 return translated.format(**placeholders)
             return translated
