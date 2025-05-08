@@ -37,12 +37,14 @@ class PiscinexaInputSelect(InputSelect):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._translations = None
 
     async def async_added_to_hass(self):
         self._translations = await async_get_translations(
             self._hass,
             self._hass.config.language,
             "entity",
+            integrations={DOMAIN},
         )
         self._attr_name = self._translations.get(
             f"entity.input_select.piscinexa_{self._type}.name",
@@ -55,6 +57,8 @@ class PiscinexaInputSelect(InputSelect):
             translated_option = self._translations.get(option_key, option)
             translated_options.append(translated_option)
         self._attr_options = translated_options
+        _LOGGER.debug(f"Setting friendly_name for Input Select {self._type}: {self._attr_name}")
+        self.async_write_ha_state()
 
     async def async_select_option(self, option: str) -> None:
         self._attr_current_option = option
