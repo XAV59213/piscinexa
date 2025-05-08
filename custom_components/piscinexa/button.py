@@ -29,10 +29,10 @@ class PiscinexaButton(ButtonEntity):
         self._action = action
         self._attr_unique_id = f"{entry.entry_id}_{action}"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=name.capitalize(),
+            identifiers={(DOMAIN, f"piscinexa_{name}_{action}")},
+            name=f"Bouton {action.capitalize()}",
             manufacturer="Piscinexa",
-            model="Piscine",
+            model="Bouton",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:cog"
@@ -47,6 +47,7 @@ class PiscinexaButton(ButtonEntity):
             f"entity.button.piscinexa_{self._action}.name",
             self._action.capitalize()
         )
+        self._attr_device_info.name = self._attr_name
 
     async def async_press(self):
         service_name = f"{self._action}_calcul" if self._action == "test" else f"{self._action}_valeurs"
