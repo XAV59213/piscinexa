@@ -36,17 +36,21 @@ class PiscinexaButton(ButtonEntity):
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:cog"
+        self._translations = None
 
     async def async_added_to_hass(self):
         self._translations = await async_get_translations(
             self._hass,
             self._hass.config.language,
             "entity",
+            integrations={DOMAIN},
         )
         self._attr_name = self._translations.get(
             f"entity.button.piscinexa_{self._action}.name",
             self._action.capitalize()
         )
+        _LOGGER.debug(f"Setting friendly_name for Button {self._action.capitalize()}: {self._attr_name}")
+        self.async_write_ha_state()
 
     async def async_press(self):
         service_name = f"{self._action}_calcul" if self._action == "test" else f"{self._action}_valeurs"
