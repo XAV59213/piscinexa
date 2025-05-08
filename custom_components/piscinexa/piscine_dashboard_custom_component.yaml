@@ -1,88 +1,67 @@
-# Tableau de bord pour une seule piscine. Remplacez 'piscine' par le nom de votre piscine si différent.
-title: dashboard.single_pool.title
+# Tableau de bord pour une seule piscine. Remplacez '<entry_id>' par l'identifiant réel de votre configuration.
+title: Tableau de bord piscine
 views:
-  - title: dashboard.single_pool.views.piscine.title
+  - title: Piscine
     path: piscine
     cards:
       - type: buttons
-        title: dashboard.single_pool.cards.controls.title
+        title: Contrôles
         entities:
-          - entity: button.piscinexa_piscine_reset
-            name: entity.button.piscinexa_piscine_reset.name
-          - entity: button.piscinexa_piscine_test
-            name: entity.button.piscinexa_piscine_test.name
+          - entity: button.<entry_id>_reset
+          - entity: button.<entry_id>_test
       - type: entities
-        title: dashboard.single_pool.cards.manual_input.title
+        title: Saisie manuelle
         entities:
-          - entity: input_number.piscine_ph_current
-            name: entity.input_number.piscine_ph_current.name
-          - entity: input_number.piscine_chlore_current
-            name: entity.input_number.piscine_chlore_current.name
+          - entity: input_number.<name>_ph_current
+          - entity: input_number.<name>_chlore_current
       - type: entities
-        title: dashboard.single_pool.cards.treatment_choices.title
+        title: Choix des traitements
         entities:
-          - entity: input_select.piscine_ph_plus_treatment
-            name: entity.input_select.piscine_ph_plus_treatment.name
-          - entity: input_select.piscine_ph_minus_treatment
-            name: entity.input_select.piscine_ph_minus_treatment.name
-          - entity: input_select.piscine_chlore_treatment
-            name: entity.input_select.piscine_chlore_treatment.name
+          - entity: input_select.<name>_ph_plus_treatment
+          - entity: input_select.<name>_ph_minus_treatment
+          - entity: input_select.<name>_chlore_treatment
       - type: entities
-        title: dashboard.single_pool.cards.sensors.title
+        title: Capteurs
         entities:
-          - entity: sensor.piscinexa_piscine_chlore
+          - entity: sensor.<entry_id>_chlore
             unit: mg/L
-            name: entity.sensor.piscinexa_piscine_chlore.name
-          - entity: sensor.piscinexa_piscine_chlore_target
+          - entity: sensor.<entry_id>_chlore_target
             unit: mg/L
-            name: entity.sensor.piscinexa_piscine_chlore_target.name
-          - entity: sensor.piscinexa_piscine_chloredifference
+          - entity: sensor.<entry_id>_chloredifference
             unit: mg/L
-            name: entity.sensor.piscinexa_piscine_chloredifference.name
           - type: template
-            entity_id: sensor.piscinexa_piscine_chloreaajouter
-            name: entity.sensor.piscinexa_piscine_chloreaajouter.name
+            entity_id: sensor.<entry_id>_chloreaajouter
             content: >
-              {% if states('sensor.piscinexa_piscine_chloreaajouter') | float(default=0) > 0 %}
-                {{ states('sensor.piscinexa_piscine_chloreaajouter') }} {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'dose_unit') }} ({{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'treatment_type') }} pour {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'volume') }} m³)
+              {% if states('sensor.<entry_id>_chloreaajouter') | float(default=0) > 0 %}
+                {{ states('sensor.<entry_id>_chloreaajouter') }} {{ state_attr('sensor.<entry_id>_chloreaajouter', 'dose_unit') }} ({{ state_attr('sensor.<entry_id>_chloreaajouter', 'treatment_type') }} pour {{ state_attr('sensor.<entry_id>_chloreaajouter', 'volume') }} m³)
               {% else %}
-                {{ state_attr('sensor.piscinexa_piscine_chloreaajouter', 'message') | default('entity.sensor.piscinexa_piscine_chloreaajouter.messages.remove_chlorine') }}
+                Aucun ajustement nécessaire
               {% endif %}
-          - entity: sensor.piscinexa_piscine_consopuissance
+          - entity: sensor.<entry_id>_consopuissance
             unit: W
-            name: entity.sensor.piscinexa_piscine_consopuissance.name
-          - entity: sensor.piscinexa_piscine_log
-            name: entity.sensor.piscinexa_piscine_log.name
-          - entity: sensor.piscinexa_piscine_ph
-            name: entity.sensor.piscinexa_piscine_ph.name
-          - entity: sensor.piscinexa_piscine_ph_target
-            name: entity.sensor.piscinexa_piscine_ph_target.name
+          - entity: sensor.<entry_id>_log
+          - entity: sensor.<entry_id>_ph
+          - entity: sensor.<entry_id>_ph_target
           - type: template
-            entity_id: sensor.piscinexa_piscine_ph_plus_ajouter
-            name: entity.sensor.piscinexa_piscine_ph_plus_ajouter.name
+            entity_id: sensor.<entry_id>_ph_plus_ajouter
             content: >
-              {% if states('sensor.piscinexa_piscine_ph_plus_ajouter') | float(default=0) > 0 %}
-                {{ states('sensor.piscinexa_piscine_ph_plus_ajouter') }} {{ state_attr('sensor.piscinexa_piscine_ph_plus_ajouter', 'unit_of_measurement') }}
+              {% if states('sensor.<entry_id>_ph_plus_ajouter') | float(default=0) > 0 %}
+                {{ states('sensor.<entry_id>_ph_plus_ajouter') }} {{ state_attr('sensor.<entry_id>_ph_plus_ajouter', 'unit_of_measurement') }}
               {% else %}
-                dashboard.single_pool.cards.template_ph_plus.no_adjustment
+                Aucun ajustement nécessaire
               {% endif %}
           - type: template
-            entity_id: sensor.piscinexa_piscine_ph_minus_ajouter
-            name: entity.sensor.piscinexa_piscine_ph_minus_ajouter.name
+            entity_id: sensor.<entry_id>_ph_minus_ajouter
             content: >
-              {% if states('sensor.piscinexa_piscine_ph_minus_ajouter') | float(default=0) > 0 %}
-                {{ states('sensor.piscinexa_piscine_ph_minus_ajouter') }} {{ state_attr('sensor.piscinexa_piscine_ph_minus_ajouter', 'unit_of_measurement') }}
+              {% if states('sensor.<entry_id>_ph_minus_ajouter') | float(default=0) > 0 %}
+                {{ states('sensor.<entry_id>_ph_minus_ajouter') }} {{ state_attr('sensor.<entry_id>_ph_minus_ajouter', 'unit_of_measurement') }}
               {% else %}
-                dashboard.single_pool.cards.template_ph_minus.no_adjustment
+                Aucun ajustement nécessaire
               {% endif %}
-          - entity: sensor.piscinexa_piscine_temperature
+          - entity: sensor.<entry_id>_temperature
             unit: °C
-            name: entity.sensor.piscinexa_piscine_temperature.name
-          - entity: sensor.piscinexa_piscine_tempsfiltration
+          - entity: sensor.<entry_id>_tempsfiltration
             unit: h
-            name: entity.sensor.piscinexa_piscine_tempsfiltration.name
-          - entity: sensor.piscinexa_piscine_volume_eau
+          - entity: sensor.<entry_id>_volume_eau
             unit: m³
-            name: entity.sensor.piscinexa_piscine_volume_eau.name
-          - entity: sensor.piscinexa_piscine_pool_state
-            name: entity.sensor.piscinexa_piscine_pool_state.name
+          - entity: sensor.<entry_id>_pool_state
