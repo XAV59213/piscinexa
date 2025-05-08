@@ -269,7 +269,7 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOWN}_{name}_tempsfiltration"
+        self._attr_name = f"{DOMAIN}_{name}_tempsfiltration"
         self._attr_friendly_name = hass.helpers.template.render(
             "entity.sensor.piscinexa_{name}_tempsfiltration.name",
             {"name": name.capitalize()}
