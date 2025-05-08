@@ -9,7 +9,7 @@ from .const import DOMAIN, POOL_TYPE_SQUARE
 _LOGGER = logging.getLogger(__name__)
 
 # Liste des plateformes à charger
-PLATFORMS = ["sensor", "button"]
+PLATFORMS = ["sensor", "button", "input_select", "input_number"]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Configurez une entrée de configuration pour Piscinexa."""
