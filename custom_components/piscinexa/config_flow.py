@@ -31,6 +31,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 "config",
             )
 
+        def get_translation(key: str, default: str = None) -> str:
+            """Récupère une traduction avec une valeur par défaut."""
+            return self._translations.get(key, default or key)
+
         errors = {}
         if user_input is not None:
             try:
@@ -48,14 +52,17 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except Exception as e:
                 errors["base"] = f"unexpected_error: {str(e)}"
 
+        # Traduire explicitement les options pour vol.In
+        pool_type_options = {
+            POOL_TYPE_SQUARE: get_translation("config.step.user.data.pool_type_square", default="Carrée"),
+            POOL_TYPE_ROUND: get_translation("config.step.user.data.pool_type_round", default="Ronde"),
+        }
+
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
                 vol.Required("name", default="piscine"): str,
-                vol.Required("pool_type", default=POOL_TYPE_SQUARE): vol.In({
-                    POOL_TYPE_SQUARE: "config.step.user.data.pool_type_square",
-                    POOL_TYPE_ROUND: "config.step.user.data.pool_type_round"
-                }),
+                vol.Required("pool_type", default=POOL_TYPE_SQUARE): vol.In(pool_type_options),
             }),
             errors=errors,
         )
@@ -117,6 +124,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_ph_config(self, user_input=None):
         """Step 3 : configuration du pH (choix entre manuel et capteur)."""
+        def get_translation(key: str, default: str = None) -> str:
+            return self._translations.get(key, default or key)
+
         errors = {}
         if user_input is not None:
             if "ph_config_choice" in user_input:
@@ -130,13 +140,15 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["ph_config_choice"] = "required_field"
 
+        ph_config_options = {
+            "manual": get_translation("config.step.ph_config.data.manual", default="Saisie manuelle"),
+            "sensor": get_translation("config.step.ph_config.data.sensor", default="Sélectionner un capteur"),
+        }
+
         return self.async_show_form(
             step_id="ph_config",
             data_schema=vol.Schema({
-                vol.Required("ph_config_choice"): vol.In({
-                    "manual": "config.step.ph_config.data.manual",
-                    "sensor": "config.step.ph_config.data.sensor"
-                }),
+                vol.Required("ph_config_choice"): vol.In(ph_config_options),
             }),
             errors=errors,
         )
@@ -187,6 +199,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_ph_sensor(self, user_input=None):
         """Step 3 (sous-étape) : sélection d'un capteur pH."""
+        def get_translation(key: str, default: str = None) -> str:
+            return self._translations.get(key, default or key)
+
         errors = {}
         if user_input is not None:
             ph_sensor = user_input.get("ph_sensor", "")
@@ -213,7 +228,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_chlore_config()
 
         ph_sensors = [""]
-        ph_sensors_dict = {"": "config.step.ph_sensor.data.no_sensor"}
+        ph_sensors_dict = {
+            "": get_translation("config.step.ph_sensor.data.no_sensor", default="Aucun capteur (saisie manuelle)"),
+        }
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
@@ -241,6 +258,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_confirm_ph_sensor(self, user_input=None):
         """Step 3 (sous-étape) : confirmation avant redirection pour pH."""
+        def get_translation(key: str, default: str = None) -> str:
+            return self._translations.get(key, default or key)
+
         errors = {}
         if user_input is not None:
             if "confirm_choice" in user_input:
@@ -253,19 +273,24 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["confirm_choice"] = "required_field"
 
+        confirm_options = {
+            "manual": get_translation("config.step.confirm_ph_sensor.data.manual", default="Saisir manuellement"),
+            "retry": get_translation("config.step.confirm_ph_sensor.data.retry", default="Réessayer la sélection du capteur"),
+        }
+
         return self.async_show_form(
             step_id="confirm_ph_sensor",
             data_schema=vol.Schema({
-                vol.Required("confirm_choice"): vol.In({
-                    "manual": "config.step.confirm_ph_sensor.data.manual",
-                    "retry": "config.step.confirm_ph_sensor.data.retry"
-                }),
+                vol.Required("confirm_choice"): vol.In(confirm_options),
             }),
             errors=errors,
         )
 
     async def async_step_chlore_config(self, user_input=None):
         """Step 4 : configuration du chlore (choix entre manuel et capteur)."""
+        def get_translation(key: str, default: str = None) -> str:
+            return self._translations.get(key, default or key)
+
         errors = {}
         if user_input is not None:
             if "chlore_config_choice" in user_input:
@@ -279,13 +304,15 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["chlore_config_choice"] = "required_field"
 
+        chlore_config_options = {
+            "manual": get_translation("config.step.chlore_config.data.manual", default="Saisie manuelle"),
+            "sensor": get_translation("config.step.chlore_config.data.sensor", default="Sélectionner un capteur"),
+        }
+
         return self.async_show_form(
             step_id="chlore_config",
             data_schema=vol.Schema({
-                vol.Required("chlore_config_choice"): vol.In({
-                    "manual": "config.step.chlore_config.data.manual",
-                    "sensor": "config.step.chlore_config.data.sensor"
-                }),
+                vol.Required("chlore_config_choice"): vol.In(chlore_config_options),
             }),
             errors=errors,
         )
@@ -336,6 +363,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_chlore_sensor(self, user_input=None):
         """Step 4 (sous-étape) : sélection d'un capteur chlore."""
+        def get_translation(key: str, default: str = None) -> str:
+            return self._translations.get(key, default or key)
+
         errors = {}
         if user_input is not None:
             chlore_sensor = user_input.get("chlore_sensor", "")
@@ -362,7 +392,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_temperature_config()
 
         chlore_sensors = [""]
-        chlore_sensors_dict = {"": "config.step.chlore_sensor.data.no_sensor"}
+        chlore_sensors_dict = {
+            "": get_translation("config.step.chlore_sensor.data.no_sensor", default="Aucun capteur (saisie manuelle)"),
+        }
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
@@ -389,6 +421,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_confirm_chlore_sensor(self, user_input=None):
         """Step 4 (sous-étape) : confirmation avant redirection pour chlore."""
+        def get_translation(key: str, default: str = None) -> str:
+            return self._translations.get(key, default or key)
+
         errors = {}
         if user_input is not None:
             if "confirm_choice" in user_input:
@@ -401,19 +436,24 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["confirm_choice"] = "required_field"
 
+        confirm_options = {
+            "manual": get_translation("config.step.confirm_chlore_sensor.data.manual", default="Saisir manuellement"),
+            "retry": get_translation("config.step.confirm_chlore_sensor.data.retry", default="Réessayer la sélection du capteur"),
+        }
+
         return self.async_show_form(
             step_id="confirm_chlore_sensor",
             data_schema=vol.Schema({
-                vol.Required("confirm_choice"): vol.In({
-                    "manual": "config.step.confirm_chlore_sensor.data.manual",
-                    "retry": "config.step.confirm_chlore_sensor.data.retry"
-                }),
+                vol.Required("confirm_choice"): vol.In(confirm_options),
             }),
             errors=errors,
         )
 
     async def async_step_temperature_config(self, user_input=None):
         """Step 5 : configuration de la température (choix entre manuel et capteur)."""
+        def get_translation(key: str, default: str = None) -> str:
+            return self._translations.get(key, default or key)
+
         errors = {}
         if user_input is not None:
             if "temperature_config_choice" in user_input:
@@ -427,13 +467,15 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["temperature_config_choice"] = "required_field"
 
+        temperature_config_options = {
+            "manual": get_translation("config.step.temperature_config.data.manual", default="Saisie manuelle"),
+            "sensor": get_translation("config.step.temperature_config.data.sensor", default="Sélectionner un capteur"),
+        }
+
         return self.async_show_form(
             step_id="temperature_config",
             data_schema=vol.Schema({
-                vol.Required("temperature_config_choice"): vol.In({
-                    "manual": "config.step.temperature_config.data.manual",
-                    "sensor": "config.step.temperature_config.data.sensor"
-                }),
+                vol.Required("temperature_config_choice"): vol.In(temperature_config_options),
             }),
             errors=errors,
         )
@@ -479,6 +521,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_temperature_sensor(self, user_input=None):
         """Step 5 (sous-étape) : sélection d'un capteur température."""
+        def get_translation(key: str, default: str = None) -> str:
+            return self._translations.get(key, default or key)
+
         errors = {}
         if user_input is not None:
             temperature_sensor = user_input.get("temperature_sensor", "")
@@ -491,7 +536,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_power_config()
 
         temp_sensors = [""]
-        temp_sensors_dict = {"": "config.step.temperature_sensor.data.no_sensor"}
+        temp_sensors_dict = {
+            "": get_translation("config.step.temperature_sensor.data.no_sensor", default="Aucun capteur (saisie manuelle)"),
+        }
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
@@ -517,6 +564,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_confirm_temperature_sensor(self, user_input=None):
         """Step 5 (sous-étape) : confirmation avant redirection pour température."""
+        def get_translation(key: str, default: str = None) -> str:
+            return self._translations.get(key, default or key)
+
         errors = {}
         if user_input is not None:
             if "confirm_choice" in user_input:
@@ -529,19 +579,24 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["confirm_choice"] = "required_field"
 
+        confirm_options = {
+            "manual": get_translation("config.step.confirm_temperature_sensor.data.manual", default="Saisir manuellement"),
+            "retry": get_translation("config.step.confirm_temperature_sensor.data.retry", default="Réessayer la sélection du capteur"),
+        }
+
         return self.async_show_form(
             step_id="confirm_temperature_sensor",
             data_schema=vol.Schema({
-                vol.Required("confirm_choice"): vol.In({
-                    "manual": "config.step.confirm_temperature_sensor.data.manual",
-                    "retry": "config.step.confirm_temperature_sensor.data.retry"
-                }),
+                vol.Required("confirm_choice"): vol.In(confirm_options),
             }),
             errors=errors,
         )
 
     async def async_step_power_config(self, user_input=None):
         """Step 6 : configuration de la puissance (choix entre manuel et capteur)."""
+        def get_translation(key: str, default: str = None) -> str:
+            return self._translations.get(key, default or key)
+
         errors = {}
         if user_input is not None:
             if "power_config_choice" in user_input:
@@ -555,13 +610,15 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["power_config_choice"] = "required_field"
 
+        power_config_options = {
+            "manual": get_translation("config.step.power_config.data.manual", default="Manuel (aucun capteur)"),
+            "sensor": get_translation("config.step.power_config.data.sensor", default="Sélectionner un capteur"),
+        }
+
         return self.async_show_form(
             step_id="power_config",
             data_schema=vol.Schema({
-                vol.Required("power_config_choice"): vol.In({
-                    "manual": "config.step.power_config.data.manual",
-                    "sensor": "config.step.power_config.data.sensor"
-                }),
+                vol.Required("power_config_choice"): vol.In(power_config_options),
             }),
             errors=errors,
         )
@@ -599,6 +656,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_confirm_power_sensor(self, user_input=None):
         """Step 6 (sous-étape) : confirmation avant redirection pour puissance."""
+        def get_translation(key: str, default: str = None) -> str:
+            return self._translations.get(key, default or key)
+
         errors = {}
         if user_input is not None:
             if "confirm_choice" in user_input:
@@ -611,19 +671,24 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["confirm_choice"] = "required_field"
 
+        confirm_options = {
+            "manual": get_translation("config.step.confirm_power_sensor.data.manual", default="Poursuivre sans capteur"),
+            "retry": get_translation("config.step.confirm_power_sensor.data.retry", default="Réessayer la sélection du capteur"),
+        }
+
         return self.async_show_form(
             step_id="confirm_power_sensor",
             data_schema=vol.Schema({
-                vol.Required("confirm_choice"): vol.In({
-                    "manual": "config.step.confirm_power_sensor.data.manual",
-                    "retry": "config.step.confirm_power_sensor.data.retry"
-                }),
+                vol.Required("confirm_choice"): vol.In(confirm_options),
             }),
             errors=errors,
         )
 
     async def async_step_treatment_config(self, user_input=None):
         """Step 7 : configuration des types de traitements."""
+        def get_translation(key: str, default: str = None) -> str:
+            return self._translations.get(key, default or key)
+
         errors = {}
         if user_input is not None:
             self._data["ph_plus_treatment"] = user_input.get("ph_plus_treatment", "Liquide")
@@ -631,22 +696,26 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._data["chlore_treatment"] = user_input.get("chlore_treatment", "Chlore choc (poudre)")
             return await self.async_step_summary()
 
+        ph_plus_options = {
+            "Liquide": get_translation("config.step.treatment_config.data.ph_plus_treatment_liquid", default="Liquide"),
+            "Granulés": get_translation("config.step.treatment_config.data.ph_plus_treatment_granules", default="Granulés"),
+        }
+        ph_minus_options = {
+            "Liquide": get_translation("config.step.treatment_config.data.ph_minus_treatment_liquid", default="Liquide"),
+            "Granulés": get_translation("config.step.treatment_config.data.ph_minus_treatment_granules", default="Granulés"),
+        }
+        chlore_options = {
+            "Liquide": get_translation("config.step.treatment_config.data.chlore_treatment_liquid", default="Liquide"),
+            "Chlore choc (poudre)": get_translation("config.step.treatment_config.data.chlore_treatment_shock", default="Chlore choc (poudre)"),
+            "Pastille lente": get_translation("config.step.treatment_config.data.chlore_treatment_tablet", default="Pastille à dissolution lente"),
+        }
+
         return self.async_show_form(
             step_id="treatment_config",
             data_schema=vol.Schema({
-                vol.Required("ph_plus_treatment", default="Liquide"): vol.In({
-                    "Liquide": "config.step.treatment_config.data.ph_plus_treatment_liquid",
-                    "Granulés": "config.step.treatment_config.data.ph_plus_treatment_granules"
-                }),
-                vol.Required("ph_minus_treatment", default="Liquide"): vol.In({
-                    "Liquide": "config.step.treatment_config.data.ph_minus_treatment_liquid",
-                    "Granulés": "config.step.treatment_config.data.ph_minus_treatment_granules"
-                }),
-                vol.Required("chlore_treatment", default="Chlore choc (poudre)"): vol.In({
-                    "Liquide": "config.step.treatment_config.data.chlore_treatment_liquid",
-                    "Chlore choc (poudre)": "config.step.treatment_config.data.chlore_treatment_shock",
-                    "Pastille lente": "config.step.treatment_config.data.chlore_treatment_tablet"
-                }),
+                vol.Required("ph_plus_treatment", default="Liquide"): vol.In(ph_plus_options),
+                vol.Required("ph_minus_treatment", default="Liquide"): vol.In(ph_minus_options),
+                vol.Required("chlore_treatment", default="Chlore choc (poudre)"): vol.In(chlore_options),
             }),
             errors=errors,
             description_placeholders={
@@ -733,8 +802,19 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
+        def get_translation(key: str, default: str = None) -> str:
+            return self._translations.get(key, default or key)
+
+        self._translations = await async_get_translations(
+            self.hass,
+            self.hass.config.language,
+            "config",
+        )
+
         temp_sensors = [""]
-        temp_sensors_dict = {"": "config.step.init.data.no_sensor_temperature"}
+        temp_sensors_dict = {
+            "": get_translation("config.step.init.data.no_sensor_temperature", default="Aucun capteur température"),
+        }
         temp_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
@@ -758,7 +838,9 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
             temp_sensor_entities.append(("sensor.test_temperature", "°C", "temperature", "Test Temperature Sensor"))
 
         chlore_sensors = [""]
-        chlore_sensors_dict = {"": "config.step.init.data.no_sensor_chlore"}
+        chlore_sensors_dict = {
+            "": get_translation("config.step.init.data.no_sensor_chlore", default="Aucun capteur chlore"),
+        }
         chlore_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
@@ -776,7 +858,9 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
                 chlore_sensor_entities.append((entity_id, unit, friendly_name))
 
         ph_sensors = [""]
-        ph_sensors_dict = {"": "config.step.init.data.no_sensor_ph"}
+        ph_sensors_dict = {
+            "": get_translation("config.step.init.data.no_sensor_ph", default="Aucun capteur pH"),
+        }
         ph_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
