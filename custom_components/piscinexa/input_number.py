@@ -37,17 +37,21 @@ class PiscinexaInputNumber(InputNumber):
             sw_version="1.0.2",
         )
         self._attr_value = default_val
+        self._translations = None
 
     async def async_added_to_hass(self):
         self._translations = await async_get_translations(
             self._hass,
             self._hass.config.language,
             "entity",
+            integrations={DOMAIN},
         )
         self._attr_name = self._translations.get(
             f"entity.input_number.piscinexa_{self._type}.name",
             self._type.replace("_", " ").capitalize()
         )
+        _LOGGER.debug(f"Setting friendly_name for Input Number {self._type}: {self._attr_name}")
+        self.async_write_ha_state()
 
     async def async_set_value(self, value: float) -> None:
         self._attr_value = value
