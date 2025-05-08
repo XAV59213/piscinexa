@@ -239,45 +239,45 @@
   "entity": {
     "sensor": {
       "piscinexa_volume_eau": {
-        "name": "Volume d'eau",
+        "name": "Volume Eau",
         "unit_of_measurement": "m³"
       },
       "piscinexa_tempsfiltration": {
-        "name": "Temps de filtration",
+        "name": "Temps Filtration",
         "unit_of_measurement": "h"
       },
       "piscinexa_temperature": {
-        "name": "Température",
+        "name": "Température Eau",
         "unit_of_measurement": "°C"
       },
       "piscinexa_ph": {
         "name": "pH"
       },
       "piscinexa_ph_plus_ajouter": {
-        "name": "pH+ à ajouter",
+        "name": "pH+ à Ajouter",
         "unit_of_measurement": "L"
       },
       "piscinexa_ph_minus_ajouter": {
-        "name": "pH- à ajouter",
+        "name": "pH- à Ajouter",
         "unit_of_measurement": "L"
       },
       "piscinexa_ph_target": {
-        "name": "pH cible"
+        "name": "pH Cible"
       },
       "piscinexa_chlore": {
         "name": "Chlore",
         "unit_of_measurement": "mg/L"
       },
       "piscinexa_chlore_target": {
-        "name": "Chlore cible",
+        "name": "Chlore Cible",
         "unit_of_measurement": "mg/L"
       },
       "piscinexa_chloredifference": {
-        "name": "Différence chlore",
+        "name": "Différence Chlore",
         "unit_of_measurement": "mg/L"
       },
       "piscinexa_chloreaajouter": {
-        "name": "Chlore à ajouter",
+        "name": "Chlore à Ajouter",
         "unit_of_measurement": "g",
         "messages": {
           "remove_chlorine": "Niveau de chlore trop élevé, envisagez de le réduire.",
@@ -287,15 +287,15 @@
         }
       },
       "piscinexa_consopuissance": {
-        "name": "Consommation de puissance",
+        "name": "Consommation Puissance",
         "unit_of_measurement": "W"
       },
       "piscinexa_log": {
-        "name": "Journal",
+        "name": "Journal Piscine",
         "default_value": "Aucune action"
       },
       "piscinexa_pool_state": {
-        "name": "État de la piscine",
+        "name": "État Piscine",
         "states": {
           "temperature_too_cold": "Température trop froide",
           "temperature_too_hot": "Température trop chaude",
@@ -327,10 +327,10 @@
     },
     "input_number": {
       "piscinexa_ph_current": {
-        "name": "pH actuel"
+        "name": "pH Actuel"
       },
       "piscinexa_chlore_current": {
-        "name": "Chlore actuel"
+        "name": "Chlore Actuel"
       }
     },
     "input_select": {
@@ -349,7 +349,7 @@
         }
       },
       "piscinexa_chlore_treatment": {
-        "name": "Traitement chlore",
+        "name": "Traitement Chlore",
         "options": {
           "shock": "Chlore choc (poudre)",
           "tablet": "Pastille à dissolution lente",
