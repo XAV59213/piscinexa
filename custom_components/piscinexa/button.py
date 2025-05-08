@@ -18,10 +18,8 @@ class PiscinexaTestButton(ButtonEntity):
         self._hass = hass
         self._entry = entry
         self._attr_name = f"{name}_test"
-        self._attr_friendly_name = hass.helpers.template.render(
-            "entity.button.piscinexa_{name}_test.name",
-            {"name": name.capitalize()}
-        )
+        self._attr_translation_key = "test"
+        self._attr_translation_placeholders = {"name": name.capitalize()}
         self._attr_icon = "mdi:calculator"
         self._attr_unique_id = f"{entry.entry_id}_test"
         self._attr_device_info = DeviceInfo(
@@ -32,10 +30,6 @@ class PiscinexaTestButton(ButtonEntity):
             sw_version="1.0.2",
         )
 
-    @property
-    def name(self):
-        return self._attr_friendly_name
-
     async def async_press(self) -> None:
         await self._hass.services.async_call(DOMAIN, "test_calcul", blocking=True)
 
@@ -44,10 +38,8 @@ class PiscinexaResetButton(ButtonEntity):
         self._hass = hass
         self._entry = entry
         self._attr_name = f"{name}_reset"
-        self._attr_friendly_name = hass.helpers.template.render(
-            "entity.button.piscinexa_{name}_reset.name",
-            {"name": name.capitalize()}
-        )
+        self._attr_translation_key = "reset"
+        self._attr_translation_placeholders = {"name": name.capitalize()}
         self._attr_icon = "mdi:refresh"
         self._attr_unique_id = f"{entry.entry_id}_reset"
         self._attr_device_info = DeviceInfo(
@@ -57,10 +49,6 @@ class PiscinexaResetButton(ButtonEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-
-    @property
-    def name(self):
-        return self._attr_friendly_name
 
     async def async_press(self) -> None:
         await self._hass.services.async_call(DOMAIN, "reset_valeurs", blocking=True)
