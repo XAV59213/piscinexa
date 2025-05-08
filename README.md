@@ -2,7 +2,9 @@
 
 Ce composant personnalisé Home Assistant vous permet de gérer la qualité de l’eau de votre piscine (pH, chlore, température, volume) ainsi que la filtration, les recommandations de traitement, et d'ajouter des automatisations personnalisées.
 
-🌍 Langues supportéesL'intégration Piscinexa prend en charge plusieurs langues : français et anglais. Les chaînes visibles dans l'interface utilisateur sont traduites en fonction de la langue configurée dans Home Assistant.
+🌍 Langues supportées
+
+L'intégration Piscinexa prend en charge plusieurs langues : français et anglais. Les chaînes visibles dans l'interface utilisateur sont traduites en fonction de la langue configurée dans Home Assistant.
 
 ⚙️ Installation  
 Copiez le dossier custom_components/piscinexa dans le répertoire config/custom_components/ de votre Home Assistant.Redémarrez Home Assistant.Allez dans Paramètres → Appareils & services → Ajouter une intégration.Recherchez Piscinexa, suivez les étapes de configuration.Configurez les dimensions, le pH/chlore actuels et cibles.
