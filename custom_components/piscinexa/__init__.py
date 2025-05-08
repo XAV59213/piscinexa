@@ -60,14 +60,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         }
         if data["pool_type"] == POOL_TYPE_SQUARE:
             data.update({
-                "length": entry.data.get("length", 5.0),
-                "width": entry.data.get("width", 4.0),
-                "depth": entry.data.get("depth", 1.5)
+                "length": float(entry.data.get("length", 5.0)),
+                "width": float(entry.data.get("width", 4.0)),
+                "depth": float(entry.data.get("depth", 1.5))
             })
         else:
             data.update({
-                "diameter": entry.data.get("diameter", 4.0),
-                "depth": entry.data.get("depth", 1.5)
+                "diameter": float(entry.data.get("diameter", 4.0)),
+                "depth": float(entry.data.get("depth", 1.5))
             })
         hass.data[DOMAIN][entry.entry_id].update(data)
 
@@ -101,7 +101,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         _LOGGER.info(hass.helpers.template.render(
             "logs.apply_treatment_called",
-            {"name": name, "treatment_type": treatment_type, "treatment_form": treatment_form, "quantity": quantity}
+            {"name": name, "treatment_type": treatment_type, "treatment_form": treatment_form, "quantity": str(quantity)}
         ))
 
         # Mettre à jour les capteurs en fonction du traitement
@@ -142,7 +142,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if log_sensor and name in log_sensor._name:
             log_sensor.log_action(hass.helpers.template.render(
                 "logs.apply_treatment_action",
-                {"treatment_type": treatment_type, "treatment_form": treatment_form, "quantity": quantity}
+                {"treatment_type": treatment_type, "treatment_form": treatment_form, "quantity": str(quantity)}
             ))
         await hass.config_entries.async_reload(entry.entry_id)
 
