@@ -4,14 +4,11 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_NAME
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.components.input_select import InputSelect
-from homeassistant.components.input_number import InputNumber
-from homeassistant.helpers.entity import DeviceInfo
 from .const import DOMAIN, POOL_TYPE_SQUARE
 
 _LOGGER = logging.getLogger(__name__)
 
-# Liste des plateformes à charger (seulement sensor et button)
+# Liste des plateformes à charger
 PLATFORMS = ["sensor", "button"]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -26,23 +23,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if "ph_target" not in hass.data[DOMAIN][entry.entry_id]:
         _LOGGER.warning("ph_target manquant, définition par défaut: 7.4")
         hass.data[DOMAIN][entry.entry_id]["ph_target"] = 7.4
-
-    # Création des entités InputSelect et InputNumber directement
-    name = entry.data["name"]
-    input_selects = [
-        PiscinexaPhPlusTreatmentSelect(hass, entry, name),
-        PiscinexaPhMinusTreatmentSelect(hass, entry, name),
-        PiscinexaChloreTreatmentSelect(hass, entry, name),
-    ]
-    input_numbers = [
-        PiscinexaPhCurrentInput(hass, entry, name),
-        PiscinexaChloreCurrentInput(hass, entry, name),
-    ]
-
-    # Ajouter les entités InputSelect et InputNumber directement
-    hass.async_create_task(
-        hass.config_entries.async_add_entities(entry, input_selects + input_numbers)
-    )
 
     async def handle_test_calcul(call: ServiceCall):
         name = hass.data[DOMAIN][entry.entry_id]["name"]
@@ -168,142 +148,3 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Nettoyer les données globales
     hass.data[DOMAIN].pop(entry.entry_id)
     return True
-
-class PiscinexaPhPlusTreatmentSelect(InputSelect):
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
-        unique_id = f"{entry.entry_id}_ph_plus_treatment"
-        super().__init__(config={
-            "id": unique_id,
-            "name": f"{name}_ph_plus_treatment",
-            "options": ["Liquide", "Granulés"],
-        })
-        self._hass = hass
-        self._entry = entry
-        self._name = name
-        self._attr_friendly_name = f"{name.capitalize()} Type de traitement pH+"
-        self._attr_unique_id = unique_id
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=name.capitalize(),
-            manufacturer="Piscinexa",
-            model="Piscine",
-            sw_version="1.0.2",
-        )
-        self._attr_icon = "mdi:water-plus"
-        self._attr_current_option = self._entry.data.get("ph_plus_treatment", "Liquide")
-        self._attr_editable = True  # Définir explicitement editable
-        _LOGGER.debug("Entité input_select %s créée avec valeur initiale %s", self._attr_name, self._attr_current_option)
-
-class PiscinexaPhMinusTreatmentSelect(InputSelect):
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
-        unique_id = f"{entry.entry_id}_ph_minus_treatment"
-        super().__init__(config={
-            "id": unique_id,
-            "name": f"{name}_ph_minus_treatment",
-            "options": ["Liquide", "Granulés"],
-        })
-        self._hass = hass
-        self._entry = entry
-        self._name = name
-        self._attr_friendly_name = f"{name.capitalize()} Type de traitement pH-"
-        self._attr_unique_id = unique_id
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=name.capitalize(),
-            manufacturer="Piscinexa",
-            model="Piscine",
-            sw_version="1.0.2",
-        )
-        self._attr_icon = "mdi:water-minus"
-        self._attr_current_option = self._entry.data.get("ph_minus_treatment", "Liquide")
-        self._attr_editable = True  # Définir explicitement editable
-        _LOGGER.debug("Entité input_select %s créée avec valeur initiale %s", self._attr_name, self._attr_current_option)
-
-class PiscinexaChloreTreatmentSelect(InputSelect):
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
-        unique_id = f"{entry.entry_id}_chlore_treatment"
-        super().__init__(config={
-            "id": unique_id,
-            "name": f"{name}_chlore_treatment",
-            "options": ["Chlore choc (poudre)", "Pastille lente", "Liquide"],
-        })
-        self._hass = hass
-        self._entry = entry
-        self._name = name
-        self._attr_friendly_name = f"{name.capitalize()} Type de traitement Chlore"
-        self._attr_unique_id = unique_id
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=name.capitalize(),
-            manufacturer="Piscinexa",
-            model="Piscine",
-            sw_version="1.0.2",
-        )
-        self._attr_icon = "mdi:water-check"
-        self._attr_current_option = self._entry.data.get("chlore_treatment", "Chlore choc (poudre)")
-        self._attr_editable = True  # Définir explicitement editable
-        _LOGGER.debug("Entité input_select %s créée avec valeur initiale %s", self._attr_name, self._attr_current_option)
-
-class PiscinexaPhCurrentInput(InputNumber):
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
-        unique_id = f"{entry.entry_id}_ph_current"
-        super().__init__(config={
-            "id": unique_id,
-            "name": f"{name}_ph_current",
-            "min": 0,
-            "max": 14,
-            "step": 0.1,
-            "unit_of_measurement": "pH",
-            "mode": "box",
-        })
-        self._hass = hass
-        self._entry = entry
-        self._name = name
-        self._attr_friendly_name = f"{name.capitalize()} pH Actuel"
-        self._attr_unique_id = unique_id
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=name.capitalize(),
-            manufacturer="Piscinexa",
-            model="Piscine",
-            sw_version="1.0.2",
-        )
-        self._attr_value = float(self._entry.data["ph_current"])
-        _LOGGER.debug("Entité input_number %s créée avec valeur initiale %s", self._attr_name, self._attr_value)
-
-    async def async_set_value(self, value: float) -> None:
-        await super().async_set_value(value)
-        self._hass.data[DOMAIN][self._entry.entry_id]["ph_current"] = value
-        _LOGGER.debug("pH actuel mis à jour via input_number: %s", value)
-
-class PiscinexaChloreCurrentInput(InputNumber):
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
-        unique_id = f"{entry.entry_id}_chlore_current"
-        super().__init__(config={
-            "id": unique_id,
-            "name": f"{name}_chlore_current",
-            "min": 0,
-            "max": 10,
-            "step": 0.1,
-            "unit_of_measurement": "mg/L",
-            "mode": "box",
-        })
-        self._hass = hass
-        self._entry = entry
-        self._name = name
-        self._attr_friendly_name = f"{name.capitalize()} Chlore Actuel"
-        self._attr_unique_id = unique_id
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=name.capitalize(),
-            manufacturer="Piscinexa",
-            model="Piscine",
-            sw_version="1.0.2",
-        )
-        self._attr_value = float(self._entry.data["chlore_current"])
-        _LOGGER.debug("Entité input_number %s créée avec valeur initiale %s", self._attr_name, self._attr_value)
-
-    async def async_set_value(self, value: float) -> None:
-        await super().async_set_value(value)
-        self._hass.data[DOMAIN][self._entry.entry_id]["chlore_current"] = value
-        _LOGGER.debug("Chlore actuel mis à jour via input_number: %s mg/L", value)
