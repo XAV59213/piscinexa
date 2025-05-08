@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.const import CONF_NAME
+from homeassistant.const import CONF_NAME, CONF_OPTIONS
 from homeassistant.helpers.event import async_track_state_change_event
 from .const import (
     DOMAIN,
@@ -123,7 +123,9 @@ class PiscinexaChloreCurrentInput(InputNumber):
 
 class PiscinexaPhPlusTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
-        super().__init__(config={})
+        super().__init__(config={
+            CONF_OPTIONS: ["Liquide", "Granulés"],
+        })
         self._hass = hass
         self._entry = entry
         self._name = name
@@ -138,14 +140,14 @@ class PiscinexaPhPlusTreatmentSelect(InputSelect):
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:water-plus"
-        # Définir les options et la valeur initiale via des attributs
-        self._attr_options = ["Liquide", "Granulés"]
         self._attr_current_option = self._entry.data.get("ph_plus_treatment", "Liquide")
         _LOGGER.debug("Entité input_select %s créée avec valeur initiale %s", self._attr_name, self._attr_current_option)
 
 class PiscinexaPhMinusTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
-        super().__init__(config={})
+        super().__init__(config={
+            CONF_OPTIONS: ["Liquide", "Granulés"],
+        })
         self._hass = hass
         self._entry = entry
         self._name = name
@@ -160,14 +162,14 @@ class PiscinexaPhMinusTreatmentSelect(InputSelect):
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:water-minus"
-        # Définir les options et la valeur initiale via des attributs
-        self._attr_options = ["Liquide", "Granulés"]
         self._attr_current_option = self._entry.data.get("ph_minus_treatment", "Liquide")
         _LOGGER.debug("Entité input_select %s créée avec valeur initiale %s", self._attr_name, self._attr_current_option)
 
 class PiscinexaChloreTreatmentSelect(InputSelect):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
-        super().__init__(config={})
+        super().__init__(config={
+            CONF_OPTIONS: ["Chlore choc (poudre)", "Pastille lente", "Liquide"],
+        })
         self._hass = hass
         self._entry = entry
         self._name = name
@@ -182,8 +184,6 @@ class PiscinexaChloreTreatmentSelect(InputSelect):
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:water-check"
-        # Définir les options et la valeur initiale via des attributs
-        self._attr_options = ["Chlore choc (poudre)", "Pastille lente", "Liquide"]
         self._attr_current_option = self._entry.data.get("chlore_treatment", "Chlore choc (poudre)")
         _LOGGER.debug("Entité input_select %s créée avec valeur initiale %s", self._attr_name, self._attr_current_option)
 
