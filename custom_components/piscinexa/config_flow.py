@@ -647,7 +647,14 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_summary(self, user_input=None):
         """Step 8 : récapitulatif avant validation."""
         if user_input is not None:
-            return self.async_create_entry(title=f"Piscinexa {self._data['name']}", data=self._data)
+            # Créer une copie de self._data avec toutes les valeurs numériques converties en chaînes
+            data_to_save = {}
+            for key, value in self._data.items():
+                if isinstance(value, (float, int)):
+                    data_to_save[key] = str(value)
+                else:
+                    data_to_save[key] = value
+            return self.async_create_entry(title=f"Piscinexa {self._data['name']}", data=data_to_save)
 
         pool_type_label = "config.step.summary.labels.pool_type_square" if self._data["pool_type"] == POOL_TYPE_SQUARE else "config.step.summary.labels.pool_type_round"
         ph_source = "config.step.summary.labels.sensor" if self._data.get("use_ph_sensor", False) else "config.step.summary.labels.manual"
