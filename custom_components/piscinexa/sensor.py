@@ -47,7 +47,6 @@ async def async_setup_entry(
         PiscinexaPoolStateSensor(hass, entry, name),
         log_sensor,
     ]
-    # Ajouter uniquement les capteurs
     async_add_entities(sensors, True)
 
 class PiscinexaVolumeSensor(SensorEntity):
@@ -55,11 +54,6 @@ class PiscinexaVolumeSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_volume_eau"
-        self._attr_translation_key = "volume_eau"
-        self._attr_translation_placeholders = {"name": name.capitalize()}
-        self._attr_unit_of_measurement = UNIT_CUBIC_METERS
-        self._attr_icon = "mdi:pool"
         self._attr_unique_id = f"{entry.entry_id}_volume_eau"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -68,6 +62,16 @@ class PiscinexaVolumeSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:pool"
+        self._attr_unit_of_measurement = UNIT_CUBIC_METERS
+
+    async def async_added_to_hass(self):
+        self._translations = await async_get_translations(
+            self._hass,
+            self._hass.config.language,
+            "entity",
+        )
+        self._attr_name = self._translations.get("sensor.piscinexa_volume_eau.name", "{name} Volume d'eau").format(name=self._name.capitalize())
 
     @property
     def native_value(self):
@@ -92,11 +96,6 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_tempsfiltration"
-        self._attr_translation_key = "tempsfiltration"
-        self._attr_translation_placeholders = {"name": name.capitalize()}
-        self._attr_unit_of_measurement = UNIT_HOURS
-        self._attr_icon = "mdi:clock"
         self._attr_unique_id = f"{entry.entry_id}_temps_filtration"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -105,6 +104,8 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:clock"
+        self._attr_unit_of_measurement = UNIT_HOURS
         self._subscriptions = []
         sensor_id = self._entry.data.get("temperature_sensor")
         if sensor_id:
@@ -113,6 +114,14 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
                     hass, [sensor_id], self._async_update_from_sensor
                 )
             )
+
+    async def async_added_to_hass(self):
+        self._translations = await async_get_translations(
+            self._hass,
+            self._hass.config.language,
+            "entity",
+        )
+        self._attr_name = self._translations.get("sensor.piscinexa_tempsfiltration.name", "{name} Temps de filtration").format(name=self._name.capitalize())
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -144,11 +153,6 @@ class PiscinexaTemperatureSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_temperature"
-        self._attr_translation_key = "temperature"
-        self._attr_translation_placeholders = {"name": name.capitalize()}
-        self._attr_unit_of_measurement = "°C"
-        self._attr_icon = "mdi:thermometer"
         self._attr_unique_id = f"{entry.entry_id}_temperature"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -157,6 +161,8 @@ class PiscinexaTemperatureSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:thermometer"
+        self._attr_unit_of_measurement = "°C"
         self._subscriptions = []
         sensor_id = self._entry.data.get("temperature_sensor")
         if sensor_id:
@@ -165,6 +171,14 @@ class PiscinexaTemperatureSensor(SensorEntity):
                     hass, [sensor_id], self._async_update_from_sensor
                 )
             )
+
+    async def async_added_to_hass(self):
+        self._translations = await async_get_translations(
+            self._hass,
+            self._hass.config.language,
+            "entity",
+        )
+        self._attr_name = self._translations.get("sensor.piscinexa_temperature.name", "{name} Température").format(name=self._name.capitalize())
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -206,10 +220,6 @@ class PiscinexaPhSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._hass = hass
-        self._attr_name = f"{DOMAIN}_{name}_ph"
-        self._attr_translation_key = "ph"
-        self._attr_translation_placeholders = {"name": name.capitalize()}
-        self._attr_icon = "mdi:water"
         self._attr_unique_id = f"{entry.entry_id}_ph"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -218,6 +228,7 @@ class PiscinexaPhSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:water"
         self._subscriptions = []
         sensor_id = self._entry.data.get("ph_sensor")
         if sensor_id:
@@ -232,6 +243,14 @@ class PiscinexaPhSensor(SensorEntity):
                 hass, [input_id], self._async_update_from_input
             )
         )
+
+    async def async_added_to_hass(self):
+        self._translations = await async_get_translations(
+            self._hass,
+            self._hass.config.language,
+            "entity",
+        )
+        self._attr_name = self._translations.get("sensor.piscinexa_ph.name", "{name} pH").format(name=self._name.capitalize())
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -281,10 +300,6 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_ph_plus_ajouter"
-        self._attr_translation_key = "ph_plus_ajouter"
-        self._attr_translation_placeholders = {"name": name.capitalize()}
-        self._attr_icon = "mdi:bottle-tonic-plus"
         self._attr_unique_id = f"{entry.entry_id}_ph_plus_ajouter"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -293,6 +308,7 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:bottle-tonic-plus"
         self._subscriptions = []
         self._subscriptions.append(
             async_track_state_change_event(
@@ -309,6 +325,14 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
                 hass, [f"input_select.{name}_ph_plus_treatment"], self._async_update_from_select
             )
         )
+
+    async def async_added_to_hass(self):
+        self._translations = await async_get_translations(
+            self._hass,
+            self._hass.config.language,
+            "entity",
+        )
+        self._attr_name = self._translations.get("sensor.piscinexa_ph_plus_ajouter.name", "{name} pH+ à ajouter").format(name=self._name.capitalize())
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -382,10 +406,6 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_ph_minus_ajouter"
-        self._attr_translation_key = "ph_minus_ajouter"
-        self._attr_translation_placeholders = {"name": name.capitalize()}
-        self._attr_icon = "mdi:bottle-tonic-minus"
         self._attr_unique_id = f"{entry.entry_id}_ph_minus_ajouter"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -394,6 +414,7 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:bottle-tonic-minus"
         self._subscriptions = []
         self._subscriptions.append(
             async_track_state_change_event(
@@ -410,6 +431,14 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
                 hass, [f"input_select.{name}_ph_minus_treatment"], self._async_update_from_select
             )
         )
+
+    async def async_added_to_hass(self):
+        self._translations = await async_get_translations(
+            self._hass,
+            self._hass.config.language,
+            "entity",
+        )
+        self._attr_name = self._translations.get("sensor.piscinexa_ph_minus_ajouter.name", "{name} pH- à ajouter").format(name=self._name.capitalize())
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -483,10 +512,6 @@ class PiscinexaPhTargetSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._hass = hass
-        self._attr_name = f"{DOMAIN}_{name}_ph_target"
-        self._attr_translation_key = "ph_target"
-        self._attr_translation_placeholders = {"name": name.capitalize()}
-        self._attr_icon = "mdi:target"
         self._attr_unique_id = f"{entry.entry_id}_ph_target"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -495,12 +520,21 @@ class PiscinexaPhTargetSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:target"
         self._subscriptions = []
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"input_number.{name}_ph_target"], self._async_update_from_input
             )
         )
+
+    async def async_added_to_hass(self):
+        self._translations = await async_get_translations(
+            self._hass,
+            self._hass.config.language,
+            "entity",
+        )
+        self._attr_name = self._translations.get("sensor.piscinexa_ph_target.name", "{name} pH cible").format(name=self._name.capitalize())
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -524,11 +558,6 @@ class PiscinexaChloreSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._hass = hass
-        self._attr_name = f"{DOMAIN}_{name}_chlore"
-        self._attr_translation_key = "chlore"
-        self._attr_translation_placeholders = {"name": name.capitalize()}
-        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
-        self._attr_icon = "mdi:water-check"
         self._attr_unique_id = f"{entry.entry_id}_chlore"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -537,6 +566,8 @@ class PiscinexaChloreSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:water-check"
+        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
         self._subscriptions = []
         sensor_id = self._entry.data.get("chlore_sensor")
         if sensor_id:
@@ -551,6 +582,14 @@ class PiscinexaChloreSensor(SensorEntity):
                 hass, [input_id], self._async_update_from_input
             )
         )
+
+    async def async_added_to_hass(self):
+        self._translations = await async_get_translations(
+            self._hass,
+            self._hass.config.language,
+            "entity",
+        )
+        self._attr_name = self._translations.get("sensor.piscinexa_chlore.name", "{name} Chlore").format(name=self._name.capitalize())
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -596,11 +635,6 @@ class PiscinexaChloreTargetSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._hass = hass
-        self._attr_name = f"{DOMAIN}_{name}_chlore_target"
-        self._attr_translation_key = "chlore_target"
-        self._attr_translation_placeholders = {"name": name.capitalize()}
-        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
-        self._attr_icon = "mdi:target"
         self._attr_unique_id = f"{entry.entry_id}_chlore_target"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -609,12 +643,22 @@ class PiscinexaChloreTargetSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:target"
+        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
         self._subscriptions = []
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"input_number.{name}_chlore_target"], self._async_update_from_input
             )
         )
+
+    async def async_added_to_hass(self):
+        self._translations = await async_get_translations(
+            self._hass,
+            self._hass.config.language,
+            "entity",
+        )
+        self._attr_name = self._translations.get("sensor.piscinexa_chlore_target.name", "{name} Chlore cible").format(name=self._name.capitalize())
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -638,10 +682,6 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_chloreaajouter"
-        self._attr_translation_key = "chloreaajouter"
-        self._attr_translation_placeholders = {"name": name.capitalize()}
-        self._attr_icon = "mdi:bottle-tonic-plus"
         self._attr_unique_id = f"{entry.entry_id}_chlore_a_ajouter"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -650,6 +690,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:bottle-tonic-plus"
         self._message = None
         self._translations = {}
         self._subscriptions = []
@@ -675,13 +716,12 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         )
 
     async def async_added_to_hass(self):
-        """Charge les traductions lors de l'ajout à Home Assistant."""
         self._translations = await async_get_translations(
             self._hass,
             self._hass.config.language,
             "entity",
-            # Supprimé l'argument components
         )
+        self._attr_name = self._translations.get("sensor.piscinexa_chloreaajouter.name", "{name} Chlore à ajouter").format(name=self._name.capitalize())
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -705,7 +745,6 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         self.async_schedule_update_ha_state(True)
 
     def _get_translation(self, key: str) -> str:
-        """Récupère une traduction avec des placeholders (version synchrone)."""
         translation_key = key.format(name=self._name)
         translated = self._translations.get(translation_key, translation_key)
         return translated.format(name=self._name)
@@ -724,7 +763,6 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
     @property
     def native_value(self):
         try:
-            # Récupérer les valeurs actuelles et cibles de chlore
             chlore_current = float(self._entry.data["chlore_current"])
             chlore_target = float(self._entry.data["chlore_target"])
             chlore_difference = chlore_target - chlore_current
@@ -734,7 +772,6 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
                 )
                 return 0
 
-            # Récupérer le volume d'eau de la piscine
             volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume_entity and volume_entity.state not in ("unknown", "unavailable"):
                 volume_val = float(volume_entity.state)
@@ -744,40 +781,31 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
                 )
                 return None
 
-            # Récupérer la température pour ajuster la dose
             temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
             if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
                 temperature = float(temp_entity.state)
-                temp_factor = max(1, 1 + (temperature - 20) * 0.02)  # Augmente de 2% par degré au-dessus de 20°C
+                temp_factor = max(1, 1 + (temperature - 20) * 0.02)
             else:
                 self._message = self._get_translation(
                     "entity.sensor.piscinexa_{name}_chloreaajouter.messages.temperature_unavailable"
                 )
                 return None
 
-            # Récupérer le type de traitement
             select_state = self._hass.states.get(f"input_select.{self._name}_chlore_treatment")
             treatment = select_state.state if select_state else "Chlore choc (poudre)"
             self._treatment_type = treatment
 
-            # Calculer la dose totale nécessaire pour augmenter le chlore de chlore_difference mg/L
             if treatment == "Liquide":
-                # Pour augmenter de 1 mg/L dans toute la piscine, il faut 0.1 L par m³
-                # Donc pour volume_val m³, il faut volume_val * 0.1 L par mg/L
-                dose_per_mg_L = volume_val * 0.1  # Quantité totale pour 1 mg/L
-                dose = chlore_difference * dose_per_mg_L * temp_factor  # Quantité totale ajustée
+                dose_per_mg_L = volume_val * 0.1
+                dose = chlore_difference * dose_per_mg_L * temp_factor
                 self._dose_unit = UNIT_LITERS
             elif treatment == "Pastille lente":
-                # Pour augmenter de 1 mg/L dans toute la piscine, il faut 1 pastille par 20 m³
-                # Donc pour volume_val m³, il faut volume_val / 20 pastilles par mg/L
-                dose_per_mg_L = volume_val / 20  # Quantité totale pour 1 mg/L
-                dose = chlore_difference * dose_per_mg_L * temp_factor  # Quantité totale ajustée
+                dose_per_mg_L = volume_val / 20
+                dose = chlore_difference * dose_per_mg_L * temp_factor
                 self._dose_unit = "unités"
-            else:  # Chlore choc (poudre)
-                # Pour augmenter de 1 mg/L dans toute la piscine, il faut 10 g par m³
-                # Donc pour volume_val m³, il faut volume_val * 10 g par mg/L
-                dose_per_mg_L = volume_val * 10  # Quantité totale pour 1 mg/L
-                dose = chlore_difference * dose_per_mg_L * temp_factor  # Quantité totale ajustée
+            else:
+                dose_per_mg_L = volume_val * 10
+                dose = chlore_difference * dose_per_mg_L * temp_factor
                 self._dose_unit = UNIT_GRAMS
 
             self._calculated_dose = dose
@@ -819,11 +847,6 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_chloredifference"
-        self._attr_translation_key = "chloredifference"
-        self._attr_translation_placeholders = {"name": name.capitalize()}
-        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
-        self._attr_icon = "mdi:delta"
         self._attr_unique_id = f"{entry.entry_id}_chlore_difference"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -832,12 +855,22 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:delta"
+        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
         self._subscriptions = []
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"sensor.{DOMAIN}_{name}_chlore"], self._async_update_from_chlore
             )
         )
+
+    async def async_added_to_hass(self):
+        self._translations = await async_get_translations(
+            self._hass,
+            self._hass.config.language,
+            "entity",
+        )
+        self._attr_name = self._translations.get("sensor.piscinexa_chloredifference.name", "{name} Différence chlore").format(name=self._name.capitalize())
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -864,10 +897,6 @@ class PiscinexaLogSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = entry.data["name"]
-        self._attr_name = f"{DOMAIN}_{self._name}_log"
-        self._attr_translation_key = "log"
-        self._attr_translation_placeholders = {"name": self._name.capitalize()}
-        self._attr_icon = "mdi:book"
         self._attr_unique_id = f"{entry.entry_id}_log"
         self._state = deque(maxlen=10)
         self._attr_device_info = DeviceInfo(
@@ -877,25 +906,23 @@ class PiscinexaLogSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:book"
         self._translations = {}
-        self._default_value = "No actions"  # Valeur par défaut en attendant les traductions
+        self._default_value = "No actions"
 
     async def async_added_to_hass(self):
-        """Charge les traductions lors de l'ajout à Home Assistant."""
         self._translations = await async_get_translations(
             self._hass,
             self._hass.config.language,
             "entity",
-            # Supprimé l'argument components
         )
+        self._attr_name = self._translations.get("sensor.piscinexa_log.name", "{name} Journal").format(name=self._name.capitalize())
         self._default_value = self._translations.get(
-            f"entity.sensor.piscinexa_{self._name}_log.default_value",
-            "No actions"
+            "sensor.piscinexa_log.default_value", "Aucune action"
         )
         self.async_write_ha_state()
 
     def _get_translation(self, key: str) -> str:
-        """Récupère une traduction avec des placeholders (version synchrone)."""
         translation_key = key.format(name=self._name)
         translated = self._translations.get(translation_key, translation_key)
         return translated.format(name=self._name)
@@ -913,11 +940,6 @@ class PiscinexaPowerSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_consopuissance"
-        self._attr_translation_key = "consopuissance"
-        self._attr_translation_placeholders = {"name": name.capitalize()}
-        self._attr_unit_of_measurement = "W"
-        self._attr_icon = "mdi:flash"
         self._attr_unique_id = f"{entry.entry_id}_conso_puissance"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -926,6 +948,8 @@ class PiscinexaPowerSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:flash"
+        self._attr_unit_of_measurement = "W"
         self._subscriptions = []
         sensor_id = self._entry.data.get("power_sensor_entity_id")
         if sensor_id:
@@ -934,6 +958,14 @@ class PiscinexaPowerSensor(SensorEntity):
                     hass, [sensor_id], self._async_update_from_sensor
                 )
             )
+
+    async def async_added_to_hass(self):
+        self._translations = await async_get_translations(
+            self._hass,
+            self._hass.config.language,
+            "entity",
+        )
+        self._attr_name = self._translations.get("sensor.piscinexa_consopuissance.name", "{name} Consommation de puissance").format(name=self._name.capitalize())
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -965,10 +997,6 @@ class PiscinexaPoolStateSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_pool_state"
-        self._attr_translation_key = "pool_state"
-        self._attr_translation_placeholders = {"name": name.capitalize()}
-        self._attr_icon = "mdi:pool"
         self._attr_unique_id = f"{entry.entry_id}_pool_state"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -977,6 +1005,7 @@ class PiscinexaPoolStateSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:pool"
         self._translations = {}
         self._subscriptions = []
         entities_to_track = [
@@ -992,13 +1021,12 @@ class PiscinexaPoolStateSensor(SensorEntity):
         )
 
     async def async_added_to_hass(self):
-        """Charge les traductions lors de l'ajout à Home Assistant."""
         self._translations = await async_get_translations(
             self._hass,
             self._hass.config.language,
             "entity",
-            # Supprimé l'argument components
         )
+        self._attr_name = self._translations.get("sensor.piscinexa_pool_state.name", "{name} État de la piscine").format(name=self._name.capitalize())
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -1010,7 +1038,6 @@ class PiscinexaPoolStateSensor(SensorEntity):
         self.async_schedule_update_ha_state(True)
 
     def _get_translation(self, key: str) -> str:
-        """Récupère une traduction avec des placeholders (version synchrone)."""
         translation_key = key.format(name=self._name)
         translated = self._translations.get(translation_key, translation_key)
         return translated.format(name=self._name)
@@ -1112,13 +1139,11 @@ class PiscinexaPoolStateSensor(SensorEntity):
                 ),
             ]
 
-            # Si tous les états sont idéaux, retourner "Swimming allowed"
             if all(issue in ideal_states for issue in issues):
                 return self._get_translation(
                     "entity.sensor.piscinexa_{name}_pool_state.states.swimming_allowed"
                 )
             else:
-                # Retourner uniquement le premier problème pour respecter la limite de longueur
                 return issues[0]
         except Exception as e:
             _LOGGER.error("Erreur calcul état piscine pour %s: %s", self._name, e)
@@ -1218,7 +1243,6 @@ class PiscinexaPoolStateSensor(SensorEntity):
                     "entity.sensor.piscinexa_{name}_pool_state.states.filtration_unavailable"
                 ))
 
-            # Ajouter tous les problèmes dans les attributs supplémentaires
             attributes["issues"] = ", ".join(issues)
         except Exception as e:
             _LOGGER.error("Erreur récupération attributs état piscine: %s", e)
