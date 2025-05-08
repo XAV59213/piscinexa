@@ -30,10 +30,10 @@ class PiscinexaInputNumber(InputNumber):
         self._type = type_
         self._attr_unique_id = f"{entry.entry_id}_{type_}"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}_{type_}")},
-            name=f"Input {type_.replace('_', ' ').capitalize()}",
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
             manufacturer="Piscinexa",
-            model="Input Numérique",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_value = default_val
@@ -48,7 +48,6 @@ class PiscinexaInputNumber(InputNumber):
             f"entity.input_number.piscinexa_{self._type}.name",
             self._type.replace("_", " ").capitalize()
         )
-        self._attr_device_info.name = self._attr_name
 
     async def async_set_value(self, value: float) -> None:
         self._attr_value = value
