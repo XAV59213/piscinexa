@@ -452,7 +452,7 @@
         },
         "quantity": {
           "description": "Applied quantity (in liters, grams, or units depending on the form)",
-          "example": 5.0
+          "example": "5.0"
         }
       }
     }
@@ -466,7 +466,7 @@
     "apply_treatment_action": "Treatment applied: {treatment_type} ({treatment_form}, {quantity})",
     "platform_load_error": "Error loading platforms for Piscinexa: {error}",
     "platform_unload_error": "Error unloading platforms for Piscinexa: {error}",
-    "chlore_target_missing": "chlore_target missing, setting default: 2.0",
-    "ph_target_missing": "ph_target missing, setting default: 7.4"
+    "chlore_target_missing": "chlore_target missing, setting default: {default_value}",
+    "ph_target_missing": "ph_target missing, setting default: {default_value}"
   }
 }
