@@ -34,7 +34,10 @@ class PiscinexaPhCurrentInput(InputNumber):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_friendly_name = f"{name.capitalize()} pH Actuel"
+        self._attr_friendly_name = hass.helpers.template.render(
+            "entity.input_number.{name}_ph_current.name",
+            {"name": name.capitalize()}
+        )
         self._attr_unique_id = unique_id
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -66,7 +69,10 @@ class PiscinexaChloreCurrentInput(InputNumber):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_friendly_name = f"{name.capitalize()} Chlore Actuel"
+        self._attr_friendly_name = hass.helpers.template.render(
+            "entity.input_number.{name}_chlore_current.name",
+            {"name": name.capitalize()}
+        )
         self._attr_unique_id = unique_id
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
