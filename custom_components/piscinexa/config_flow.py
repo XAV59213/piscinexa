@@ -43,8 +43,8 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema({
                 vol.Required("name", default="piscine"): str,
                 vol.Required("pool_type", default=POOL_TYPE_SQUARE): vol.In({
-                    POOL_TYPE_SQUARE: "Carrée",
-                    POOL_TYPE_ROUND: "Ronde"
+                    POOL_TYPE_SQUARE: "config.step.user.data.pool_type_square",
+                    POOL_TYPE_ROUND: "config.step.user.data.pool_type_round"
                 }),
             }),
             errors=errors,
@@ -120,16 +120,14 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["ph_config_choice"] = "required_field"
 
-        schema = vol.Schema({
-            vol.Required("ph_config_choice"): vol.In({
-                "manual": "Saisir manuellement",
-                "sensor": "Choisir un capteur"
-            }),
-        })
-
         return self.async_show_form(
             step_id="ph_config",
-            data_schema=schema,
+            data_schema=vol.Schema({
+                vol.Required("ph_config_choice"): vol.In({
+                    "manual": "config.step.ph_config.data.manual",
+                    "sensor": "config.step.ph_config.data.sensor"
+                }),
+            }),
             errors=errors,
         )
 
@@ -163,19 +161,17 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._data["ph_sensor"] = ""
                 return await self.async_step_chlore_config()
 
-        description = "Entrez les valeurs du pH pour votre piscine.\n\n- **pH actuel (valeur mesurée)** : La valeur actuelle du pH dans votre piscine, mesurée manuellement (facultatif).\n- **pH cible (valeur idéale)** : La valeur idéale que vous souhaitez atteindre (obligatoire, généralement entre 7.2 et 7.6 pour une piscine)."
+        description_key = "config.step.ph_manual.description"
         if self._no_sensor_message:
-            description = "Piscinexa n'a pas trouvé de capteur pH compatible. Vous devez configurer les valeurs manuellement.\n\n" + description
-
-        schema = vol.Schema({
-            vol.Optional("ph_current", default=7.0): vol.Coerce(float),
-            vol.Required("ph_target", default=7.4): vol.Coerce(float),
-        })
+            description_key = "config.step.ph_manual.no_sensor_ph"
 
         return self.async_show_form(
             step_id="ph_manual",
-            description_placeholders={"description": description},
-            data_schema=schema,
+            description_placeholders={"description": description_key},
+            data_schema=vol.Schema({
+                vol.Optional("ph_current", default=7.0): vol.Coerce(float),
+                vol.Required("ph_target", default=7.4): vol.Coerce(float),
+            }),
             errors=errors,
         )
 
@@ -207,7 +203,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_chlore_config()
 
         ph_sensors = [""]
-        ph_sensors_dict = {"": "Aucun capteur"}
+        ph_sensors_dict = {"": "config.step.ph_sensor.data.no_sensor"}
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
@@ -224,14 +220,12 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         _LOGGER.debug("Capteurs de pH trouvés : %s", ph_sensors)
 
-        schema = vol.Schema({
-            vol.Optional("ph_sensor", default=""): vol.In(ph_sensors_dict),
-            vol.Required("ph_target", default=7.4): vol.Coerce(float),
-        })
-
         return self.async_show_form(
             step_id="ph_sensor",
-            data_schema=schema,
+            data_schema=vol.Schema({
+                vol.Optional("ph_sensor", default=""): vol.In(ph_sensors_dict),
+                vol.Required("ph_target", default=7.4): vol.Coerce(float),
+            }),
             errors=errors,
         )
 
@@ -249,16 +243,14 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["confirm_choice"] = "required_field"
 
-        schema = vol.Schema({
-            vol.Required("confirm_choice"): vol.In({
-                "manual": "Configurer manuellement",
-                "retry": "Réessayer"
-            }),
-        })
-
         return self.async_show_form(
             step_id="confirm_ph_sensor",
-            data_schema=schema,
+            data_schema=vol.Schema({
+                vol.Required("confirm_choice"): vol.In({
+                    "manual": "config.step.confirm_ph_sensor.data.manual",
+                    "retry": "config.step.confirm_ph_sensor.data.retry"
+                }),
+            }),
             errors=errors,
         )
 
@@ -277,16 +269,14 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["chlore_config_choice"] = "required_field"
 
-        schema = vol.Schema({
-            vol.Required("chlore_config_choice"): vol.In({
-                "manual": "Saisir manuellement",
-                "sensor": "Choisir un capteur"
-            }),
-        })
-
         return self.async_show_form(
             step_id="chlore_config",
-            data_schema=schema,
+            data_schema=vol.Schema({
+                vol.Required("chlore_config_choice"): vol.In({
+                    "manual": "config.step.chlore_config.data.manual",
+                    "sensor": "config.step.chlore_config.data.sensor"
+                }),
+            }),
             errors=errors,
         )
 
@@ -320,19 +310,17 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._data["chlore_sensor"] = ""
                 return await self.async_step_temperature_config()
 
-        description = "Entrez les valeurs du chlore pour votre piscine.\n\n- **Chlore actuel (valeur mesurée, mg/L)** : La valeur actuelle du chlore dans votre piscine, mesurée manuellement (facultatif).\n- **Chlore cible (valeur idéale, mg/L)** : La valeur idéale que vous souhaitez atteindre (obligatoire, généralement entre 1 et 3 mg/L pour une piscine)."
+        description_key = "config.step.chlore_manual.description"
         if self._no_sensor_message:
-            description = "Piscinexa n'a pas trouvé de capteur chlore compatible. Vous devez configurer les valeurs manuellement.\n\n" + description
-
-        schema = vol.Schema({
-            vol.Optional("chlore_current", default=1.0): vol.Coerce(float),
-            vol.Required("chlore_target", default=2.0): vol.Coerce(float),
-        })
+            description_key = "config.step.chlore_manual.no_sensor_chlore"
 
         return self.async_show_form(
             step_id="chlore_manual",
-            description_placeholders={"description": description},
-            data_schema=schema,
+            description_placeholders={"description": description_key},
+            data_schema=vol.Schema({
+                vol.Optional("chlore_current", default=1.0): vol.Coerce(float),
+                vol.Required("chlore_target", default=2.0): vol.Coerce(float),
+            }),
             errors=errors,
         )
 
@@ -364,7 +352,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_temperature_config()
 
         chlore_sensors = [""]
-        chlore_sensors_dict = {"": "Aucun capteur"}
+        chlore_sensors_dict = {"": "config.step.chlore_sensor.data.no_sensor"}
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
@@ -380,14 +368,12 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         _LOGGER.debug("Capteurs de chlore trouvés : %s", chlore_sensors)
 
-        schema = vol.Schema({
-            vol.Optional("chlore_sensor", default=""): vol.In(chlore_sensors_dict),
-            vol.Required("chlore_target", default=2.0): vol.Coerce(float),
-        })
-
         return self.async_show_form(
             step_id="chlore_sensor",
-            data_schema=schema,
+            data_schema=vol.Schema({
+                vol.Optional("chlore_sensor", default=""): vol.In(chlore_sensors_dict),
+                vol.Required("chlore_target", default=2.0): vol.Coerce(float),
+            }),
             errors=errors,
         )
 
@@ -405,16 +391,14 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["confirm_choice"] = "required_field"
 
-        schema = vol.Schema({
-            vol.Required("confirm_choice"): vol.In({
-                "manual": "Configurer manuellement",
-                "retry": "Réessayer"
-            }),
-        })
-
         return self.async_show_form(
             step_id="confirm_chlore_sensor",
-            data_schema=schema,
+            data_schema=vol.Schema({
+                vol.Required("confirm_choice"): vol.In({
+                    "manual": "config.step.confirm_chlore_sensor.data.manual",
+                    "retry": "config.step.confirm_chlore_sensor.data.retry"
+                }),
+            }),
             errors=errors,
         )
 
@@ -433,16 +417,14 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["temperature_config_choice"] = "required_field"
 
-        schema = vol.Schema({
-            vol.Required("temperature_config_choice"): vol.In({
-                "manual": "Saisir manuellement",
-                "sensor": "Choisir un capteur"
-            }),
-        })
-
         return self.async_show_form(
             step_id="temperature_config",
-            data_schema=schema,
+            data_schema=vol.Schema({
+                vol.Required("temperature_config_choice"): vol.In({
+                    "manual": "config.step.temperature_config.data.manual",
+                    "sensor": "config.step.temperature_config.data.sensor"
+                }),
+            }),
             errors=errors,
         )
 
@@ -472,18 +454,16 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._data["temperature_sensor"] = ""
                 return await self.async_step_power_config()
 
-        description = "Entrez la température actuelle mesurée de votre piscine.\n\n- **Température actuelle (°C)** : La température actuelle de l’eau, mesurée manuellement (facultatif)."
+        description_key = "config.step.temperature_manual.description"
         if self._no_sensor_message:
-            description = "Piscinexa n'a pas trouvé de capteur température compatible. Vous devez configurer les valeurs manuellement.\n\n" + description
-
-        schema = vol.Schema({
-            vol.Optional("temperature", default=20.0): vol.Coerce(float),
-        })
+            description_key = "config.step.temperature_manual.no_sensor_temperature"
 
         return self.async_show_form(
             step_id="temperature_manual",
-            description_placeholders={"description": description},
-            data_schema=schema,
+            description_placeholders={"description": description_key},
+            data_schema=vol.Schema({
+                vol.Optional("temperature", default=20.0): vol.Coerce(float),
+            }),
             errors=errors,
         )
 
@@ -501,7 +481,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_power_config()
 
         temp_sensors = [""]
-        temp_sensors_dict = {"": "Aucun capteur"}
+        temp_sensors_dict = {"": "config.step.temperature_sensor.data.no_sensor"}
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
             if entity_id.startswith(f"sensor.{DOMAIN}_"):
@@ -517,13 +497,11 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         _LOGGER.debug("Capteurs de température trouvés : %s", temp_sensors)
 
-        schema = vol.Schema({
-            vol.Optional("temperature_sensor", default=""): vol.In(temp_sensors_dict),
-        })
-
         return self.async_show_form(
             step_id="temperature_sensor",
-            data_schema=schema,
+            data_schema=vol.Schema({
+                vol.Optional("temperature_sensor", default=""): vol.In(temp_sensors_dict),
+            }),
             errors=errors,
         )
 
@@ -541,16 +519,14 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["confirm_choice"] = "required_field"
 
-        schema = vol.Schema({
-            vol.Required("confirm_choice"): vol.In({
-                "manual": "Configurer manuellement",
-                "retry": "Réessayer"
-            }),
-        })
-
         return self.async_show_form(
             step_id="confirm_temperature_sensor",
-            data_schema=schema,
+            data_schema=vol.Schema({
+                vol.Required("confirm_choice"): vol.In({
+                    "manual": "config.step.confirm_temperature_sensor.data.manual",
+                    "retry": "config.step.confirm_temperature_sensor.data.retry"
+                }),
+            }),
             errors=errors,
         )
 
@@ -569,24 +545,22 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["power_config_choice"] = "required_field"
 
-        schema = vol.Schema({
-            vol.Required("power_config_choice"): vol.In({
-                "manual": "Saisir manuellement",
-                "sensor": "Choisir un capteur"
-            }),
-        })
-
         return self.async_show_form(
             step_id="power_config",
-            data_schema=schema,
+            data_schema=vol.Schema({
+                vol.Required("power_config_choice"): vol.In({
+                    "manual": "config.step.power_config.data.manual",
+                    "sensor": "config.step.power_config.data.sensor"
+                }),
+            }),
             errors=errors,
         )
 
     async def async_step_power_manual(self, user_input=None):
         """Step 6 (sous-étape) : saisie manuelle pour la puissance (vide)."""
-        description = "Aucune valeur à saisir pour la puissance. Ce champ sera laissé vide."
+        description_key = "config.step.power_manual.description"
         if self._no_sensor_message:
-            description = "Piscinexa n'a pas trouvé de capteur puissance compatible. Ce champ sera laissé vide.\n\n" + description
+            description_key = "config.step.power_manual.no_sensor_power"
 
         self._data["use_power_sensor"] = False
         self._data["power_sensor_entity_id"] = ""
@@ -605,13 +579,11 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._data["use_power_sensor"] = bool(power_sensor)
                 return await self.async_step_treatment_config()
 
-        schema = vol.Schema({
-            vol.Optional("power_sensor_entity_id", default=""): str,
-        })
-
         return self.async_show_form(
             step_id="power_sensor",
-            data_schema=schema,
+            data_schema=vol.Schema({
+                vol.Optional("power_sensor_entity_id", default=""): str,
+            }),
             errors=errors,
         )
 
@@ -629,16 +601,14 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 errors["confirm_choice"] = "required_field"
 
-        schema = vol.Schema({
-            vol.Required("confirm_choice"): vol.In({
-                "manual": "Configurer manuellement",
-                "retry": "Réessayer"
-            }),
-        })
-
         return self.async_show_form(
             step_id="confirm_power_sensor",
-            data_schema=schema,
+            data_schema=vol.Schema({
+                vol.Required("confirm_choice"): vol.In({
+                    "manual": "config.step.confirm_power_sensor.data.manual",
+                    "retry": "config.step.confirm_power_sensor.data.retry"
+                }),
+            }),
             errors=errors,
         )
 
@@ -651,28 +621,26 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._data["chlore_treatment"] = user_input.get("chlore_treatment", "Chlore choc (poudre)")
             return await self.async_step_summary()
 
-        schema = vol.Schema({
-            vol.Required("ph_plus_treatment", default="Liquide"): vol.In({
-                "Liquide": "Liquide",
-                "Granulés": "Granulés"
-            }),
-            vol.Required("ph_minus_treatment", default="Liquide"): vol.In({
-                "Liquide": "Liquide",
-                "Granulés": "Granulés"
-            }),
-            vol.Required("chlore_treatment", default="Chlore choc (poudre)"): vol.In({
-                "Liquide": "Liquide",
-                "Chlore choc (poudre)": "Chlore choc (poudre)",
-                "Pastille lente": "Pastille lente"
-            }),
-        })
-
         return self.async_show_form(
             step_id="treatment_config",
-            data_schema=schema,
+            data_schema=vol.Schema({
+                vol.Required("ph_plus_treatment", default="Liquide"): vol.In({
+                    "Liquide": "config.step.treatment_config.data.ph_plus_treatment_liquid",
+                    "Granulés": "config.step.treatment_config.data.ph_plus_treatment_granules"
+                }),
+                vol.Required("ph_minus_treatment", default="Liquide"): vol.In({
+                    "Liquide": "config.step.treatment_config.data.ph_minus_treatment_liquid",
+                    "Granulés": "config.step.treatment_config.data.ph_minus_treatment_granules"
+                }),
+                vol.Required("chlore_treatment", default="Chlore choc (poudre)"): vol.In({
+                    "Liquide": "config.step.treatment_config.data.chlore_treatment_liquid",
+                    "Chlore choc (poudre)": "config.step.treatment_config.data.chlore_treatment_shock",
+                    "Pastille lente": "config.step.treatment_config.data.chlore_treatment_tablet"
+                }),
+            }),
             errors=errors,
             description_placeholders={
-                "description": "Sélectionnez les types de produits chimiques utilisés pour les traitements de votre piscine."
+                "description": "config.step.treatment_config.description"
             },
         )
 
@@ -725,7 +693,7 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
             return self.async_create_entry(title="", data=user_input)
 
         temp_sensors = [""]
-        temp_sensors_dict = {"": "Aucun capteur (ajoutez un capteur de température)"}
+        temp_sensors_dict = {"": "config.step.init.data.no_sensor_temperature"}
         temp_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
@@ -749,7 +717,7 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
             temp_sensor_entities.append(("sensor.test_temperature", "°C", "temperature", "Test Temperature Sensor"))
 
         chlore_sensors = [""]
-        chlore_sensors_dict = {"": "Aucun capteur (ajoutez un capteur de chlore)"}
+        chlore_sensors_dict = {"": "config.step.init.data.no_sensor_chlore"}
         chlore_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
@@ -767,7 +735,7 @@ class PiscinexaOptionsFlowHandler(config_entries.OptionsFlow):
                 chlore_sensor_entities.append((entity_id, unit, friendly_name))
 
         ph_sensors = [""]
-        ph_sensors_dict = {"": "Aucun capteur (ajoutez un capteur de pH)"}
+        ph_sensors_dict = {"": "config.step.init.data.no_sensor_ph"}
         ph_sensor_entities = []
         for state in self.hass.states.async_all("sensor"):
             entity_id = state.entity_id
