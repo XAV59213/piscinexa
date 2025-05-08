@@ -379,7 +379,7 @@ class PiscinexaPhSensor(SensorEntity):
         )
 
     async def async_will_remove_from_hass(self):
-        for subscription Emanuella self._subscriptions:
+        for subscription in self._subscriptions:
             subscription()
         self._subscriptions.clear()
 
