@@ -20,13 +20,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if "chlore_target" not in hass.data[DOMAIN][entry.entry_id]:
         _LOGGER.warning(hass.helpers.template.render(
             "logs.chlore_target_missing",
-            {}
+            {"default_value": "2.0"}
         ))
         hass.data[DOMAIN][entry.entry_id]["chlore_target"] = 2.0
     if "ph_target" not in hass.data[DOMAIN][entry.entry_id]:
         _LOGGER.warning(hass.helpers.template.render(
             "logs.ph_target_missing",
-            {}
+            {"default_value": "7.4"}
         ))
         hass.data[DOMAIN][entry.entry_id]["ph_target"] = 7.4
 
