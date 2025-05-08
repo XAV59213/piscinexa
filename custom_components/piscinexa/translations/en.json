@@ -193,8 +193,11 @@
       "piscinexa_piscine_tempsfiltration": {"name": "Pool Filtration Time", "unit_of_measurement": "h"},
       "piscinexa_piscine_temperature": {"name": "Pool Temperature", "unit_of_measurement": "°C"},
       "piscinexa_piscine_ph": {"name": "Pool pH"},
-      "piscinexa_piscine_phaajouter": {"name": "Pool pH to Add", "unit_of_measurement": "L"},
-      "piscinexa_piscine_chlore": {"name": "Pool Chlorine", "unit_of_measurement": "mg/L"},
+      "piscinexa_piscine_ph_plus_ajouter": {"name": "Pool pH+ to Add", "unit_of_measurement": "L"},  // Added here
+      "piscinexa_piscine_ph_minus_ajouter": {"name": "Pool pH- to Add", "unit_of_measurement": "L"},  // Added here
+      "piscinexa_piscine_ph_target": {"name": "Pool Target pH"},  // Added here
+      "piscinexa_piscine_chlore": {"name": "Pool Chlorine Current", "unit_of_measurement": "mg/L"},
+      "piscinexa_piscine_chlore_target": {"name": "Pool Target Chlorine", "unit_of_measurement": "mg/L"},
       "piscinexa_piscine_chloredifference": {"name": "Pool Chlorine Difference", "unit_of_measurement": "mg/L"},
       "piscinexa_piscine_chloreaajouter": {"name": "Pool Chlorine to Add", "unit_of_measurement": "g"},
       "piscinexa_piscine_consopuissance": {"name": "Pool Power Consumption", "unit_of_measurement": "W"},
