@@ -1,7 +1,8 @@
 # Tableau de bord pour plusieurs piscines : 'piscine' et 'spa'.
-title: dashboard.multi_pool.title
+# Remplacez '<entry_id>' par l'identifiant réel de votre configuration et '<name>' par le nom de votre piscine.
+title: Tableau de bord Piscinexa
 views:
-  - title: dashboard.multi_pool.views.piscinexa.title
+  - title: Piscines
     path: piscinexa
     icon: mdi:pool
     type: sidebar
@@ -10,40 +11,30 @@ views:
         cards:
           - type: markdown
             content: |
-              ## dashboard.multi_pool.cards.piscine_section.title
+              ## Piscine
           - type: horizontal-stack
             cards:
               - type: button
-                entity: button.piscinexa_piscine_test
-                name: entity.button.piscinexa_piscine_test.name
+                entity: button.<entry_id>_test
               - type: button
-                entity: button.piscinexa_piscine_reset
-                name: entity.button.piscinexa_piscine_reset.name
+                entity: button.<entry_id>_reset
           - type: entities
-            title: dashboard.multi_pool.cards.manual_input.title
+            title: Saisie manuelle
             entities:
-              - entity: input_number.piscine_ph_current
-                name: entity.input_number.piscine_ph_current.name
-              - entity: input_number.piscine_chlore_current
-                name: entity.input_number.piscine_chlore_current.name
+              - entity: input_number.<name>_ph_current
+              - entity: input_number.<name>_chlore_current
           - type: entities
             entities:
-              - entity: sensor.piscinexa_piscine_volume_eau
-                name: entity.sensor.piscinexa_piscine_volume_eau.name
-              - entity: sensor.piscinexa_piscine_tempsfiltration
-                name: entity.sensor.piscinexa_piscine_tempsfiltration.name
-              - entity: sensor.piscinexa_piscine_consopuissance
-                name: entity.sensor.piscinexa_piscine_consopuissance.name
-              - entity: sensor.piscinexa_piscine_ph
-                name: entity.sensor.piscinexa_piscine_ph.name
-              - entity: sensor.piscinexa_piscine_ph_target
-                name: entity.sensor.piscinexa_piscine_ph_target.name
+              - entity: sensor.<entry_id>_volume_eau
+              - entity: sensor.<entry_id>_tempsfiltration
+              - entity: sensor.<entry_id>_consopuissance
+              - entity: sensor.<entry_id>_ph
+              - entity: sensor.<entry_id>_ph_target
               - type: template
-                entity_id: sensor.piscinexa_piscine_ph_plus_ajouter
-                name: entity.sensor.piscinexa_piscine_ph_plus_ajouter.name
+                entity_id: sensor.<entry_id>_ph_plus_ajouter
                 content: >
-                  {% if states('sensor.piscinexa_piscine_ph_plus_ajouter') | float(default=0) > 0 %}
-                    {{ states('sensor.piscinexa_piscine_ph_plus_ajouter') }} {{ state_attr('sensor.piscinexa_piscine_ph_plus_ajouter', 'unit_of_measurement') }}
+                  {% if states('sensor.<entry_id>_ph_plus_ajouter') | float(default=0) > 0 %}
+                    {{ states('sensor.<entry_id>_ph_plus_ajouter') }} {{ state_attr('sensor.<entry_id>_ph_plus_ajouter', 'unit_of_measurement') }}
                   {% else %}
-                    dashboard.multi_pool.cards.template_ph_plus.no_adjustment
+                    Aucun ajustement nécessaire
                   {% endif %}
