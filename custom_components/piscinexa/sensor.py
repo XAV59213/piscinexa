@@ -706,12 +706,13 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
 
     def _get_translation(self, key: str) -> str:
         """Récupère une traduction avec des placeholders (version synchrone)."""
-        translation_key = key.format(name=self._name)
-        translated = self._translations.get(translation_key, translation_key)
         try:
+            translation_key = key.format(name=self._name)
+            translated = self._translations.get(translation_key, translation_key)
             return translated.format(name=self._name)
-        except (KeyError, ValueError):
-            return translated
+        except (KeyError, ValueError, AttributeError) as e:
+            _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
+            return key  # Retourne la clé brute si la traduction échoue
 
     @property
     def unit_of_measurement(self):
@@ -899,12 +900,13 @@ class PiscinexaLogSensor(SensorEntity):
 
     def _get_translation(self, key: str) -> str:
         """Récupère une traduction avec des placeholders (version synchrone)."""
-        translation_key = key.format(name=self._name)
-        translated = self._translations.get(translation_key, translation_key)
         try:
+            translation_key = key.format(name=self._name)
+            translated = self._translations.get(translation_key, translation_key)
             return translated.format(name=self._name)
-        except (KeyError, ValueError):
-            return translated
+        except (KeyError, ValueError, AttributeError) as e:
+            _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
+            return key  # Retourne la clé brute si la traduction échoue
 
     def log_action(self, action: str):
         self._state.append(f"{datetime.now()}: {action}")
@@ -951,7 +953,7 @@ class PiscinexaPowerSensor(SensorEntity):
         self.async_schedule_update_ha_state(True)
 
     @property
-    def state(self):
+    def native_value(self):
         try:
             sensor_id = self._entry.data.get("power_sensor_entity_id")
             if sensor_id:
@@ -1017,12 +1019,13 @@ class PiscinexaPoolStateSensor(SensorEntity):
 
     def _get_translation(self, key: str) -> str:
         """Récupère une traduction avec des placeholders (version synchrone)."""
-        translation_key = key.format(name=self._name)
-        translated = self._translations.get(translation_key, translation_key)
         try:
+            translation_key = key.format(name=self._name)
+            translated = self._translations.get(translation_key, translation_key)
             return translated.format(name=self._name)
-        except (KeyError, ValueError):
-            return translated
+        except (KeyError, ValueError, AttributeError) as e:
+            _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
+            return key  # Retourne la clé brute si la traduction échoue
 
     @property
     def native_value(self):
