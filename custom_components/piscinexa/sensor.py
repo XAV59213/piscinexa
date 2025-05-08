@@ -71,7 +71,7 @@ class PiscinexaVolumeSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("sensor.piscinexa_volume_eau.name", "{name} Volume d'eau").format(name=self._name.capitalize())
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_volume_eau.name", "Volume d'eau")
 
     @property
     def native_value(self):
@@ -121,7 +121,7 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("sensor.piscinexa_tempsfiltration.name", "{name} Temps de filtration").format(name=self._name.capitalize())
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_tempsfiltration.name", "Temps de filtration")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -178,7 +178,7 @@ class PiscinexaTemperatureSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("sensor.piscinexa_temperature.name", "{name} Température").format(name=self._name.capitalize())
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_temperature.name", "Température")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -250,7 +250,7 @@ class PiscinexaPhSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("sensor.piscinexa_ph.name", "{name} pH").format(name=self._name.capitalize())
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_ph.name", "pH")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -332,7 +332,7 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("sensor.piscinexa_ph_plus_ajouter.name", "{name} pH+ à ajouter").format(name=self._name.capitalize())
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_plus_ajouter.name", "pH+ à ajouter")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -438,7 +438,7 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("sensor.piscinexa_ph_minus_ajouter.name", "{name} pH- à ajouter").format(name=self._name.capitalize())
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_minus_ajouter.name", "pH- à ajouter")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -534,7 +534,7 @@ class PiscinexaPhTargetSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("sensor.piscinexa_ph_target.name", "{name} pH cible").format(name=self._name.capitalize())
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_target.name", "pH cible")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -589,7 +589,7 @@ class PiscinexaChloreSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("sensor.piscinexa_chlore.name", "{name} Chlore").format(name=self._name.capitalize())
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_chlore.name", "Chlore")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -658,7 +658,7 @@ class PiscinexaChloreTargetSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("sensor.piscinexa_chlore_target.name", "{name} Chlore cible").format(name=self._name.capitalize())
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_chlore_target.name", "Chlore cible")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -721,7 +721,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("sensor.piscinexa_chloreaajouter.name", "{name} Chlore à ajouter").format(name=self._name.capitalize())
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_chloreaajouter.name", "Chlore à ajouter")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -747,7 +747,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
     def _get_translation(self, key: str) -> str:
         translation_key = key.format(name=self._name)
         translated = self._translations.get(translation_key, translation_key)
-        return translated.format(name=self._name)
+        return translated
 
     @property
     def unit_of_measurement(self):
@@ -870,7 +870,7 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("sensor.piscinexa_chloredifference.name", "{name} Différence chlore").format(name=self._name.capitalize())
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_chloredifference.name", "Différence chlore")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -916,9 +916,9 @@ class PiscinexaLogSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("sensor.piscinexa_log.name", "{name} Journal").format(name=self._name.capitalize())
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_log.name", "Journal")
         self._default_value = self._translations.get(
-            "sensor.piscinexa_log.default_value", "Aucune action"
+            "entity.sensor.piscinexa_log.default_value", "Aucune action"
         )
         self.async_write_ha_state()
 
@@ -965,7 +965,7 @@ class PiscinexaPowerSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("sensor.piscinexa_consopuissance.name", "{name} Consommation de puissance").format(name=self._name.capitalize())
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_consopuissance.name", "Consommation de puissance")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -1026,7 +1026,7 @@ class PiscinexaPoolStateSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("sensor.piscinexa_pool_state.name", "{name} État de la piscine").format(name=self._name.capitalize())
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_pool_state.name", "État de la piscine")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
