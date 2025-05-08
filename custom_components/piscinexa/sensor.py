@@ -56,10 +56,10 @@ class PiscinexaVolumeSensor(SensorEntity):
         self._name = name
         self._attr_unique_id = f"{entry.entry_id}_volume_eau"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}_volume_eau")},
-            name="Volume Eau",
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
             manufacturer="Piscinexa",
-            model="Capteur Volume",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:pool"
@@ -72,7 +72,6 @@ class PiscinexaVolumeSensor(SensorEntity):
             "entity",
         )
         self._attr_name = self._translations.get("entity.sensor.piscinexa_volume_eau.name", "Volume d'eau")
-        self._attr_device_info.name = self._attr_name
 
     @property
     def native_value(self):
@@ -99,10 +98,10 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
         self._name = name
         self._attr_unique_id = f"{entry.entry_id}_temps_filtration"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}_temps_filtration")},
-            name="Temps Filtration",
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
             manufacturer="Piscinexa",
-            model="Capteur Filtration",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:clock"
@@ -123,7 +122,6 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
             "entity",
         )
         self._attr_name = self._translations.get("entity.sensor.piscinexa_tempsfiltration.name", "Temps de filtration")
-        self._attr_device_info.name = self._attr_name
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -157,10 +155,10 @@ class PiscinexaTemperatureSensor(SensorEntity):
         self._name = name
         self._attr_unique_id = f"{entry.entry_id}_temperature"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}_temperature")},
-            name="Température Eau",
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
             manufacturer="Piscinexa",
-            model="Capteur Température",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:thermometer"
@@ -180,8 +178,7 @@ class PiscinexaTemperatureSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_temperature.name", "Température")
-        self._attr_device_info.name = self._attr_name
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_temperature.name", "Température Eau")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -225,10 +222,10 @@ class PiscinexaPhSensor(SensorEntity):
         self._hass = hass
         self._attr_unique_id = f"{entry.entry_id}_ph"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}_ph")},
-            name="pH",
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
             manufacturer="Piscinexa",
-            model="Capteur pH",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:water"
@@ -254,7 +251,6 @@ class PiscinexaPhSensor(SensorEntity):
             "entity",
         )
         self._attr_name = self._translations.get("entity.sensor.piscinexa_ph.name", "pH")
-        self._attr_device_info.name = self._attr_name
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -306,10 +302,10 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
         self._name = name
         self._attr_unique_id = f"{entry.entry_id}_ph_plus_ajouter"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}_ph_plus_ajouter")},
-            name="pH+ à Ajouter",
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
             manufacturer="Piscinexa",
-            model="Capteur pH+",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:bottle-tonic-plus"
@@ -336,8 +332,7 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_plus_ajouter.name", "pH+ à ajouter")
-        self._attr_device_info.name = self._attr_name
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_plus_ajouter.name", "pH+ à Ajouter")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -413,10 +408,10 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
         self._name = name
         self._attr_unique_id = f"{entry.entry_id}_ph_minus_ajouter"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}_ph_minus_ajouter")},
-            name="pH- à Ajouter",
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
             manufacturer="Piscinexa",
-            model="Capteur pH-",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:bottle-tonic-minus"
@@ -443,8 +438,7 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_minus_ajouter.name", "pH- à ajouter")
-        self._attr_device_info.name = self._attr_name
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_minus_ajouter.name", "pH- à Ajouter")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -520,10 +514,10 @@ class PiscinexaPhTargetSensor(SensorEntity):
         self._hass = hass
         self._attr_unique_id = f"{entry.entry_id}_ph_target"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}_ph_target")},
-            name="pH Cible",
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
             manufacturer="Piscinexa",
-            model="Capteur pH Cible",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:target"
@@ -540,8 +534,7 @@ class PiscinexaPhTargetSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_target.name", "pH cible")
-        self._attr_device_info.name = self._attr_name
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_target.name", "pH Cible")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -567,10 +560,10 @@ class PiscinexaChloreSensor(SensorEntity):
         self._hass = hass
         self._attr_unique_id = f"{entry.entry_id}_chlore"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}_chlore")},
-            name="Chlore",
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
             manufacturer="Piscinexa",
-            model="Capteur Chlore",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:water-check"
@@ -597,7 +590,6 @@ class PiscinexaChloreSensor(SensorEntity):
             "entity",
         )
         self._attr_name = self._translations.get("entity.sensor.piscinexa_chlore.name", "Chlore")
-        self._attr_device_info.name = self._attr_name
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -645,10 +637,10 @@ class PiscinexaChloreTargetSensor(SensorEntity):
         self._hass = hass
         self._attr_unique_id = f"{entry.entry_id}_chlore_target"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}_chlore_target")},
-            name="Chlore Cible",
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
             manufacturer="Piscinexa",
-            model="Capteur Chlore Cible",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:target"
@@ -666,8 +658,7 @@ class PiscinexaChloreTargetSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_chlore_target.name", "Chlore cible")
-        self._attr_device_info.name = self._attr_name
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_chlore_target.name", "Chlore Cible")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -693,10 +684,10 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         self._name = name
         self._attr_unique_id = f"{entry.entry_id}_chlore_a_ajouter"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}_chlore_a_ajouter")},
-            name="Chlore à Ajouter",
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
             manufacturer="Piscinexa",
-            model="Capteur Chlore Ajout",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:bottle-tonic-plus"
@@ -730,8 +721,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_chloreaajouter.name", "Chlore à ajouter")
-        self._attr_device_info.name = self._attr_name
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_chloreaajouter.name", "Chlore à Ajouter")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -859,10 +849,10 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
         self._name = name
         self._attr_unique_id = f"{entry.entry_id}_chlore_difference"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}_chlore_difference")},
-            name="Différence Chlore",
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
             manufacturer="Piscinexa",
-            model="Capteur Différence Chlore",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:delta"
@@ -880,8 +870,7 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_chloredifference.name", "Différence chlore")
-        self._attr_device_info.name = self._attr_name
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_chloredifference.name", "Différence Chlore")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -911,10 +900,10 @@ class PiscinexaLogSensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_log"
         self._state = deque(maxlen=10)
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{self._name}_log")},
-            name="Journal Piscine",
+            identifiers={(DOMAIN, f"piscinexa_{self._name}")},
+            name=self._name.capitalize(),
             manufacturer="Piscinexa",
-            model="Capteur Journal",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:book"
@@ -927,8 +916,7 @@ class PiscinexaLogSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_log.name", "Journal")
-        self._attr_device_info.name = self._attr_name
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_log.name", "Journal Piscine")
         self._default_value = self._translations.get(
             "entity.sensor.piscinexa_log.default_value", "Aucune action"
         )
@@ -954,10 +942,10 @@ class PiscinexaPowerSensor(SensorEntity):
         self._name = name
         self._attr_unique_id = f"{entry.entry_id}_conso_puissance"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}_conso_puissance")},
-            name="Consommation Puissance",
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
             manufacturer="Piscinexa",
-            model="Capteur Puissance",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:flash"
@@ -977,8 +965,7 @@ class PiscinexaPowerSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_consopuissance.name", "Consommation de puissance")
-        self._attr_device_info.name = self._attr_name
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_consopuissance.name", "Consommation Puissance")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -1012,10 +999,10 @@ class PiscinexaPoolStateSensor(SensorEntity):
         self._name = name
         self._attr_unique_id = f"{entry.entry_id}_pool_state"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}_pool_state")},
-            name="État Piscine",
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
             manufacturer="Piscinexa",
-            model="Capteur État",
+            model="Piscine",
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:pool"
@@ -1039,8 +1026,7 @@ class PiscinexaPoolStateSensor(SensorEntity):
             self._hass.config.language,
             "entity",
         )
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_pool_state.name", "État de la piscine")
-        self._attr_device_info.name = self._attr_name
+        self._attr_name = self._translations.get("entity.sensor.piscinexa_pool_state.name", "État Piscine")
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
