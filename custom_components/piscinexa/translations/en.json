@@ -238,46 +238,46 @@
   },
   "entity": {
     "sensor": {
-      "piscinexa_{name}_volume_eau": {
-        "name": "{name} Water Volume",
+      "piscinexa_volume_eau": {
+        "name": "Water Volume",
         "unit_of_measurement": "m³"
       },
-      "piscinexa_{name}_tempsfiltration": {
-        "name": "{name} Filtration Time",
+      "piscinexa_tempsfiltration": {
+        "name": "Filtration Time",
         "unit_of_measurement": "h"
       },
-      "piscinexa_{name}_temperature": {
-        "name": "{name} Temperature",
+      "piscinexa_temperature": {
+        "name": "Temperature",
         "unit_of_measurement": "°C"
       },
-      "piscinexa_{name}_ph": {
-        "name": "{name} pH"
+      "piscinexa_ph": {
+        "name": "pH"
       },
-      "piscinexa_{name}_ph_plus_ajouter": {
-        "name": "{name} pH+ to Add",
+      "piscinexa_ph_plus_ajouter": {
+        "name": "pH+ to Add",
         "unit_of_measurement": "L"
       },
-      "piscinexa_{name}_ph_minus_ajouter": {
-        "name": "{name} pH- to Add",
+      "piscinexa_ph_minus_ajouter": {
+        "name": "pH- to Add",
         "unit_of_measurement": "L"
       },
-      "piscinexa_{name}_ph_target": {
-        "name": "{name} Target pH"
+      "piscinexa_ph_target": {
+        "name": "Target pH"
       },
-      "piscinexa_{name}_chlore": {
-        "name": "{name} Chlorine",
+      "piscinexa_chlore": {
+        "name": "Chlorine",
         "unit_of_measurement": "mg/L"
       },
-      "piscinexa_{name}_chlore_target": {
-        "name": "{name} Target Chlorine",
+      "piscinexa_chlore_target": {
+        "name": "Target Chlorine",
         "unit_of_measurement": "mg/L"
       },
-      "piscinexa_{name}_chloredifference": {
-        "name": "{name} Chlorine Difference",
+      "piscinexa_chloredifference": {
+        "name": "Chlorine Difference",
         "unit_of_measurement": "mg/L"
       },
-      "piscinexa_{name}_chloreaajouter": {
-        "name": "{name} Chlorine to Add",
+      "piscinexa_chloreaajouter": {
+        "name": "Chlorine to Add",
         "unit_of_measurement": "g",
         "messages": {
           "remove_chlorine": "Chlorine level is too high, consider reducing it.",
@@ -286,16 +286,16 @@
           "calculation_error": "Error calculating chlorine dose."
         }
       },
-      "piscinexa_{name}_consopuissance": {
-        "name": "{name} Power Consumption",
+      "piscinexa_consopuissance": {
+        "name": "Power Consumption",
         "unit_of_measurement": "W"
       },
-      "piscinexa_{name}_log": {
-        "name": "{name} Log",
+      "piscinexa_log": {
+        "name": "Log",
         "default_value": "No actions"
       },
-      "piscinexa_{name}_pool_state": {
-        "name": "{name} Pool State",
+      "piscinexa_pool_state": {
+        "name": "Pool State",
         "states": {
           "temperature_too_cold": "Temperature too cold",
           "temperature_too_hot": "Temperature too hot",
