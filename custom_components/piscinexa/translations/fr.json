@@ -194,9 +194,9 @@
       "piscinexa_piscine_temperature": {"name": "Piscine Température", "unit_of_measurement": "°C"},
       "piscinexa_piscine_ph": {"name": "Piscine pH"},
       "piscinexa_piscine_phaajouter": {"name": "Piscine pH à ajouter", "unit_of_measurement": "L"},
-      "piscinexa_piscine_chlore": {"name": "Piscine Chlore Actuel", "unit_of_measurement": "mg/L"},  // Modifié ici
-      "piscinexa_piscine_chlore_target": {"name": "Piscine Chlore Cible", "unit_of_measurement": "mg/L"},  // Ajouté ici
-      "piscinexa_piscine_chloredifference": {"name": "Piscine Chlore Différence", "unit_of_measurement": "mg/L"},  // Modifié ici
+      "piscinexa_piscine_chlore": {"name": "Piscine Chlore Actuel", "unit_of_measurement": "mg/L"},  
+      "piscinexa_piscine_chlore_target": {"name": "Piscine Chlore Cible", "unit_of_measurement": "mg/L"}, 
+      "piscinexa_piscine_chloredifference": {"name": "Piscine Chlore Différence", "unit_of_measurement": "mg/L"},  
       "piscinexa_piscine_chloreaajouter": {"name": "Piscine Chlore à ajouter", "unit_of_measurement": "g"},
       "piscinexa_piscine_consopuissance": {"name": "Piscine Consommation puissance", "unit_of_measurement": "W"},
       "piscinexa_piscine_log": {"name": "Piscine Journal"},
