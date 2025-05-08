@@ -5,6 +5,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
+from homeassistant.const import CONF_ID
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,7 +24,7 @@ class PiscinexaPhCurrentInput(InputNumber):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         unique_id = f"{entry.entry_id}_ph_current"
         super().__init__(config={
-            "id": unique_id,
+            CONF_ID: unique_id,  # Ajout de la clé 'id'
             "name": f"{name}_ph_current",
             "min": 0,
             "max": 14,
@@ -34,10 +35,9 @@ class PiscinexaPhCurrentInput(InputNumber):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_friendly_name = hass.helpers.template.render(
-            "entity.input_number.{name}_ph_current.name",
-            {"name": name.capitalize()}
-        )
+        self._attr_name = f"{name}_ph_current"
+        self._attr_translation_key = "ph_current"
+        self._attr_translation_placeholders = {"name": name.capitalize()}
         self._attr_unique_id = unique_id
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -58,7 +58,7 @@ class PiscinexaChloreCurrentInput(InputNumber):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         unique_id = f"{entry.entry_id}_chlore_current"
         super().__init__(config={
-            "id": unique_id,
+            CONF_ID: unique_id,  # Ajout de la clé 'id'
             "name": f"{name}_chlore_current",
             "min": 0,
             "max": 10,
@@ -69,10 +69,9 @@ class PiscinexaChloreCurrentInput(InputNumber):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_friendly_name = hass.helpers.template.render(
-            "entity.input_number.{name}_chlore_current.name",
-            {"name": name.capitalize()}
-        )
+        self._attr_name = f"{name}_chlore_current"
+        self._attr_translation_key = "chlore_current"
+        self._attr_translation_placeholders = {"name": name.capitalize()}
         self._attr_unique_id = unique_id
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
