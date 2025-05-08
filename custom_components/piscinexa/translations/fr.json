@@ -7,7 +7,9 @@
         "description": "Bienvenue dans la configuration de Piscinexa ! Commençons par définir les informations de base de votre piscine.\n\n- Entrez un nom unique pour votre piscine.\n- Sélectionnez le type de piscine (carrée ou ronde).",
         "data": {
           "name": "Nom de la piscine",
-          "pool_type": "Type de piscine"
+          "pool_type": "Type de piscine",
+          "pool_type_square": "Carrée",
+          "pool_type_round": "Ronde"
         }
       },
       "dimensions": {
@@ -24,7 +26,9 @@
         "title": "Step 3 - Réglage capteur pH",
         "description": "Choisissez comment vous souhaitez configurer le pH de votre piscine.\n\n- **Saisir manuellement** : Entrez les valeurs actuelles mesurées et idéales du pH.\n- **Choisir un capteur** : Utilisez un capteur existant pour mesurer le pH actuel.",
         "data": {
-          "ph_config_choice": "Méthode de configuration du pH"
+          "ph_config_choice": "Méthode de configuration du pH",
+          "manual": "Saisir manuellement",
+          "sensor": "Choisir un capteur"
         }
       },
       "ph_manual": {
@@ -41,16 +45,15 @@
         "description": "Sélectionnez un capteur pour mesurer le pH actuel de votre piscine et définissez la valeur idéale que vous souhaitez atteindre.\n\n- **Capteur de pH** : Choisissez un capteur existant dans votre système (facultatif, sélectionnez 'Aucun capteur' pour ignorer).\n- **pH cible (valeur idéale)** : La valeur idéale que vous souhaitez atteindre (obligatoire, généralement entre 7.2 et 7.6 pour une piscine).",
         "data": {
           "ph_sensor": "Capteur de pH",
-          "ph_target": "pH cible (valeur idéale)"
+          "ph_target": "pH cible (valeur idéale)",
+          "no_sensor": "Aucun capteur"
         }
       },
       "confirm_ph_sensor": {
         "title": "Step 3 - Confirmation pH",
         "description": "Aucun capteur pH n'a été sélectionné et aucune valeur manuelle n'est disponible. Que voulez-vous faire ?",
         "data": {
-          "confirm_choice": "Choix"
-        },
-        "options": {
+          "confirm_choice": "Choix",
           "manual": "Configurer manuellement",
           "retry": "Réessayer"
         }
@@ -59,7 +62,9 @@
         "title": "Step 4 - Réglage capteur chlore",
         "description": "Choisissez comment vous souhaitez configurer le chlore de votre piscine.\n\n- **Saisir manuellement** : Entrez les valeurs actuelles mesurées et idéales du chlore.\n- **Choisir un capteur** : Utilisez un capteur existant pour mesurer le chlore actuel.",
         "data": {
-          "chlore_config_choice": "Méthode de configuration du chlore"
+          "chlore_config_choice": "Méthode de configuration du chlore",
+          "manual": "Saisir manuellement",
+          "sensor": "Choisir un capteur"
         }
       },
       "chlore_manual": {
@@ -76,16 +81,15 @@
         "description": "Sélectionnez un capteur pour mesurer le chlore actuel de votre piscine et définissez la valeur idéale que vous souhaitez atteindre.\n\n- **Capteur de chlore** : Choisissez un capteur existant dans votre système (facultatif, sélectionnez 'Aucun capteur' pour ignorer).\n- **Chlore cible (valeur idéale, mg/L)** : La valeur idéale que vous souhaitez atteindre (obligatoire, généralement entre 1 et 3 mg/L pour une piscine).",
         "data": {
           "chlore_sensor": "Capteur de chlore",
-          "chlore_target": "Chlore cible (valeur idéale, mg/L)"
+          "chlore_target": "Chlore cible (valeur idéale, mg/L)",
+          "no_sensor": "Aucun capteur"
         }
       },
       "confirm_chlore_sensor": {
         "title": "Step 4 - Confirmation Chlore",
         "description": "Aucun capteur chlore n'a été sélectionné et aucune valeur manuelle n'est disponible. Que voulez-vous faire ?",
         "data": {
-          "confirm_choice": "Choix"
-        },
-        "options": {
+          "confirm_choice": "Choix",
           "manual": "Configurer manuellement",
           "retry": "Réessayer"
         }
@@ -94,7 +98,9 @@
         "title": "Step 5 - Réglage capteur température",
         "description": "Choisissez comment vous souhaitez configurer la température de votre piscine.\n\n- **Saisir manuellement** : Entrez la température actuelle mesurée de la piscine.\n- **Choisir un capteur** : Utilisez un capteur existant pour mesurer la température actuelle.",
         "data": {
-          "temperature_config_choice": "Méthode de configuration de la température"
+          "temperature_config_choice": "Méthode de configuration de la température",
+          "manual": "Saisir manuellement",
+          "sensor": "Choisir un capteur"
         }
       },
       "temperature_manual": {
@@ -109,16 +115,15 @@
         "title": "Step 5 - Sélection du capteur température",
         "description": "Sélectionnez un capteur pour mesurer la température actuelle de votre piscine.\n\n- **Capteur de température** : Choisissez un capteur existant dans votre système (facultatif, sélectionnez 'Aucun capteur' pour ignorer).",
         "data": {
-          "temperature_sensor": "Capteur de température"
+          "temperature_sensor": "Capteur de température",
+          "no_sensor": "Aucun capteur"
         }
       },
       "confirm_temperature_sensor": {
         "title": "Step 5 - Confirmation Température",
         "description": "Aucun capteur température n'a été sélectionné et aucune valeur manuelle n'est disponible. Que voulez-vous faire ?",
         "data": {
-          "confirm_choice": "Choix"
-        },
-        "options": {
+          "confirm_choice": "Choix",
           "manual": "Configurer manuellement",
           "retry": "Réessayer"
         }
@@ -127,7 +132,9 @@
         "title": "Step 6 - Réglage capteur puissance",
         "description": "Choisissez si vous voulez utiliser un capteur pour mesurer la consommation de puissance de votre piscine ou laisser ce champ vide.\n\n- **Saisir manuellement** : Laissez ce champ vide.\n- **Choisir un capteur** : Entrez l'ID d’un capteur existant pour mesurer la consommation de puissance.",
         "data": {
-          "power_config_choice": "Méthode de configuration de la puissance"
+          "power_config_choice": "Méthode de configuration de la puissance",
+          "manual": "Saisir manuellement",
+          "sensor": "Choisir un capteur"
         }
       },
       "power_manual": {
@@ -147,15 +154,29 @@
         "title": "Step 6 - Confirmation Puissance",
         "description": "Aucun capteur puissance n'a été sélectionné. Que voulez-vous faire ?",
         "data": {
-          "confirm_choice": "Choix"
-        },
-        "options": {
+          "confirm_choice": "Choix",
           "manual": "Configurer manuellement",
           "retry": "Réessayer"
         }
       },
+      "treatment_config": {
+        "title": "Step 7 - Configuration des types de traitements",
+        "description": "Sélectionnez les types de produits chimiques utilisés pour les traitements de votre piscine.",
+        "data": {
+          "ph_plus_treatment": "Type de traitement pH+",
+          "ph_minus_treatment": "Type de traitement pH-",
+          "chlore_treatment": "Type de traitement Chlore",
+          "ph_plus_treatment_liquid": "Liquide",
+          "ph_plus_treatment_granules": "Granulés",
+          "ph_minus_treatment_liquid": "Liquide",
+          "ph_minus_treatment_granules": "Granulés",
+          "chlore_treatment_liquid": "Liquide",
+          "chlore_treatment_shock": "Chlore choc (poudre)",
+          "chlore_treatment_tablet": "Pastille lente"
+        }
+      },
       "summary": {
-        "title": "Step 7 - Récapitulatif",
+        "title": "Step 8 - Récapitulatif",
         "description": "Voici un récapitulatif de votre configuration. Vérifiez les informations avant de valider.\n\n{summary}",
         "data": {}
       },
@@ -167,7 +188,10 @@
           "chlore_target": "Chlore cible (valeur idéale, mg/L)",
           "temperature_sensor": "Capteur de température",
           "chlore_sensor": "Capteur de chlore",
-          "ph_sensor": "Capteur de pH"
+          "ph_sensor": "Capteur de pH",
+          "no_sensor_temperature": "Aucun capteur (ajoutez un capteur de température)",
+          "no_sensor_chlore": "Aucun capteur (ajoutez un capteur de chlore)",
+          "no_sensor_ph": "Aucun capteur (ajoutez un capteur de pH)"
         }
       }
     },
@@ -193,9 +217,9 @@
       "piscinexa_piscine_tempsfiltration": {"name": "Piscine Temps de filtration", "unit_of_measurement": "h"},
       "piscinexa_piscine_temperature": {"name": "Piscine Température", "unit_of_measurement": "°C"},
       "piscinexa_piscine_ph": {"name": "Piscine pH"},
-      "piscinexa_piscine_ph_plus_ajouter": {"name": "Piscine pH+ à ajouter", "unit_of_measurement": "L"},  
-      "piscinexa_piscine_ph_minus_ajouter": {"name": "Piscine pH- à ajouter", "unit_of_measurement": "L"},  
-      "piscinexa_piscine_ph_target": {"name": "Piscine pH Cible"},  
+      "piscinexa_piscine_ph_plus_ajouter": {"name": "Piscine pH+ à ajouter", "unit_of_measurement": "L"},
+      "piscinexa_piscine_ph_minus_ajouter": {"name": "Piscine pH- à ajouter", "unit_of_measurement": "L"},
+      "piscinexa_piscine_ph_target": {"name": "Piscine pH Cible"},
       "piscinexa_piscine_chlore": {"name": "Piscine Chlore Actuel", "unit_of_measurement": "mg/L"},
       "piscinexa_piscine_chlore_target": {"name": "Piscine Chlore Cible", "unit_of_measurement": "mg/L"},
       "piscinexa_piscine_chloredifference": {"name": "Piscine Chlore Différence", "unit_of_measurement": "mg/L"},
