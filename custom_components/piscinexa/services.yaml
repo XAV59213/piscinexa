@@ -1,27 +1,27 @@
 test_calcul:
-  description: Teste le calcul pour une piscine spécifique
+  description: services.test_calcul.description
   fields:
     name:
-      description: Nom de la piscine
+      description: services.test_calcul.fields.name.description
       example: "papa"
 reset_valeurs:
-  description: Réinitialise les valeurs pour une piscine spécifique
+  description: services.reset_valeurs.description
   fields:
     name:
-      description: Nom de la piscine
+      description: services.reset_valeurs.fields.name.description
       example: "papa"
 apply_treatment:
-  description: Applique un traitement à la piscine et met à jour les capteurs
+  description: services.apply_treatment.description
   fields:
     name:
-      description: Nom de la piscine
+      description: services.apply_treatment.fields.name.description
       example: "papa"
     treatment_type:
-      description: Type de traitement (pH+, pH-, Chlore)
+      description: services.apply_treatment.fields.treatment_type.description
       example: "Chlore"
     treatment_form:
-      description: Forme du traitement (Liquide, Granulés, Chlore choc (poudre), Pastille lente)
+      description: services.apply_treatment.fields.treatment_form.description
       example: "Liquide"
     quantity:
-      description: Quantité appliquée (en litres, grammes ou unités selon la forme)
+      description: services.apply_treatment.fields.quantity.description
       example: 5.0
