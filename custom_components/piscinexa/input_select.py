@@ -31,10 +31,10 @@ class PiscinexaInputSelect(InputSelect):
         self._type = type_
         self._attr_unique_id = f"{entry.entry_id}_{type_}"
         self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{name}")},
-            name=name.capitalize(),
+            identifiers={(DOMAIN, f"piscinexa_{name}_{type_}")},
+            name=f"Sélection {type_.replace('_', ' ').capitalize()}",
             manufacturer="Piscinexa",
-            model="Piscine",
+            model="Sélection",
             sw_version="1.0.2",
         )
 
@@ -48,6 +48,7 @@ class PiscinexaInputSelect(InputSelect):
             f"entity.input_select.piscinexa_{self._type}.name",
             self._type.replace("_", " ").capitalize()
         )
+        self._attr_device_info.name = self._attr_name
         options_key = f"entity.input_select.piscinexa_{self._type}.options"
         translated_options = []
         for option in self._attr_options:
