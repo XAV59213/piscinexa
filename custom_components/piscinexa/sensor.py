@@ -706,13 +706,9 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
 
     def _get_translation(self, key: str) -> str:
         """Récupère une traduction avec des placeholders (version synchrone)."""
-        try:
-            translation_key = key.format(name=self._name)
-            translated = self._translations.get(translation_key, translation_key)
-            return translated.format(name=self._name)
-        except (KeyError, ValueError, AttributeError) as e:
-            _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
-            return key  # Retourne la clé brute si la traduction échoue
+        translation_key = key.format(name=self._name)
+        translated = self._translations.get(translation_key, translation_key)
+        return translated.format(name=self._name)
 
     @property
     def unit_of_measurement(self):
@@ -900,13 +896,9 @@ class PiscinexaLogSensor(SensorEntity):
 
     def _get_translation(self, key: str) -> str:
         """Récupère une traduction avec des placeholders (version synchrone)."""
-        try:
-            translation_key = key.format(name=self._name)
-            translated = self._translations.get(translation_key, translation_key)
-            return translated.format(name=self._name)
-        except (KeyError, ValueError, AttributeError) as e:
-            _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
-            return key  # Retourne la clé brute si la traduction échoue
+        translation_key = key.format(name=self._name)
+        translated = self._translations.get(translation_key, translation_key)
+        return translated.format(name=self._name)
 
     def log_action(self, action: str):
         self._state.append(f"{datetime.now()}: {action}")
@@ -1019,13 +1011,9 @@ class PiscinexaPoolStateSensor(SensorEntity):
 
     def _get_translation(self, key: str) -> str:
         """Récupère une traduction avec des placeholders (version synchrone)."""
-        try:
-            translation_key = key.format(name=self._name)
-            translated = self._translations.get(translation_key, translation_key)
-            return translated.format(name=self._name)
-        except (KeyError, ValueError, AttributeError) as e:
-            _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
-            return key  # Retourne la clé brute si la traduction échoue
+        translation_key = key.format(name=self._name)
+        translated = self._translations.get(translation_key, translation_key)
+        return translated.format(name=self._name)
 
     @property
     def native_value(self):
