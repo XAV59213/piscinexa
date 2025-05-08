@@ -73,8 +73,10 @@ class PiscinexaVolumeSensor(SensorEntity):
             "entity",
             integrations={DOMAIN},
         )
+        if not self._translations:
+            _LOGGER.error("Failed to load translations for Volume Eau")
         self._attr_name = self._translations.get("entity.sensor.piscinexa_volume_eau.name", "Volume Eau")
-        _LOGGER.debug(f"Setting friendly_name for Volume Eau: {self._attr_name}")
+        _LOGGER.debug(f"Setting friendly_name for Volume Eau: {self._attr_name} (entity_id: {self.entity_id})")
         self.async_write_ha_state()
 
     @property
@@ -127,8 +129,10 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
             "entity",
             integrations={DOMAIN},
         )
+        if not self._translations:
+            _LOGGER.error("Failed to load translations for Temps Filtration")
         self._attr_name = self._translations.get("entity.sensor.piscinexa_tempsfiltration.name", "Temps Filtration")
-        _LOGGER.debug(f"Setting friendly_name for Temps Filtration: {self._attr_name}")
+        _LOGGER.debug(f"Setting friendly_name for Temps Filtration: {self._attr_name} (entity_id: {self.entity_id})")
         self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
@@ -188,8 +192,10 @@ class PiscinexaTemperatureSensor(SensorEntity):
             "entity",
             integrations={DOMAIN},
         )
+        if not self._translations:
+            _LOGGER.error("Failed to load translations for Température Eau")
         self._attr_name = self._translations.get("entity.sensor.piscinexa_temperature.name", "Température Eau")
-        _LOGGER.debug(f"Setting friendly_name for Température Eau: {self._attr_name}")
+        _LOGGER.debug(f"Setting friendly_name for Température Eau: {self._attr_name} (entity_id: {self.entity_id})")
         self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
@@ -264,8 +270,10 @@ class PiscinexaPhSensor(SensorEntity):
             "entity",
             integrations={DOMAIN},
         )
+        if not self._translations:
+            _LOGGER.error("Failed to load translations for pH")
         self._attr_name = self._translations.get("entity.sensor.piscinexa_ph.name", "pH")
-        _LOGGER.debug(f"Setting friendly_name for pH: {self._attr_name}")
+        _LOGGER.debug(f"Setting friendly_name for pH: {self._attr_name} (entity_id: {self.entity_id})")
         self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
@@ -350,8 +358,10 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
             "entity",
             integrations={DOMAIN},
         )
+        if not self._translations:
+            _LOGGER.error("Failed to load translations for pH+ à Ajouter")
         self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_plus_ajouter.name", "pH+ à Ajouter")
-        _LOGGER.debug(f"Setting friendly_name for pH+ à Ajouter: {self._attr_name}")
+        _LOGGER.debug(f"Setting friendly_name for pH+ à Ajouter: {self._attr_name} (entity_id: {self.entity_id})")
         self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
@@ -460,8 +470,10 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
             "entity",
             integrations={DOMAIN},
         )
+        if not self._translations:
+            _LOGGER.error("Failed to load translations for pH- à Ajouter")
         self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_minus_ajouter.name", "pH- à Ajouter")
-        _LOGGER.debug(f"Setting friendly_name for pH- à Ajouter: {self._attr_name}")
+        _LOGGER.debug(f"Setting friendly_name for pH- à Ajouter: {self._attr_name} (entity_id: {self.entity_id})")
         self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
@@ -560,8 +572,10 @@ class PiscinexaPhTargetSensor(SensorEntity):
             "entity",
             integrations={DOMAIN},
         )
+        if not self._translations:
+            _LOGGER.error("Failed to load translations for pH Cible")
         self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_target.name", "pH Cible")
-        _LOGGER.debug(f"Setting friendly_name for pH Cible: {self._attr_name}")
+        _LOGGER.debug(f"Setting friendly_name for pH Cible: {self._attr_name} (entity_id: {self.entity_id})")
         self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
@@ -619,8 +633,10 @@ class PiscinexaChloreSensor(SensorEntity):
             "entity",
             integrations={DOMAIN},
         )
+        if not self._translations:
+            _LOGGER.error("Failed to load translations for Chlore")
         self._attr_name = self._translations.get("entity.sensor.piscinexa_chlore.name", "Chlore")
-        _LOGGER.debug(f"Setting friendly_name for Chlore: {self._attr_name}")
+        _LOGGER.debug(f"Setting friendly_name for Chlore: {self._attr_name} (entity_id: {self.entity_id})")
         self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
@@ -692,8 +708,10 @@ class PiscinexaChloreTargetSensor(SensorEntity):
             "entity",
             integrations={DOMAIN},
         )
+        if not self._translations:
+            _LOGGER.error("Failed to load translations for Chlore Cible")
         self._attr_name = self._translations.get("entity.sensor.piscinexa_chlore_target.name", "Chlore Cible")
-        _LOGGER.debug(f"Setting friendly_name for Chlore Cible: {self._attr_name}")
+        _LOGGER.debug(f"Setting friendly_name for Chlore Cible: {self._attr_name} (entity_id: {self.entity_id})")
         self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
@@ -758,8 +776,10 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             "entity",
             integrations={DOMAIN},
         )
+        if not self._translations:
+            _LOGGER.error("Failed to load translations for Chlore à Ajouter")
         self._attr_name = self._translations.get("entity.sensor.piscinexa_chloreaajouter.name", "Chlore à Ajouter")
-        _LOGGER.debug(f"Setting friendly_name for Chlore à Ajouter: {self._attr_name}")
+        _LOGGER.debug(f"Setting friendly_name for Chlore à Ajouter: {self._attr_name} (entity_id: {self.entity_id})")
         self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
@@ -911,8 +931,10 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
             "entity",
             integrations={DOMAIN},
         )
+        if not self._translations:
+            _LOGGER.error("Failed to load translations for Différence Chlore")
         self._attr_name = self._translations.get("entity.sensor.piscinexa_chloredifference.name", "Différence Chlore")
-        _LOGGER.debug(f"Setting friendly_name for Différence Chlore: {self._attr_name}")
+        _LOGGER.debug(f"Setting friendly_name for Différence Chlore: {self._attr_name} (entity_id: {self.entity_id})")
         self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
@@ -960,11 +982,13 @@ class PiscinexaLogSensor(SensorEntity):
             "entity",
             integrations={DOMAIN},
         )
+        if not self._translations:
+            _LOGGER.error("Failed to load translations for Journal Piscine")
         self._attr_name = self._translations.get("entity.sensor.piscinexa_log.name", "Journal Piscine")
         self._default_value = self._translations.get(
             "entity.sensor.piscinexa_log.default_value", "Aucune action"
         )
-        _LOGGER.debug(f"Setting friendly_name for Journal Piscine: {self._attr_name}")
+        _LOGGER.debug(f"Setting friendly_name for Journal Piscine: {self._attr_name} (entity_id: {self.entity_id})")
         self.async_write_ha_state()
 
     def _get_translation(self, key: str) -> str:
@@ -1012,8 +1036,10 @@ class PiscinexaPowerSensor(SensorEntity):
             "entity",
             integrations={DOMAIN},
         )
+        if not self._translations:
+            _LOGGER.error("Failed to load translations for Consommation Puissance")
         self._attr_name = self._translations.get("entity.sensor.piscinexa_consopuissance.name", "Consommation Puissance")
-        _LOGGER.debug(f"Setting friendly_name for Consommation Puissance: {self._attr_name}")
+        _LOGGER.debug(f"Setting friendly_name for Consommation Puissance: {self._attr_name} (entity_id: {self.entity_id})")
         self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
@@ -1076,8 +1102,10 @@ class PiscinexaPoolStateSensor(SensorEntity):
             "entity",
             integrations={DOMAIN},
         )
+        if not self._translations:
+            _LOGGER.error("Failed to load translations for État Piscine")
         self._attr_name = self._translations.get("entity.sensor.piscinexa_pool_state.name", "État Piscine")
-        _LOGGER.debug(f"Setting friendly_name for État Piscine: {self._attr_name}")
+        _LOGGER.debug(f"Setting friendly_name for État Piscine: {self._attr_name} (entity_id: {self.entity_id})")
         self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
