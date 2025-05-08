@@ -319,37 +319,37 @@
     },
     "button": {
       "piscinexa_{name}_test": {
-        "name": "{name} Tester"
+        "name": "Tester"
       },
       "piscinexa_{name}_reset": {
-        "name": "{name} Réinitialiser"
+        "name": "Réinitialiser"
       }
     },
     "input_number": {
       "{name}_ph_current": {
-        "name": "{name} pH actuel"
+        "name": "pH actuel"
       },
       "{name}_chlore_current": {
-        "name": "{name} Chlore actuel"
+        "name": "Chlore actuel"
       }
     },
     "input_select": {
       "{name}_ph_plus_treatment": {
-        "name": "{name} Traitement pH+",
+        "name": "Traitement pH+",
         "options": {
           "liquid": "Liquide",
           "granules": "Granulés"
         }
       },
       "{name}_ph_minus_treatment": {
-        "name": "{name} Traitement pH-",
+        "name": "Traitement pH-",
         "options": {
           "liquid": "Liquide",
           "granules": "Granulés"
         }
       },
       "{name}_chlore_treatment": {
-        "name": "{name} Traitement chlore",
+        "name": "Traitement chlore",
         "options": {
           "shock": "Chlore choc (poudre)",
           "tablet": "Pastille à dissolution lente",
