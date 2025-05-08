@@ -193,9 +193,9 @@
       "piscinexa_piscine_tempsfiltration": {"name": "Piscine Temps de filtration", "unit_of_measurement": "h"},
       "piscinexa_piscine_temperature": {"name": "Piscine Température", "unit_of_measurement": "°C"},
       "piscinexa_piscine_ph": {"name": "Piscine pH"},
-      "piscinexa_piscine_ph_plus_ajouter": {"name": "Piscine pH+ à ajouter", "unit_of_measurement": "L"},  // Ajouté ici
-      "piscinexa_piscine_ph_minus_ajouter": {"name": "Piscine pH- à ajouter", "unit_of_measurement": "L"},  // Ajouté ici
-      "piscinexa_piscine_ph_target": {"name": "Piscine pH Cible"},  // Ajouté ici
+      "piscinexa_piscine_ph_plus_ajouter": {"name": "Piscine pH+ à ajouter", "unit_of_measurement": "L"},  
+      "piscinexa_piscine_ph_minus_ajouter": {"name": "Piscine pH- à ajouter", "unit_of_measurement": "L"},  
+      "piscinexa_piscine_ph_target": {"name": "Piscine pH Cible"},  
       "piscinexa_piscine_chlore": {"name": "Piscine Chlore Actuel", "unit_of_measurement": "mg/L"},
       "piscinexa_piscine_chlore_target": {"name": "Piscine Chlore Cible", "unit_of_measurement": "mg/L"},
       "piscinexa_piscine_chloredifference": {"name": "Piscine Chlore Différence", "unit_of_measurement": "mg/L"},
