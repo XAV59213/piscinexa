@@ -17,8 +17,11 @@ class PiscinexaTestButton(ButtonEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
-        self._attr_name = f"{name}test"
-        self._attr_friendly_name = f"{name.capitalize()} Tester"
+        self._attr_name = f"{name}_test"
+        self._attr_friendly_name = hass.helpers.template.render(
+            "entity.button.piscinexa_{name}_test.name",
+            {"name": name.capitalize()}
+        )
         self._attr_icon = "mdi:calculator"
         self._attr_unique_id = f"{entry.entry_id}_test"
         self._attr_device_info = DeviceInfo(
@@ -40,8 +43,11 @@ class PiscinexaResetButton(ButtonEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
-        self._attr_name = f"{name}reset"
-        self._attr_friendly_name = f"{name.capitalize()} Réinitialiser"
+        self._attr_name = f"{name}_reset"
+        self._attr_friendly_name = hass.helpers.template.render(
+            "entity.button.piscinexa_{name}_reset.name",
+            {"name": name.capitalize()}
+        )
         self._attr_icon = "mdi:refresh"
         self._attr_unique_id = f"{entry.entry_id}_reset"
         self._attr_device_info = DeviceInfo(
