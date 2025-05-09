@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import deque
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
@@ -32,7 +32,8 @@ async def async_setup_entry(
     name = entry.data["name"]
     sensors = [
         PiscinexaVolumeSensor(hass, entry, name),
-        PiscinexaTempsFiltrationSensor(hass, entry, name),
+        PiscinexaTempsFiltrationRecommandeSensor(hass, entry, name),
+        PiscinexaTempsFiltrationEffectueSensor(hass, entry, name),
         PiscinexaTemperatureSensor(hass, entry, name),
         PiscinexaPhSensor(hass, entry, name),
         PiscinexaPhPlusAjouterSensor(hass, entry, name),
@@ -55,8 +56,6 @@ class PiscinexaVolumeSensor(SensorEntity):
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_volume_eau"
         self._attr_friendly_name = f"{name.capitalize()} Volume d'eau"
-        self._attr_unit_of_measurement = UNIT_CUBIC_METERS
-        self._attr_icon = "mdi:pool"
         self._attr_unique_id = f"{entry.entry_id}_volume_eau"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -65,6 +64,8 @@ class PiscinexaVolumeSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:pool"
+        self._attr_native_unit_of_measurement = UNIT_CUBIC_METERS
 
     @property
     def name(self):
@@ -88,16 +89,14 @@ class PiscinexaVolumeSensor(SensorEntity):
             _LOGGER.error("Erreur calcul volume pour %s: %s", self._name, e)
             return None
 
-class PiscinexaTempsFiltrationSensor(SensorEntity):
+class PiscinexaTempsFiltrationRecommandeSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
         self._name = name
-        self._attr_name = f"{DOMAIN}_{name}_tempsfiltration"
-        self._attr_friendly_name = f"{name.capitalize()} Temps de filtration"
-        self._attr_unit_of_measurement = UNIT_HOURS
-        self._attr_icon = "mdi:clock"
-        self._attr_unique_id = f"{entry.entry_id}_temps_filtration"
+        self._attr_name = f"{DOMAIN}_{name}_tempsfiltration_recommande"
+        self._attr_friendly_name = f"{name.capitalize()} Temps de filtration recommandé"
+        self._attr_unique_id = f"{entry.entry_id}_temps_filtration_recommande"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
             name=name.capitalize(),
@@ -105,6 +104,8 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:clock"
+        self._attr_native_unit_of_measurement = UNIT_HOURS
         self._subscriptions = []
         sensor_id = self._entry.data.get("temperature_sensor")
         if sensor_id:
@@ -143,6 +144,86 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
             _LOGGER.error("Température par défaut invalide : %s", e)
             return None
 
+class PiscinexaTempsFiltrationEffectueSensor(SensorEntity):
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_tempsfiltration_effectue"
+        self._attr_friendly_name = f"{name.capitalize()} Temps de filtration effectué"
+        self._attr_unique_id = f"{entry.entry_id}_temps_filtration_effectue"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version="1.0.2",
+        )
+        self._attr_icon = "mdi:clock-check"
+        self._attr_native_unit_of_measurement = UNIT_HOURS
+        self._subscriptions = []
+        self._filtration_time = 0.0
+        self._last_active_time = None
+        sensor_id = self._entry.data.get("power_sensor_entity_id")
+        if sensor_id:
+            self._subscriptions.append(
+                async_track_state_change_event(
+                    hass, [sensor_id], self._async_update_from_power_sensor
+                )
+            )
+
+    async def async_will_remove_from_hass(self):
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_power_sensor(self, event):
+        sensor_id = self._entry.data.get("power_sensor_entity_id")
+        state = self._hass.states.get(sensor_id)
+        current_time = datetime.now()
+
+        if state and state.state not in ("unknown", "unavailable"):
+            try:
+                power = float(state.state)
+                if power > 10:
+                    if self._last_active_time is not None:
+                        time_diff = (current_time - self._last_active_time).total_seconds() / 3600
+                        self._filtration_time += time_diff
+                    self._last_active_time = current_time
+                else:
+                    self._last_active_time = None
+            except ValueError as e:
+                _LOGGER.warning("Valeur non numérique pour capteur de puissance %s: %s", sensor_id, e)
+        else:
+            self._last_active_time = None
+
+        self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
+    def native_value(self):
+        try:
+            return round(self._filtration_time, 1)
+        except Exception as e:
+            _LOGGER.error("Erreur lecture temps de filtration effectué: %s", e)
+            return None
+
+    @property
+    def extra_state_attributes(self):
+        attributes = {}
+        try:
+            attributes["last_active_time"] = (
+                self._last_active_time.isoformat() if self._last_active_time else None
+            )
+            attributes["power_sensor"] = self._entry.data.get("power_sensor_entity_id", "N/A")
+        except Exception as e:
+            _LOGGER.error("Erreur récupération attributs temps filtration effectué: %s", e)
+        return attributes
+
 class PiscinexaTemperatureSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
@@ -150,8 +231,6 @@ class PiscinexaTemperatureSensor(SensorEntity):
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_temperature"
         self._attr_friendly_name = f"{name.capitalize()} Température"
-        self._attr_unit_of_measurement = "°C"
-        self._attr_icon = "mdi:thermometer"
         self._attr_unique_id = f"{entry.entry_id}_temperature"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -160,6 +239,8 @@ class PiscinexaTemperatureSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:thermometer"
+        self._attr_native_unit_of_measurement = "°C"
         self._subscriptions = []
         sensor_id = self._entry.data.get("temperature_sensor")
         if sensor_id:
@@ -215,7 +296,6 @@ class PiscinexaPhSensor(SensorEntity):
         self._hass = hass
         self._attr_name = f"{DOMAIN}_{name}_ph"
         self._attr_friendly_name = f"{name.capitalize()} pH Actuel"
-        self._attr_icon = "mdi:water"
         self._attr_unique_id = f"{entry.entry_id}_ph"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -224,6 +304,8 @@ class PiscinexaPhSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:water"
+        self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
         self._subscriptions = []
         sensor_id = self._entry.data.get("ph_sensor")
         if sensor_id:
@@ -276,7 +358,7 @@ class PiscinexaPhSensor(SensorEntity):
                             "min": 0,
                             "max": 14,
                             "step": 0.1,
-                            "unit_of_measurement": "pH",
+                            "unit_of_measurement": UNIT_MG_PER_LITER,
                         },
                     )
                     return value
@@ -304,7 +386,6 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_ph_plus_ajouter"
         self._attr_friendly_name = f"{name.capitalize()} pH+ à ajouter"
-        self._attr_icon = "mdi:bottle-tonic-plus"
         self._attr_unique_id = f"{entry.entry_id}_ph_plus_ajouter"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -313,6 +394,7 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:bottle-tonic-plus"
         self._subscriptions = []
         self._subscriptions.append(
             async_track_state_change_event(
@@ -352,7 +434,7 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
         return self._attr_friendly_name
 
     @property
-    def unit_of_measurement(self):
+    def native_unit_of_measurement(self):
         try:
             select_state = self._hass.states.get(f"input_select.{self._name}_ph_plus_treatment")
             if select_state and select_state.state == "Liquide":
@@ -368,8 +450,7 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
             ph_current = float(self._entry.data["ph_current"])
             ph_target = float(self._entry.data["ph_target"])
             if ph_current >= ph_target:
-                return 0  # Pas besoin de pH+ si le pH est déjà trop élevé ou correct
-
+                return 0
             volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume and volume.state not in ("unknown", "unavailable"):
                 volume_val = float(volume.state)
@@ -377,9 +458,9 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
                 select_state = self._hass.states.get(f"input_select.{self._name}_ph_plus_treatment")
                 treatment = select_state.state if select_state else "Liquide"
                 if treatment == "Liquide":
-                    dose = ph_difference * volume_val * 0.01  # 10 mL par m³ pour 0.1 pH
-                else:  # Granulés
-                    dose = ph_difference * volume_val * 1.0  # 100 g par m³ pour 0.1 pH
+                    dose = ph_difference * volume_val * 0.01
+                else:
+                    dose = ph_difference * volume_val * 1.0
                 return round(dose, 2)
             return None
         except Exception as e:
@@ -408,7 +489,6 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_ph_minus_ajouter"
         self._attr_friendly_name = f"{name.capitalize()} pH- à ajouter"
-        self._attr_icon = "mdi:water-minus"
         self._attr_unique_id = f"{entry.entry_id}_ph_minus_ajouter"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -417,6 +497,7 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:water-minus"
         self._subscriptions = []
         self._subscriptions.append(
             async_track_state_change_event(
@@ -456,7 +537,7 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
         return self._attr_friendly_name
 
     @property
-    def unit_of_measurement(self):
+    def native_unit_of_measurement(self):
         try:
             select_state = self._hass.states.get(f"input_select.{self._name}_ph_minus_treatment")
             if select_state and select_state.state == "Liquide":
@@ -472,8 +553,7 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
             ph_current = float(self._entry.data["ph_current"])
             ph_target = float(self._entry.data["ph_target"])
             if ph_current <= ph_target:
-                return 0  # Pas besoin de pH- si le pH est déjà trop bas ou correct
-
+                return 0
             volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume and volume.state not in ("unknown", "unavailable"):
                 volume_val = float(volume.state)
@@ -481,9 +561,9 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
                 select_state = self._hass.states.get(f"input_select.{self._name}_ph_minus_treatment")
                 treatment = select_state.state if select_state else "Liquide"
                 if treatment == "Liquide":
-                    dose = ph_difference * volume_val * 0.012  # 12 mL par m³ pour 0.1 pH
-                else:  # Granulés
-                    dose = ph_difference * volume_val * 1.2  # 120 g par m³ pour 0.1 pH
+                    dose = ph_difference * volume_val * 0.012
+                else:
+                    dose = ph_difference * volume_val * 1.2
                 return round(dose, 2)
             return None
         except Exception as e:
@@ -512,7 +592,6 @@ class PiscinexaPhTargetSensor(SensorEntity):
         self._hass = hass
         self._attr_name = f"{DOMAIN}_{name}_ph_target"
         self._attr_friendly_name = f"{name.capitalize()} pH Cible"
-        self._attr_icon = "mdi:target"
         self._attr_unique_id = f"{entry.entry_id}_ph_target"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -521,6 +600,8 @@ class PiscinexaPhTargetSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:target"
+        self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
         self._subscriptions = []
         input_id = f"input_number.{name}_ph_target"
         self._subscriptions.append(
@@ -556,9 +637,7 @@ class PiscinexaChloreSensor(SensorEntity):
         self._name = name
         self._hass = hass
         self._attr_name = f"{DOMAIN}_{name}_chlore"
-        self._attr_friendly_name = f"{name.capitalize()} Chlore Actuel"  # Modification ici
-        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
-        self._attr_icon = "mdi:water-check"
+        self._attr_friendly_name = f"{name.capitalize()} Chlore Actuel"
         self._attr_unique_id = f"{entry.entry_id}_chlore"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -567,6 +646,8 @@ class PiscinexaChloreSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:water-check"
+        self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
         self._subscriptions = []
         sensor_id = self._entry.data.get("chlore_sensor")
         if sensor_id:
@@ -612,11 +693,11 @@ class PiscinexaChloreSensor(SensorEntity):
                         f"input_number.{self._name}_chlore_current",
                         value,
                         {
-                            "friendly_name": f"{self._name.capitalize()} Chlore Actuel",  # Modification ici
+                            "friendly_name": f"{self._name.capitalize()} Chlore Actuel",
                             "min": 0,
                             "max": 10,
                             "step": 0.1,
-                            "unit_of_measurement": "mg/L",
+                            "unit_of_measurement": UNIT_MG_PER_LITER,
                         },
                     )
                     return value
@@ -643,8 +724,6 @@ class PiscinexaChloreTargetSensor(SensorEntity):
         self._hass = hass
         self._attr_name = f"{DOMAIN}_{name}_chlore_target"
         self._attr_friendly_name = f"{name.capitalize()} Chlore Cible"
-        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
-        self._attr_icon = "mdi:target"
         self._attr_unique_id = f"{entry.entry_id}_chlore_target"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -653,6 +732,8 @@ class PiscinexaChloreTargetSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:target"
+        self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
         self._subscriptions = []
         input_id = f"input_number.{name}_chlore_target"
         self._subscriptions.append(
@@ -689,7 +770,6 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_chloreaajouter"
         self._attr_friendly_name = f"{name.capitalize()} Chlore à Ajouter"
-        self._attr_icon = "mdi:bottle-tonic-plus"
         self._attr_unique_id = f"{entry.entry_id}_chlore_a_ajouter"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -698,6 +778,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:bottle-tonic-plus"
         self._message = None
         self._subscriptions = []
         self._subscriptions.append(
@@ -747,7 +828,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         return self._attr_friendly_name
 
     @property
-    def unit_of_measurement(self):
+    def native_unit_of_measurement(self):
         select_state = self._hass.states.get(f"input_select.{self._name}_chlore_treatment")
         if select_state:
             if select_state.state == "Liquide":
@@ -773,11 +854,11 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
                     select_state = self._hass.states.get(f"input_select.{self._name}_chlore_treatment")
                     treatment = select_state.state if select_state else "Chlore choc (poudre)"
                     if treatment == "Liquide":
-                        dose = chlore_difference * volume_val * 0.1 * temp_factor  # 100 mL par mg/L par m³
+                        dose = chlore_difference * volume_val * 0.1 * temp_factor
                     elif treatment == "Pastille lente":
-                        dose = (chlore_difference * volume_val / 20) * temp_factor  # 1 pastille par 20 m³ pour 1 mg/L
-                    else:  # Chlore choc (poudre)
-                        dose = chlore_difference * volume_val * 0.01 * temp_factor  # 10 g par mg/L par m³
+                        dose = (chlore_difference * volume_val / 20) * temp_factor
+                    else:
+                        dose = chlore_difference * volume_val * 0.01 * temp_factor
                     if dose <= 0:
                         self._message = "Retirer le chlore, pas de besoin actuellement"
                         return 0
@@ -818,8 +899,6 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_chloredifference"
         self._attr_friendly_name = f"{name.capitalize()} Chlore Différence"
-        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
-        self._attr_icon = "mdi:delta"
         self._attr_unique_id = f"{entry.entry_id}_chlore_difference"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -828,6 +907,8 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:delta"
+        self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
         self._subscriptions = []
         self._subscriptions.append(
             async_track_state_change_event(
@@ -866,9 +947,7 @@ class PiscinexaLogSensor(SensorEntity):
         self._name = entry.data["name"]
         self._attr_name = f"{DOMAIN}_{self._name}_log"
         self._attr_friendly_name = f"{self._name.capitalize()} Journal"
-        self._attr_icon = "mdi:book"
         self._attr_unique_id = f"{entry.entry_id}_log"
-        self._state = deque(maxlen=10)
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{self._name}")},
             name=self._name.capitalize(),
@@ -876,6 +955,9 @@ class PiscinexaLogSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:book"
+        self._attr_native_unit_of_measurement = None
+        self._state = deque(maxlen=10)
 
     @property
     def name(self):
@@ -896,8 +978,6 @@ class PiscinexaPowerSensor(SensorEntity):
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_consopuissance"
         self._attr_friendly_name = f"{name.capitalize()} Consommation puissance"
-        self._attr_unit_of_measurement = "W"
-        self._attr_icon = "mdi:flash"
         self._attr_unique_id = f"{entry.entry_id}_conso_puissance"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -906,6 +986,8 @@ class PiscinexaPowerSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:flash"
+        self._attr_native_unit_of_measurement = "W"
         self._subscriptions = []
         sensor_id = self._entry.data.get("power_sensor_entity_id")
         if sensor_id:
@@ -929,7 +1011,7 @@ class PiscinexaPowerSensor(SensorEntity):
         return self._attr_friendly_name
 
     @property
-    def state(self):
+    def native_value(self):
         try:
             sensor_id = self._entry.data.get("power_sensor_entity_id")
             if sensor_id:
@@ -951,7 +1033,6 @@ class PiscinexaPoolStateSensor(SensorEntity):
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_pool_state"
         self._attr_friendly_name = f"{name.capitalize()} État de la piscine"
-        self._attr_icon = "mdi:pool"
         self._attr_unique_id = f"{entry.entry_id}_pool_state"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -960,12 +1041,14 @@ class PiscinexaPoolStateSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
+        self._attr_icon = "mdi:pool"
+        self._attr_native_unit_of_measurement = None
         self._subscriptions = []
         entities_to_track = [
             f"sensor.{DOMAIN}_{name}_temperature",
             f"sensor.{DOMAIN}_{name}_chlore",
             f"sensor.{DOMAIN}_{name}_ph",
-            f"sensor.{DOMAIN}_{name}_tempsfiltration",
+            f"sensor.{DOMAIN}_{name}_tempsfiltration_recommande",
         ]
         self._subscriptions.append(
             async_track_state_change_event(
@@ -1023,7 +1106,7 @@ class PiscinexaPoolStateSensor(SensorEntity):
                     issues.append("pH idéal")
             else:
                 issues.append("pH indisponible")
-            filtration_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_tempsfiltration")
+            filtration_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_tempsfiltration_recommande")
             if filtration_entity and filtration_entity.state not in ("unknown", "unavailable") and temp_entity:
                 filtration_time = float(filtration_entity.state)
                 required_filtration = temperature / 2
@@ -1054,9 +1137,9 @@ class PiscinexaPoolStateSensor(SensorEntity):
             ph_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_ph")
             if ph_entity:
                 attributes["ph"] = float(ph_entity.state)
-            filtration_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_tempsfiltration")
+            filtration_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_tempsfiltration_recommande")
             if filtration_entity:
-                attributes["temps_filtration"] = float(filtration_entity.state)
+                attributes["temps_filtration_recommande"] = float(filtration_entity.state)
         except Exception as e:
             _LOGGER.error("Erreur récupération attributs état piscine: %s", e)
         return attributes
