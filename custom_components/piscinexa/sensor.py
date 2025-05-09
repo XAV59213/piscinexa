@@ -8,7 +8,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.const import CONF_NAME
 from homeassistant.helpers.event import async_track_state_change_event
-from homeassistant.helpers.translation import async_get_translations
 from .const import (
     DOMAIN,
     POOL_TYPE_SQUARE,
@@ -54,6 +53,10 @@ class PiscinexaVolumeSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_volume_eau"
+        self._attr_friendly_name = f"{name.capitalize()} Volume d'eau"
+        self._attr_unit_of_measurement = UNIT_CUBIC_METERS
+        self._attr_icon = "mdi:pool"
         self._attr_unique_id = f"{entry.entry_id}_volume_eau"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -62,22 +65,10 @@ class PiscinexaVolumeSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_icon = "mdi:pool"
-        self._attr_unit_of_measurement = UNIT_CUBIC_METERS
-        self._translations = None
 
-    async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
-        if not self._translations:
-            _LOGGER.error("Failed to load translations for Volume Eau")
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_volume_eau.name", "Volume Eau")
-        _LOGGER.debug(f"Setting friendly_name for Volume Eau: {self._attr_name} (entity_id: {self.entity_id})")
-        self.async_write_ha_state()
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def native_value(self):
@@ -102,6 +93,10 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_tempsfiltration"
+        self._attr_friendly_name = f"{name.capitalize()} Temps de filtration"
+        self._attr_unit_of_measurement = UNIT_HOURS
+        self._attr_icon = "mdi:clock"
         self._attr_unique_id = f"{entry.entry_id}_temps_filtration"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -110,10 +105,7 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_icon = "mdi:clock"
-        self._attr_unit_of_measurement = UNIT_HOURS
         self._subscriptions = []
-        self._translations = None
         sensor_id = self._entry.data.get("temperature_sensor")
         if sensor_id:
             self._subscriptions.append(
@@ -121,19 +113,6 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
                     hass, [sensor_id], self._async_update_from_sensor
                 )
             )
-
-    async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
-        if not self._translations:
-            _LOGGER.error("Failed to load translations for Temps Filtration")
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_tempsfiltration.name", "Temps Filtration")
-        _LOGGER.debug(f"Setting friendly_name for Temps Filtration: {self._attr_name} (entity_id: {self.entity_id})")
-        self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -143,6 +122,10 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
     @callback
     def _async_update_from_sensor(self, event):
         self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def native_value(self):
@@ -155,7 +138,7 @@ class PiscinexaTempsFiltrationSensor(SensorEntity):
                 except Exception as e:
                     _LOGGER.warning("Erreur de conversion température depuis %s : %s", sensor_id, e)
         try:
-            return round(float(self._entry.data["temperature"]) / 2, 1)
+            return round(self._entry.data["temperature"] / 2, 1)
         except Exception as e:
             _LOGGER.error("Température par défaut invalide : %s", e)
             return None
@@ -165,6 +148,10 @@ class PiscinexaTemperatureSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_temperature"
+        self._attr_friendly_name = f"{name.capitalize()} Température"
+        self._attr_unit_of_measurement = "°C"
+        self._attr_icon = "mdi:thermometer"
         self._attr_unique_id = f"{entry.entry_id}_temperature"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -173,10 +160,7 @@ class PiscinexaTemperatureSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_icon = "mdi:thermometer"
-        self._attr_unit_of_measurement = "°C"
         self._subscriptions = []
-        self._translations = None
         sensor_id = self._entry.data.get("temperature_sensor")
         if sensor_id:
             self._subscriptions.append(
@@ -184,19 +168,6 @@ class PiscinexaTemperatureSensor(SensorEntity):
                     hass, [sensor_id], self._async_update_from_sensor
                 )
             )
-
-    async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
-        if not self._translations:
-            _LOGGER.error("Failed to load translations for Température Eau")
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_temperature.name", "Température Eau")
-        _LOGGER.debug(f"Setting friendly_name for Température Eau: {self._attr_name} (entity_id: {self.entity_id})")
-        self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -206,6 +177,10 @@ class PiscinexaTemperatureSensor(SensorEntity):
     @callback
     def _async_update_from_sensor(self, event):
         self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def native_value(self):
@@ -238,6 +213,9 @@ class PiscinexaPhSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._hass = hass
+        self._attr_name = f"{DOMAIN}_{name}_ph"
+        self._attr_friendly_name = f"{name.capitalize()} pH Actuel"
+        self._attr_icon = "mdi:water"
         self._attr_unique_id = f"{entry.entry_id}_ph"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -246,9 +224,7 @@ class PiscinexaPhSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_icon = "mdi:water"
         self._subscriptions = []
-        self._translations = None
         sensor_id = self._entry.data.get("ph_sensor")
         if sensor_id:
             self._subscriptions.append(
@@ -262,19 +238,6 @@ class PiscinexaPhSensor(SensorEntity):
                 hass, [input_id], self._async_update_from_input
             )
         )
-
-    async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
-        if not self._translations:
-            _LOGGER.error("Failed to load translations for pH")
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_ph.name", "pH")
-        _LOGGER.debug(f"Setting friendly_name for pH: {self._attr_name} (entity_id: {self.entity_id})")
-        self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -290,6 +253,10 @@ class PiscinexaPhSensor(SensorEntity):
         self.async_schedule_update_ha_state(True)
 
     @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
     def native_value(self):
         sensor_id = self._entry.data.get("ph_sensor")
         if sensor_id:
@@ -301,6 +268,17 @@ class PiscinexaPhSensor(SensorEntity):
                 try:
                     value = round(float(state.state), 1)
                     self._hass.data[DOMAIN][self._entry.entry_id]["ph_current"] = value
+                    self._hass.states.async_set(
+                        f"input_number.{self._name}_ph_current",
+                        value,
+                        {
+                            "friendly_name": f"{self._name.capitalize()} pH Actuel",
+                            "min": 0,
+                            "max": 14,
+                            "step": 0.1,
+                            "unit_of_measurement": "pH",
+                        },
+                    )
                     return value
                 except ValueError as e:
                     _LOGGER.error("Valeur non numérique pour capteur %s: %s", sensor_id, state.state)
@@ -324,6 +302,9 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_ph_plus_ajouter"
+        self._attr_friendly_name = f"{name.capitalize()} pH+ à ajouter"
+        self._attr_icon = "mdi:bottle-tonic-plus"
         self._attr_unique_id = f"{entry.entry_id}_ph_plus_ajouter"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -332,9 +313,7 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_icon = "mdi:bottle-tonic-plus"
         self._subscriptions = []
-        self._translations = None
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"sensor.{DOMAIN}_{name}_ph"], self._async_update_from_ph
@@ -350,19 +329,6 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
                 hass, [f"input_select.{name}_ph_plus_treatment"], self._async_update_from_select
             )
         )
-
-    async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
-        if not self._translations:
-            _LOGGER.error("Failed to load translations for pH+ à Ajouter")
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_plus_ajouter.name", "pH+ à Ajouter")
-        _LOGGER.debug(f"Setting friendly_name for pH+ à Ajouter: {self._attr_name} (entity_id: {self.entity_id})")
-        self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -380,6 +346,10 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
     @callback
     def _async_update_from_select(self, event):
         self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def unit_of_measurement(self):
@@ -424,9 +394,9 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
             ph_target = float(self._entry.data["ph_target"])
             volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume:
-                attributes["volume"] = str(float(volume.state))
-            attributes["ph_current"] = str(ph_current)
-            attributes["ph_target"] = str(ph_target)
+                attributes["volume"] = float(volume.state)
+            attributes["ph_current"] = ph_current
+            attributes["ph_target"] = ph_target
         except Exception as e:
             _LOGGER.error("Erreur récupération attributs pH+: %s", e)
         return attributes
@@ -436,6 +406,9 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_ph_minus_ajouter"
+        self._attr_friendly_name = f"{name.capitalize()} pH- à ajouter"
+        self._attr_icon = "mdi:water-minus"
         self._attr_unique_id = f"{entry.entry_id}_ph_minus_ajouter"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -444,9 +417,7 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_icon = "mdi:bottle-tonic-minus"
         self._subscriptions = []
-        self._translations = None
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"sensor.{DOMAIN}_{name}_ph"], self._async_update_from_ph
@@ -462,19 +433,6 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
                 hass, [f"input_select.{name}_ph_minus_treatment"], self._async_update_from_select
             )
         )
-
-    async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
-        if not self._translations:
-            _LOGGER.error("Failed to load translations for pH- à Ajouter")
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_minus_ajouter.name", "pH- à Ajouter")
-        _LOGGER.debug(f"Setting friendly_name for pH- à Ajouter: {self._attr_name} (entity_id: {self.entity_id})")
-        self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -492,6 +450,10 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
     @callback
     def _async_update_from_select(self, event):
         self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def unit_of_measurement(self):
@@ -536,9 +498,9 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
             ph_target = float(self._entry.data["ph_target"])
             volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume:
-                attributes["volume"] = str(float(volume.state))
-            attributes["ph_current"] = str(ph_current)
-            attributes["ph_target"] = str(ph_target)
+                attributes["volume"] = float(volume.state)
+            attributes["ph_current"] = ph_current
+            attributes["ph_target"] = ph_target
         except Exception as e:
             _LOGGER.error("Erreur récupération attributs pH-: %s", e)
         return attributes
@@ -548,6 +510,9 @@ class PiscinexaPhTargetSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._hass = hass
+        self._attr_name = f"{DOMAIN}_{name}_ph_target"
+        self._attr_friendly_name = f"{name.capitalize()} pH Cible"
+        self._attr_icon = "mdi:target"
         self._attr_unique_id = f"{entry.entry_id}_ph_target"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -556,27 +521,13 @@ class PiscinexaPhTargetSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_icon = "mdi:target"
         self._subscriptions = []
-        self._translations = None
+        input_id = f"input_number.{name}_ph_target"
         self._subscriptions.append(
             async_track_state_change_event(
-                hass, [f"input_number.{name}_ph_target"], self._async_update_from_input
+                hass, [input_id], self._async_update_from_input
             )
         )
-
-    async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
-        if not self._translations:
-            _LOGGER.error("Failed to load translations for pH Cible")
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_ph_target.name", "pH Cible")
-        _LOGGER.debug(f"Setting friendly_name for pH Cible: {self._attr_name} (entity_id: {self.entity_id})")
-        self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -586,6 +537,10 @@ class PiscinexaPhTargetSensor(SensorEntity):
     @callback
     def _async_update_from_input(self, event):
         self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def native_value(self):
@@ -600,6 +555,10 @@ class PiscinexaChloreSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._hass = hass
+        self._attr_name = f"{DOMAIN}_{name}_chlore"
+        self._attr_friendly_name = f"{name.capitalize()} Chlore"
+        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
+        self._attr_icon = "mdi:water-check"
         self._attr_unique_id = f"{entry.entry_id}_chlore"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -608,10 +567,7 @@ class PiscinexaChloreSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_icon = "mdi:water-check"
-        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
         self._subscriptions = []
-        self._translations = None
         sensor_id = self._entry.data.get("chlore_sensor")
         if sensor_id:
             self._subscriptions.append(
@@ -625,19 +581,6 @@ class PiscinexaChloreSensor(SensorEntity):
                 hass, [input_id], self._async_update_from_input
             )
         )
-
-    async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
-        if not self._translations:
-            _LOGGER.error("Failed to load translations for Chlore")
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_chlore.name", "Chlore")
-        _LOGGER.debug(f"Setting friendly_name for Chlore: {self._attr_name} (entity_id: {self.entity_id})")
-        self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -653,6 +596,10 @@ class PiscinexaChloreSensor(SensorEntity):
         self.async_schedule_update_ha_state(True)
 
     @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
     def native_value(self):
         sensor_id = self._entry.data.get("chlore_sensor")
         if sensor_id:
@@ -661,6 +608,17 @@ class PiscinexaChloreSensor(SensorEntity):
                 try:
                     value = round(float(state.state), 1)
                     self._hass.data[DOMAIN][self._entry.entry_id]["chlore_current"] = value
+                    self._hass.states.async_set(
+                        f"input_number.{self._name}_chlore_current",
+                        value,
+                        {
+                            "friendly_name": f"{self._name.capitalize()} Chlore Actuel",
+                            "min": 0,
+                            "max": 10,
+                            "step": 0.1,
+                            "unit_of_measurement": "mg/L",
+                        },
+                    )
                     return value
                 except Exception as e:
                     _LOGGER.warning("Erreur lecture chlore depuis capteur %s : %s", sensor_id, e)
@@ -683,6 +641,10 @@ class PiscinexaChloreTargetSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._hass = hass
+        self._attr_name = f"{DOMAIN}_{name}_chlore_target"
+        self._attr_friendly_name = f"{name.capitalize()} Chlore Cible"
+        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
+        self._attr_icon = "mdi:target"
         self._attr_unique_id = f"{entry.entry_id}_chlore_target"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -691,28 +653,13 @@ class PiscinexaChloreTargetSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_icon = "mdi:target"
-        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
         self._subscriptions = []
-        self._translations = None
+        input_id = f"input_number.{name}_chlore_target"
         self._subscriptions.append(
             async_track_state_change_event(
-                hass, [f"input_number.{name}_chlore_target"], self._async_update_from_input
+                hass, [input_id], self._async_update_from_input
             )
         )
-
-    async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
-        if not self._translations:
-            _LOGGER.error("Failed to load translations for Chlore Cible")
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_chlore_target.name", "Chlore Cible")
-        _LOGGER.debug(f"Setting friendly_name for Chlore Cible: {self._attr_name} (entity_id: {self.entity_id})")
-        self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -722,6 +669,10 @@ class PiscinexaChloreTargetSensor(SensorEntity):
     @callback
     def _async_update_from_input(self, event):
         self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def native_value(self):
@@ -736,6 +687,9 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_chloreaajouter"
+        self._attr_friendly_name = f"{name.capitalize()} Chlore à Ajouter"  # Modification ici
+        self._attr_icon = "mdi:bottle-tonic-plus"
         self._attr_unique_id = f"{entry.entry_id}_chlore_a_ajouter"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -744,9 +698,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_icon = "mdi:bottle-tonic-plus"
         self._message = None
-        self._translations = {}
         self._subscriptions = []
         self._subscriptions.append(
             async_track_state_change_event(
@@ -769,19 +721,6 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             )
         )
 
-    async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
-        if not self._translations:
-            _LOGGER.error("Failed to load translations for Chlore à Ajouter")
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_chloreaajouter.name", "Chlore à Ajouter")
-        _LOGGER.debug(f"Setting friendly_name for Chlore à Ajouter: {self._attr_name} (entity_id: {self.entity_id})")
-        self.async_write_ha_state()
-
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
             subscription()
@@ -803,10 +742,9 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
     def _async_update_from_select(self, event):
         self.async_schedule_update_ha_state(True)
 
-    def _get_translation(self, key: str) -> str:
-        translation_key = key.format(name=self._name)
-        translated = self._translations.get(translation_key, translation_key)
-        return translated
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def unit_of_measurement(self):
@@ -824,79 +762,51 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         try:
             chlore_current = float(self._entry.data["chlore_current"])
             chlore_target = float(self._entry.data["chlore_target"])
-            chlore_difference = chlore_target - chlore_current
-            if chlore_difference <= 0:
-                self._message = self._get_translation(
-                    "entity.sensor.piscinexa_{name}_chloreaajouter.messages.remove_chlorine"
-                )
-                return 0
-
             volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume_entity and volume_entity.state not in ("unknown", "unavailable"):
                 volume_val = float(volume_entity.state)
-            else:
-                self._message = self._get_translation(
-                    "entity.sensor.piscinexa_{name}_chloreaajouter.messages.volume_unavailable"
-                )
+                temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
+                if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
+                    temperature = float(temp_entity.state)
+                    temp_factor = max(1, 1 + (temperature - 20) * 0.02)
+                    chlore_difference = chlore_target - chlore_current
+                    select_state = self._hass.states.get(f"input_select.{self._name}_chlore_treatment")
+                    treatment = select_state.state if select_state else "Chlore choc (poudre)"
+                    if treatment == "Liquide":
+                        dose = chlore_difference * volume_val * 0.1 * temp_factor  # 100 mL par mg/L par m³
+                    elif treatment == "Pastille lente":
+                        dose = (chlore_difference * volume_val / 20) * temp_factor  # 1 pastille par 20 m³ pour 1 mg/L
+                    else:  # Chlore choc (poudre)
+                        dose = chlore_difference * volume_val * 0.01 * temp_factor  # 10 g par mg/L par m³
+                    if dose <= 0:
+                        self._message = "Retirer le chlore, pas de besoin actuellement"
+                        return 0
+                    self._message = None
+                    return round(dose, 2)
+                self._message = "Température indisponible"
                 return None
-
-            temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
-            if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
-                temperature = float(temp_entity.state)
-                temp_factor = max(1, 1 + (temperature - 20) * 0.02)
-            else:
-                self._message = self._get_translation(
-                    "entity.sensor.piscinexa_{name}_chloreaajouter.messages.temperature_unavailable"
-                )
-                return None
-
-            select_state = self._hass.states.get(f"input_select.{self._name}_chlore_treatment")
-            treatment = select_state.state if select_state else "Chlore choc (poudre)"
-            self._treatment_type = treatment
-
-            if treatment == "Liquide":
-                dose_per_mg_L = volume_val * 0.1
-                dose = chlore_difference * dose_per_mg_L * temp_factor
-                self._dose_unit = UNIT_LITERS
-            elif treatment == "Pastille lente":
-                dose_per_mg_L = volume_val / 20
-                dose = chlore_difference * dose_per_mg_L * temp_factor
-                self._dose_unit = "unités"
-            else:
-                dose_per_mg_L = volume_val * 10
-                dose = chlore_difference * dose_per_mg_L * temp_factor
-                self._dose_unit = UNIT_GRAMS
-
-            self._calculated_dose = dose
-            self._dose_per_mg_L = dose_per_mg_L
-            self._message = None
-            return round(dose, 2)
+            self._message = "Volume indisponible"
+            return None
         except Exception as e:
             _LOGGER.error("Erreur calcul dose chlore pour %s: %s", self._name, e)
-            self._message = self._get_translation(
-                "entity.sensor.piscinexa_{name}_chloreaajouter.messages.calculation_error"
-            )
+            self._message = "Erreur de calcul"
             return None
 
     @property
     def extra_state_attributes(self):
         attributes = {}
         try:
-            attributes["chlore_current"] = str(float(self._entry.data["chlore_current"]))
-            attributes["chlore_target"] = str(float(self._entry.data["chlore_target"]))
+            attributes["chlore_current"] = float(self._entry.data["chlore_current"])
+            attributes["chlore_target"] = float(self._entry.data["chlore_target"])
             volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume_entity:
-                attributes["volume"] = str(float(volume_entity.state))
+                attributes["volume"] = float(volume_entity.state)
             temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
             if temp_entity:
-                attributes["temperature"] = str(float(temp_entity.state))
-                attributes["temp_factor"] = str(max(1, 1 + (float(temp_entity.state) - 20) * 0.02))
+                attributes["temperature"] = float(temp_entity.state)
+                attributes["temp_factor"] = max(1, 1 + (attributes["temperature"] - 20) * 0.02)
             if self._message:
                 attributes["message"] = self._message
-            attributes["treatment_type"] = getattr(self, '_treatment_type', "Chlore choc (poudre)")
-            attributes["dose_unit"] = getattr(self, '_dose_unit', UNIT_GRAMS)
-            attributes["calculated_dose"] = str(getattr(self, '_calculated_dose', 0.0))
-            attributes["dose_per_mg_L"] = str(getattr(self, '_dose_per_mg_L', 0.0))
         except Exception as e:
             _LOGGER.error("Erreur récupération attributs supplémentaires: %s", e)
         return attributes
@@ -906,6 +816,10 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_chloredifference"
+        self._attr_friendly_name = f"{name.capitalize()} Chlore Différence"  # Modification ici
+        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
+        self._attr_icon = "mdi:delta"
         self._attr_unique_id = f"{entry.entry_id}_chlore_difference"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -914,28 +828,12 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_icon = "mdi:delta"
-        self._attr_unit_of_measurement = UNIT_MG_PER_LITER
         self._subscriptions = []
-        self._translations = None
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"sensor.{DOMAIN}_{name}_chlore"], self._async_update_from_chlore
             )
         )
-
-    async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
-        if not self._translations:
-            _LOGGER.error("Failed to load translations for Différence Chlore")
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_chloredifference.name", "Différence Chlore")
-        _LOGGER.debug(f"Setting friendly_name for Différence Chlore: {self._attr_name} (entity_id: {self.entity_id})")
-        self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
@@ -945,6 +843,10 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
     @callback
     def _async_update_from_chlore(self, event):
         self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def native_value(self):
@@ -962,6 +864,9 @@ class PiscinexaLogSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = entry.data["name"]
+        self._attr_name = f"{DOMAIN}_{self._name}_log"
+        self._attr_friendly_name = f"{self._name.capitalize()} Journal"
+        self._attr_icon = "mdi:book"
         self._attr_unique_id = f"{entry.entry_id}_log"
         self._state = deque(maxlen=10)
         self._attr_device_info = DeviceInfo(
@@ -971,30 +876,10 @@ class PiscinexaLogSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_icon = "mdi:book"
-        self._translations = {}
-        self._default_value = "No actions"
 
-    async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
-        if not self._translations:
-            _LOGGER.error("Failed to load translations for Journal Piscine")
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_log.name", "Journal Piscine")
-        self._default_value = self._translations.get(
-            "entity.sensor.piscinexa_log.default_value", "Aucune action"
-        )
-        _LOGGER.debug(f"Setting friendly_name for Journal Piscine: {self._attr_name} (entity_id: {self.entity_id})")
-        self.async_write_ha_state()
-
-    def _get_translation(self, key: str) -> str:
-        translation_key = key.format(name=self._name)
-        translated = self._translations.get(translation_key, translation_key)
-        return translated.format(name=self._name)
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     def log_action(self, action: str):
         self._state.append(f"{datetime.now()}: {action}")
@@ -1002,13 +887,17 @@ class PiscinexaLogSensor(SensorEntity):
 
     @property
     def native_value(self):
-        return "\n".join(self._state) if self._state else self._default_value
+        return "\n".join(self._state) if self._state else "Aucune action"
 
 class PiscinexaPowerSensor(SensorEntity):
     def __init__(self, hass, entry, name):
         self._hass = hass
         self._entry = entry
         self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_consopuissance"
+        self._attr_friendly_name = f"{name.capitalize()} Consommation puissance"
+        self._attr_unit_of_measurement = "W"
+        self._attr_icon = "mdi:flash"
         self._attr_unique_id = f"{entry.entry_id}_conso_puissance"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -1017,10 +906,7 @@ class PiscinexaPowerSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_icon = "mdi:flash"
-        self._attr_unit_of_measurement = "W"
         self._subscriptions = []
-        self._translations = None
         sensor_id = self._entry.data.get("power_sensor_entity_id")
         if sensor_id:
             self._subscriptions.append(
@@ -1029,21 +915,8 @@ class PiscinexaPowerSensor(SensorEntity):
                 )
             )
 
-    async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
-        if not self._translations:
-            _LOGGER.error("Failed to load translations for Consommation Puissance")
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_consopuissance.name", "Consommation Puissance")
-        _LOGGER.debug(f"Setting friendly_name for Consommation Puissance: {self._attr_name} (entity_id: {self.entity_id})")
-        self.async_write_ha_state()
-
     async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
+        for subscription in the._subscriptions:
             subscription()
         self._subscriptions.clear()
 
@@ -1052,7 +925,11 @@ class PiscinexaPowerSensor(SensorEntity):
         self.async_schedule_update_ha_state(True)
 
     @property
-    def native_value(self):
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
+    def state(self):
         try:
             sensor_id = self._entry.data.get("power_sensor_entity_id")
             if sensor_id:
@@ -1072,6 +949,9 @@ class PiscinexaPoolStateSensor(SensorEntity):
         self._hass = hass
         self._entry = entry
         self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_pool_state"
+        self._attr_friendly_name = f"{name.capitalize()} État de la piscine"
+        self._attr_icon = "mdi:pool"
         self._attr_unique_id = f"{entry.entry_id}_pool_state"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, f"piscinexa_{name}")},
@@ -1080,8 +960,6 @@ class PiscinexaPoolStateSensor(SensorEntity):
             model="Piscine",
             sw_version="1.0.2",
         )
-        self._attr_icon = "mdi:pool"
-        self._translations = {}
         self._subscriptions = []
         entities_to_track = [
             f"sensor.{DOMAIN}_{name}_temperature",
@@ -1095,19 +973,6 @@ class PiscinexaPoolStateSensor(SensorEntity):
             )
         )
 
-    async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
-        if not self._translations:
-            _LOGGER.error("Failed to load translations for État Piscine")
-        self._attr_name = self._translations.get("entity.sensor.piscinexa_pool_state.name", "État Piscine")
-        _LOGGER.debug(f"Setting friendly_name for État Piscine: {self._attr_name} (entity_id: {self.entity_id})")
-        self.async_write_ha_state()
-
     async def async_will_remove_from_hass(self):
         for subscription in self._subscriptions:
             subscription()
@@ -1117,213 +982,81 @@ class PiscinexaPoolStateSensor(SensorEntity):
     def _async_update_from_sensors(self, event):
         self.async_schedule_update_ha_state(True)
 
-    def _get_translation(self, key: str) -> str:
-        translation_key = key.format(name=self._name)
-        translated = self._translations.get(translation_key, translation_key)
-        return translated.format(name=self._name)
+    @property
+    def name(self):
+        return self._attr_friendly_name
 
     @property
     def native_value(self):
         try:
             issues = []
             temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
-            temperature = None
             if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
                 temperature = float(temp_entity.state)
                 if temperature < 22:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.temperature_too_cold"
-                    ))
+                    issues.append("Température trop froide")
                 elif temperature > 28:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.temperature_too_hot"
-                    ))
+                    issues.append("Température trop chaude")
                 else:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.temperature_ideal"
-                    ))
+                    issues.append("Température idéale")
             else:
-                issues.append(self._get_translation(
-                    "entity.sensor.piscinexa_{name}_pool_state.states.temperature_unavailable"
-                ))
-
+                issues.append("Température indisponible")
             chlore_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_chlore")
             if chlore_entity and chlore_entity.state not in ("unknown", "unavailable"):
                 chlore = float(chlore_entity.state)
                 if chlore < 1:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.chlore_too_low"
-                    ))
+                    issues.append("Chlore trop bas")
                 elif chlore > 3:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.chlore_too_high"
-                    ))
+                    issues.append("Chlore trop élevé")
                 else:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.chlore_ideal"
-                    ))
+                    issues.append("Chlore idéal")
             else:
-                issues.append(self._get_translation(
-                    "entity.sensor.piscinexa_{name}_pool_state.states.chlore_unavailable"
-                ))
-
+                issues.append("Chlore indisponible")
             ph_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_ph")
             if ph_entity and ph_entity.state not in ("unknown", "unavailable"):
                 ph = float(ph_entity.state)
                 if ph < 7.2:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.ph_too_low"
-                    ))
+                    issues.append("pH trop bas")
                 elif ph > 7.6:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.ph_too_high"
-                    ))
+                    issues.append("pH trop élevé")
                 else:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.ph_ideal"
-                    ))
+                    issues.append("pH idéal")
             else:
-                issues.append(self._get_translation(
-                    "entity.sensor.piscinexa_{name}_pool_state.states.ph_unavailable"
-                ))
-
+                issues.append("pH indisponible")
             filtration_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_tempsfiltration")
             if filtration_entity and filtration_entity.state not in ("unknown", "unavailable") and temp_entity:
                 filtration_time = float(filtration_entity.state)
                 required_filtration = temperature / 2
                 if filtration_time < required_filtration:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.filtration_insufficient"
-                    ))
+                    issues.append("Temps de filtration insuffisant")
                 else:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.filtration_ideal"
-                    ))
+                    issues.append("Temps de filtration idéal")
             else:
-                issues.append(self._get_translation(
-                    "entity.sensor.piscinexa_{name}_pool_state.states.filtration_unavailable"
-                ))
-
-            ideal_states = [
-                self._get_translation(
-                    "entity.sensor.piscinexa_{name}_pool_state.states.temperature_ideal"
-                ),
-                self._get_translation(
-                    "entity.sensor.piscinexa_{name}_pool_state.states.chlore_ideal"
-                ),
-                self._get_translation(
-                    "entity.sensor.piscinexa_{name}_pool_state.states.ph_ideal"
-                ),
-                self._get_translation(
-                    "entity.sensor.piscinexa_{name}_pool_state.states.filtration_ideal"
-                ),
-            ]
-
-            if all(issue in ideal_states for issue in issues):
-                return self._get_translation(
-                    "entity.sensor.piscinexa_{name}_pool_state.states.swimming_allowed"
-                )
+                issues.append("Temps de filtration indisponible")
+            if all(issue in ["Température idéale", "Chlore idéal", "pH idéal", "Temps de filtration idéal"] for issue in issues):
+                return "Baignade autorisée, profitez-en !"
             else:
-                return issues[0]
+                return ", ".join(issues)
         except Exception as e:
             _LOGGER.error("Erreur calcul état piscine pour %s: %s", self._name, e)
-            return self._get_translation(
-                "entity.sensor.piscinexa_{name}_pool_state.states.evaluation_error"
-            )
+            return "Erreur d'évaluation"
 
     @property
     def extra_state_attributes(self):
         attributes = {}
         try:
-            issues = []
             temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
-            if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
-                temperature = float(temp_entity.state)
-                attributes["temperature"] = str(temperature)
-                if temperature < 22:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.temperature_too_cold"
-                    ))
-                elif temperature > 28:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.temperature_too_hot"
-                    ))
-                else:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.temperature_ideal"
-                    ))
-            else:
-                issues.append(self._get_translation(
-                    "entity.sensor.piscinexa_{name}_pool_state.states.temperature_unavailable"
-                ))
-
+            if temp_entity:
+                attributes["temperature"] = float(temp_entity.state)
             chlore_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_chlore")
-            if chlore_entity and chlore_entity.state not in ("unknown", "unavailable"):
-                chlore = float(chlore_entity.state)
-                attributes["chlore"] = str(chlore)
-                if chlore < 1:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.chlore_too_low"
-                    ))
-                elif chlore > 3:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.chlore_too_high"
-                    ))
-                else:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.chlore_ideal"
-                    ))
-            else:
-                issues.append(self._get_translation(
-                    "entity.sensor.piscinexa_{name}_pool_state.states.chlore_unavailable"
-                ))
-
+            if chlore_entity:
+                attributes["chlore"] = float(chlore_entity.state)
             ph_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_ph")
-            if ph_entity and ph_entity.state not in ("unknown", "unavailable"):
-                ph = float(ph_entity.state)
-                attributes["ph"] = str(ph)
-                if ph < 7.2:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.ph_too_low"
-                    ))
-                elif ph > 7.6:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.ph_too_high"
-                    ))
-                else:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.ph_ideal"
-                    ))
-            else:
-                issues.append(self._get_translation(
-                    "entity.sensor.piscinexa_{name}_pool_state.states.ph_unavailable"
-                ))
-
+            if ph_entity:
+                attributes["ph"] = float(ph_entity.state)
             filtration_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_tempsfiltration")
-            if filtration_entity and filtration_entity.state not in ("unknown", "unavailable"):
-                filtration_time = float(filtration_entity.state)
-                attributes["temps_filtration"] = str(filtration_time)
-                if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
-                    temperature = float(temp_entity.state)
-                    required_filtration = temperature / 2
-                    if filtration_time < required_filtration:
-                        issues.append(self._get_translation(
-                            "entity.sensor.piscinexa_{name}_pool_state.states.filtration_insufficient"
-                        ))
-                    else:
-                        issues.append(self._get_translation(
-                            "entity.sensor.piscinexa_{name}_pool_state.states.filtration_ideal"
-                        ))
-                else:
-                    issues.append(self._get_translation(
-                        "entity.sensor.piscinexa_{name}_pool_state.states.filtration_unavailable"
-                    ))
-            else:
-                issues.append(self._get_translation(
-                    "entity.sensor.piscinexa_{name}_pool_state.states.filtration_unavailable"
-                ))
-
-            attributes["issues"] = ", ".join(issues)
+            if filtration_entity:
+                attributes["temps_filtration"] = float(filtration_entity.state)
         except Exception as e:
             _LOGGER.error("Erreur récupération attributs état piscine: %s", e)
         return attributes
