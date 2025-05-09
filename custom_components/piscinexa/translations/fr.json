@@ -242,8 +242,12 @@
         "name": "Volume Eau",
         "unit_of_measurement": "m³"
       },
-      "piscinexa_tempsfiltration": {
-        "name": "Temps Filtration",
+      "piscinexa_tempsfiltration_recommande": {
+        "name": "Temps Filtration Recommandé",
+        "unit_of_measurement": "h"
+      },
+      "piscinexa_tempsfiltration_effectue": {
+        "name": "Temps Filtration Effectué",
         "unit_of_measurement": "h"
       },
       "piscinexa_temperature": {
@@ -251,7 +255,8 @@
         "unit_of_measurement": "°C"
       },
       "piscinexa_ph": {
-        "name": "pH"
+        "name": "pH",
+        "unit_of_measurement": "mg/L"
       },
       "piscinexa_ph_plus_ajouter": {
         "name": "pH+ à Ajouter",
@@ -262,7 +267,8 @@
         "unit_of_measurement": "L"
       },
       "piscinexa_ph_target": {
-        "name": "pH Cible"
+        "name": "pH Cible",
+        "unit_of_measurement": "mg/L"
       },
       "piscinexa_chlore": {
         "name": "Chlore",
