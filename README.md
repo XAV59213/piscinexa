@@ -21,7 +21,7 @@ Shortcut:
 [![](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=piscinexa)  
 
 - Allez dans **Paramètres -> Intégrations -> Ajouter une intégration**  
-- Cherchez **"Free SMS"** et suivez les instructions dans le **config flow**.  
+- Cherchez **"Piscinexa** et suivez les instructions dans le **config flow**.  
 
 ---
 
