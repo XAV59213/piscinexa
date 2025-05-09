@@ -247,7 +247,7 @@
         "unit_of_measurement": "h"
       },
       "piscinexa_temperature": {
-        "name": "Temperature",
+        "name": "Water Temperature",
         "unit_of_measurement": "°C"
       },
       "piscinexa_ph": {
@@ -291,7 +291,7 @@
         "unit_of_measurement": "W"
       },
       "piscinexa_log": {
-        "name": "Log",
+        "name": "Pool Log",
         "default_value": "No actions"
       },
       "piscinexa_pool_state": {
@@ -318,42 +318,42 @@
       }
     },
     "button": {
-      "piscinexa_{name}_test": {
-        "name": "{name} Test"
+      "piscinexa_test": {
+        "name": "Test"
       },
-      "piscinexa_{name}_reset": {
-        "name": "{name} Reset"
+      "piscinexa_reset": {
+        "name": "Reset"
       }
     },
     "input_number": {
-      "{name}_ph_current": {
-        "name": "{name} Current pH"
+      "piscinexa_ph_current": {
+        "name": "Current pH"
       },
-      "{name}_chlore_current": {
-        "name": "{name} Current Chlorine"
+      "piscinexa_chlore_current": {
+        "name": "Current Chlorine"
       }
     },
     "input_select": {
-      "{name}_ph_plus_treatment": {
-        "name": "{name} pH+ Treatment",
+      "piscinexa_ph_plus_treatment": {
+        "name": "pH+ Treatment",
         "options": {
           "liquid": "Liquid",
           "granules": "Granules"
         }
       },
-      "{name}_ph_minus_treatment": {
-        "name": "{name} pH- Treatment",
+      "piscinexa_ph_minus_treatment": {
+        "name": "pH- Treatment",
         "options": {
           "liquid": "Liquid",
           "granules": "Granules"
         }
       },
-      "{name}_chlore_treatment": {
-        "name": "{name} Chlorine Treatment",
+      "piscinexa_chlore_treatment": {
+        "name": "Chlorine Treatment",
         "options": {
+          "liquid": "Liquid",
           "shock": "Chlorine shock (powder)",
-          "tablet": "Slow-release tablet",
-          "liquid": "Liquid"
+          "tablet": "Slow-release tablet"
         }
       }
     }
