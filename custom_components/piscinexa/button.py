@@ -36,6 +36,7 @@ class PiscinexaButton(ButtonEntity):
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:cog"
+        self._attr_name = "Tester" if action == "test" else "Réinitialiser"
         self._translations = None
 
     async def async_added_to_hass(self):
@@ -45,11 +46,24 @@ class PiscinexaButton(ButtonEntity):
             "entity",
             integrations={DOMAIN},
         )
-        self._attr_name = self._translations.get(
-            f"entity.button.piscinexa_{self._action}.name",
-            self._action.capitalize()
+        translation_key = f"entity.button.piscinexa_{self._action}.name"
+        default_name = "Tester" if self._action == "test" else "Réinitialiser"
+        if self._hass.config.language != "fr":
+            default_name = "Test" if self._action == "test" else "Reset"
+        
+        self._attr_name = self._translations.get(translation_key, default_name)
+        
+        if self._attr_name.lower() == self._name.lower():
+            _LOGGER.warning(
+                f"Nom du bouton {self._action} incorrect ({self._attr_name}), "
+                f"utilisation de la valeur par défaut : {default_name}"
+            )
+            self._attr_name = default_name
+            
+        _LOGGER.debug(
+            f"Configuration du friendly_name pour le bouton {self._action}: "
+            f"{self._attr_name} (clé de traduction : {translation_key})"
         )
-        _LOGGER.debug(f"Setting friendly_name for Button {self._action.capitalize()}: {self._attr_name}")
         self.async_write_ha_state()
 
     async def async_press(self):
