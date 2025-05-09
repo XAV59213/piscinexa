@@ -556,7 +556,7 @@ class PiscinexaChloreSensor(SensorEntity):
         self._name = name
         self._hass = hass
         self._attr_name = f"{DOMAIN}_{name}_chlore"
-        self._attr_friendly_name = f"{name.capitalize()} Chlore"
+        self._attr_friendly_name = f"{name.capitalize()} Chlore Actuel"  # Modification ici
         self._attr_unit_of_measurement = UNIT_MG_PER_LITER
         self._attr_icon = "mdi:water-check"
         self._attr_unique_id = f"{entry.entry_id}_chlore"
@@ -612,7 +612,7 @@ class PiscinexaChloreSensor(SensorEntity):
                         f"input_number.{self._name}_chlore_current",
                         value,
                         {
-                            "friendly_name": f"{self._name.capitalize()} Chlore Actuel",
+                            "friendly_name": f"{self._name.capitalize()} Chlore Actuel",  # Modification ici
                             "min": 0,
                             "max": 10,
                             "step": 0.1,
@@ -688,7 +688,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_chloreaajouter"
-        self._attr_friendly_name = f"{name.capitalize()} Chlore à Ajouter"  # Modification ici
+        self._attr_friendly_name = f"{name.capitalize()} Chlore à Ajouter"
         self._attr_icon = "mdi:bottle-tonic-plus"
         self._attr_unique_id = f"{entry.entry_id}_chlore_a_ajouter"
         self._attr_device_info = DeviceInfo(
@@ -817,7 +817,7 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
         self._entry = entry
         self._name = name
         self._attr_name = f"{DOMAIN}_{name}_chloredifference"
-        self._attr_friendly_name = f"{name.capitalize()} Chlore Différence"  # Modification ici
+        self._attr_friendly_name = f"{name.capitalize()} Chlore Différence"
         self._attr_unit_of_measurement = UNIT_MG_PER_LITER
         self._attr_icon = "mdi:delta"
         self._attr_unique_id = f"{entry.entry_id}_chlore_difference"
@@ -916,7 +916,7 @@ class PiscinexaPowerSensor(SensorEntity):
             )
 
     async def async_will_remove_from_hass(self):
-        for subscription in the._subscriptions:
+        for subscription in self._subscriptions:
             subscription()
         self._subscriptions.clear()
 
