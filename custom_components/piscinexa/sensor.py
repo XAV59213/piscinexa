@@ -59,6 +59,12 @@ async def async_setup_entry(
     """Configurez les capteurs pour Piscinexa."""
     await load_translations(hass)
     
+    # S'assurer que "temperature" est défini dans les données de l'entrée
+    data = entry.data.copy()
+    if "temperature" not in data or not isinstance(data["temperature"], (int, float)):
+        data["temperature"] = 20.0  # Valeur par défaut si manquante ou invalide
+        hass.config_entries.async_update_entry(entry, data=data)
+
     log_sensor = PiscinexaLogSensor(hass, entry)
     hass.data[DOMAIN]["log"] = log_sensor
     name = entry.data["name"]
@@ -181,9 +187,18 @@ class PiscinexaTempsFiltrationRecommandeSensor(SensorEntity):
                         )
                     )
                     return None
+            else:
+                _LOGGER.warning(
+                    get_translation(
+                        "temperature_sensor_unavailable",
+                        {"sensor_id": sensor_id}
+                    )
+                )
         try:
-            return round(float(self._entry.data["temperature"]) / 2, 1)
-        except Exception as e:
+            # S'assurer que "temperature" est valide
+            temperature = float(self._entry.data.get("temperature", 20.0))
+            return round(temperature / 2, 1)
+        except (ValueError, TypeError) as e:
             _LOGGER.error(
                 get_translation(
                     "default_temperature_invalid",
@@ -339,7 +354,18 @@ class PiscinexaTemperatureSensor(SensorEntity):
                             {"sensor_id": sensor_id}
                         )
                     )
-                    return None
+                    # Utiliser la température par défaut si le capteur est indisponible
+                    try:
+                        temperature = float(self._entry.data.get("temperature", 20.0))
+                        return round(temperature, 1)
+                    except (ValueError, TypeError) as e:
+                        _LOGGER.error(
+                            get_translation(
+                                "default_temperature_invalid",
+                                {"error": str(e)}
+                            )
+                        )
+                        return None
                 try:
                     value = float(state.state)
                     unit = state.attributes.get("unit_of_measurement", "").lower()
@@ -357,8 +383,10 @@ class PiscinexaTemperatureSensor(SensorEntity):
                     )
                     return None
         try:
-            return round(float(self._entry.data["temperature"]), 1)
-        except Exception as e:
+            # S'assurer que "temperature" est valide
+            temperature = float(self._entry.data.get("temperature", 20.0))
+            return round(temperature, 1)
+        except (ValueError, TypeError) as e:
             _LOGGER.error(
                 get_translation(
                     "default_temperature_invalid",
