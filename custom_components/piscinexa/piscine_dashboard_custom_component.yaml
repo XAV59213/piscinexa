@@ -1,208 +1,67 @@
-# Tableau de bord pour une seule piscine.
-# Remplacez '<name>' par le nom de votre piscine configurée dans Piscinexa (par exemple, 'piscine' ou 'spa').
-# Assurez-vous que les entités correspondent à votre configuration dans Home Assistant.
-
-type: sections
-max_columns: 4
-title: Piscine
-path: piscine
-icon: mdi:pool-thermometer
-badges:
-  - type: entity
-    show_name: false
-    show_state: true
-    show_icon: true
-    entity: sensor.piscinexa_<name>_consopuissance
-  - type: entity
-    show_name: false
-    show_state: true
-    show_icon: true
-    entity: sensor.piscinexa_<name>_pool_state
-  - type: entity
-    show_name: false
-    show_state: true
-    show_icon: true
-    entity: calendar.pompage_piscine
-sections:
-  - type: grid
-    column_span: 3
+# Tableau de bord pour une seule piscine. Remplacez '<entry_id>' par l'identifiant réel de votre configuration.
+title: Tableau de bord piscine
+views:
+  - title: Piscine
+    path: piscine
     cards:
-      - type: heading
-        heading: 💧 Gestion de la piscine
-        heading_style: title
-        badges:
-          - type: entity
-            entity: sensor.piscinexa_<name>_chloredifference
-      - type: vertical-stack
-        cards:
-          - type: entities
-            title: 🧪 Informations principales - Chlore 🧪
-            show_header_toggle: false
-            entities:
-              - entity: sensor.piscinexa_<name>_chlore_target
-                icon: mdi:pool
-                name: Chlore cible
-              - entity: sensor.piscinexa_<name>_chloredifference
-                icon: mdi:delta
-                name: Différence chlore
-            state_color: true
-          - type: entities
-            title: 🧪 Qualité de l'eau - Chlore
-            show_header_toggle: false
-            entities:
-              - entity: sensor.piscinexa_<name>_chlore
-                name: Chlore actuel
-                icon: mdi:water-check
-              - type: template
-                entity_id: sensor.piscinexa_<name>_chloreaajouter
-                content: >
-                  {% if states('sensor.piscinexa_<name>_chloreaajouter') | float(default=0) > 0 %}
-                    {{ states('sensor.piscinexa_<name>_chloreaajouter') }} {{ state_attr('sensor.piscinexa_<name>_chloreaajouter', 'unit_of_measurement') }} ({{ state_attr('sensor.piscinexa_<name>_chloreaajouter', 'treatment_type') }} pour {{ state_attr('sensor.piscinexa_<name>_chloreaajouter', 'volume') }} m³)
-                  {% else %}
-                    Aucun ajustement nécessaire
-                  {% endif %}
-              - entity: sensor.piscinexa_<name>_consopuissance
-                name: Consommation puissance
-                icon: mdi:flash
-          - type: history-graph
-            title: 📊 Historique Chlore (48h)
-            hours_to_show: 48
-            refresh_interval: 300
-            entities:
-              - entity: sensor.piscinexa_<name>_chlore
-                name: Chlore
-            logarithmic_scale: true
-          - type: history-graph
-            title: 💊 Historique pH et Chlore (48h)
-            hours_to_show: 48
-            refresh_interval: 300
-            entities:
-              - entity: sensor.piscinexa_<name>_ph
-                name: pH
-              - entity: sensor.piscinexa_<name>_chlore
-                name: Chlore
-            logarithmic_scale: true
-      - type: vertical-stack
-        cards:
-          - type: entities
-            title: ⚖️ Informations principales - pH ⚖️
-            show_header_toggle: false
-            entities:
-              - entity: sensor.piscinexa_<name>_ph_target
-                icon: mdi:target
-                name: pH cible
-              - entity: sensor.piscinexa_<name>_ph
-                name: pH actuel
-                icon: mdi:water
-          - type: entities
-            title: ⚖️ Qualité de l'eau - pH
-            show_header_toggle: false
-            entities:
-              - entity: sensor.piscinexa_<name>_ph
-                name: pH actuel
-                icon: mdi:water-ph
-              - type: template
-                entity_id: sensor.piscinexa_<name>_ph_plus_ajouter
-                content: >
-                  {% if states('sensor.piscinexa_<name>_ph_plus_ajouter') | float(default=0) > 0 %}
-                    {{ states('sensor.piscinexa_<name>_ph_plus_ajouter') }} {{ state_attr('sensor.piscinexa_<name>_ph_plus_ajouter', 'unit_of_measurement') }}
-                  {% else %}
-                    Aucun ajustement nécessaire
-                  {% endif %}
-              - type: template
-                entity_id: sensor.piscinexa_<name>_ph_minus_ajouter
-                content: >
-                  {% if states('sensor.piscinexa_<name>_ph_minus_ajouter') | float(default=0) > 0 %}
-                    {{ states('sensor.piscinexa_<name>_ph_minus_ajouter') }} {{ state_attr('sensor.piscinexa_<name>_ph_minus_ajouter', 'unit_of_measurement') }}
-                  {% else %}
-                    Aucun ajustement nécessaire
-                  {% endif %}
-          - type: history-graph
-            title: 📊 Historique pH (48h)
-            hours_to_show: 48
-            refresh_interval: 300
-            entities:
-              - entity: sensor.piscinexa_<name>_ph
-                name: pH
-            logarithmic_scale: true
-          - type: history-graph
-            title: 🌡️ Historique Température (48h)
-            hours_to_show: 48
-            refresh_interval: 300
-            entities:
-              - entity: sensor.piscinexa_<name>_temperature
-                name: Température
-            logarithmic_scale: true
-      - type: vertical-stack
-        cards:
-          - type: entities
-            title: 🏊 Contrôle Qualité Piscine 🏊
-            show_header_toggle: false
-            entities:
-              - entity: sensor.piscinexa_<name>_volume_eau
-                name: Volume d'eau
-                icon: mdi:pool
-              - entity: sensor.piscinexa_<name>_tempsfiltration_recommande
-                name: Temps de filtration recommandé
-                icon: mdi:clock
-              - entity: sensor.piscinexa_<name>_tempsfiltration_effectue
-                name: Temps de filtration effectué
-                icon: mdi:clock-check
-          - type: entities
-            title: 💧 Qualité de l'eau 💧
-            show_header_toggle: false
-            entities:
-              - entity: sensor.piscinexa_<name>_ph
-                name: pH actuel
-                icon: mdi:water-ph
-              - entity: sensor.piscinexa_<name>_chlore
-                name: Chlore actuel
-                icon: mdi:water-check
-          - type: entities
-            title: ⚡ Consommation
-            show_header_toggle: false
-            entities:
-              - entity: sensor.piscinexa_<name>_consopuissance
-                name: Consommation de puissance
-                icon: mdi:flash
-          - type: entities
-            title: 📝 Journal des actions
-            show_header_toggle: false
-            entities:
-              - entity: sensor.piscinexa_<name>_log
-                name: Journal
-                icon: mdi:notebook
-          - type: horizontal-stack
-            cards:
-              - show_name: true
-                show_icon: true
-                type: button
-                entity: button.piscinexa_<name>_test
-                name: Tester les calculs
-                icon: mdi:calculator
-                tap_action:
-                  action: call-service
-                  service: piscinexa.test_calcul
-                  service_data:
-                    name: <name>
-              - show_name: true
-                show_icon: true
-                type: button
-                entity: button.piscinexa_<name>_reset
-                name: Réinitialiser les valeurs
-                icon: mdi:refresh
-                tap_action:
-                  action: call-service
-                  service: piscinexa.reset_valeurs
-                  service_data:
-                    name: <name>
-          - type: history-graph
-            title: 📆 Calendrier Pompage
-            hours_to_show: 48
-            refresh_interval: 300
-            entities:
-              - entity: calendar.pompage_piscine
-            logarithmic_scale: true
-      - type: heading
-        heading: Nouvelle section
-        heading_style: title
+      - type: buttons
+        title: Contrôles
+        entities:
+          - entity: button.<entry_id>_reset
+          - entity: button.<entry_id>_test
+      - type: entities
+        title: Saisie manuelle
+        entities:
+          - entity: input_number.<name>_ph_current
+          - entity: input_number.<name>_chlore_current
+      - type: entities
+        title: Choix des traitements
+        entities:
+          - entity: input_select.<name>_ph_plus_treatment
+          - entity: input_select.<name>_ph_minus_treatment
+          - entity: input_select.<name>_chlore_treatment
+      - type: entities
+        title: Capteurs
+        entities:
+          - entity: sensor.<entry_id>_chlore
+            unit: mg/L
+          - entity: sensor.<entry_id>_chlore_target
+            unit: mg/L
+          - entity: sensor.<entry_id>_chloredifference
+            unit: mg/L
+          - type: template
+            entity_id: sensor.<entry_id>_chloreaajouter
+            content: >
+              {% if states('sensor.<entry_id>_chloreaajouter') | float(default=0) > 0 %}
+                {{ states('sensor.<entry_id>_chloreaajouter') }} {{ state_attr('sensor.<entry_id>_chloreaajouter', 'dose_unit') }} ({{ state_attr('sensor.<entry_id>_chloreaajouter', 'treatment_type') }} pour {{ state_attr('sensor.<entry_id>_chloreaajouter', 'volume') }} m³)
+              {% else %}
+                Aucun ajustement nécessaire
+              {% endif %}
+          - entity: sensor.<entry_id>_consopuissance
+            unit: W
+          - entity: sensor.<entry_id>_log
+          - entity: sensor.<entry_id>_ph
+          - entity: sensor.<entry_id>_ph_target
+          - type: template
+            entity_id: sensor.<entry_id>_ph_plus_ajouter
+            content: >
+              {% if states('sensor.<entry_id>_ph_plus_ajouter') | float(default=0) > 0 %}
+                {{ states('sensor.<entry_id>_ph_plus_ajouter') }} {{ state_attr('sensor.<entry_id>_ph_plus_ajouter', 'unit_of_measurement') }}
+              {% else %}
+                Aucun ajustement nécessaire
+              {% endif %}
+          - type: template
+            entity_id: sensor.<entry_id>_ph_minus_ajouter
+            content: >
+              {% if states('sensor.<entry_id>_ph_minus_ajouter') | float(default=0) > 0 %}
+                {{ states('sensor.<entry_id>_ph_minus_ajouter') }} {{ state_attr('sensor.<entry_id>_ph_minus_ajouter', 'unit_of_measurement') }}
+              {% else %}
+                Aucun ajustement nécessaire
+              {% endif %}
+          - entity: sensor.<entry_id>_temperature
+            unit: °C
+          - entity: sensor.<entry_id>_tempsfiltration
+            unit: h
+          - entity: sensor.<entry_id>_volume_eau
+            unit: m³
+          - entity: sensor.<entry_id>_pool_state
