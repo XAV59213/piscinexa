@@ -36,7 +36,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
             return key  # Retourne la clé brute si la traduction échoue
 
-    # Vérification et définition des valeurs par défaut pour chlore_target et ph_target
+    # Vérification et définition des valeurs par défaut pour chlore_target, ph_target et temperature
     if "chlore_target" not in hass.data[DOMAIN][entry.entry_id]:
         _LOGGER.warning(
             get_translation("chlore_target_missing", {"default_value": "2.0"})
@@ -47,6 +47,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             get_translation("ph_target_missing", {"default_value": "7.4"})
         )
         hass.data[DOMAIN][entry.entry_id]["ph_target"] = 7.4
+    if "temperature" not in hass.data[DOMAIN][entry.entry_id] or not isinstance(hass.data[DOMAIN][entry.entry_id]["temperature"], (int, float)):
+        _LOGGER.warning(
+            get_translation("default_temperature_invalid", {"error": "Temperature missing or invalid, setting default: 20.0"})
+        )
+        hass.data[DOMAIN][entry.entry_id]["temperature"] = 20.0
 
     async def handle_test_calcul(call: ServiceCall):
         name = hass.data[DOMAIN][entry.entry_id]["name"]
@@ -84,6 +89,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 "diameter": float(entry.data.get("diameter", 4.0)),
                 "depth": float(entry.data.get("depth", 1.5))
             })
+        # Inclure power_sensor_entity_id dans les données
+        if "power_sensor_entity_id" in entry.data:
+            data["power_sensor_entity_id"] = entry.data["power_sensor_entity_id"]
         hass.data[DOMAIN][entry.entry_id].update(data)
 
         for entity_id in [f"input_number.{name}_chlore_current", f"input_number.{name}_ph_current"]:
