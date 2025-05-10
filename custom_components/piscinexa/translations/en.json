@@ -3,8 +3,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Step 1 - Initial Setup",
-        "description": "Welcome to Piscinexa setup! Let's start by defining the basic information for your pool.\n\n- Enter a unique name for your pool.\n- Select the pool type (square or round).",
+        "title": "Step 1 - Initial Configuration",
+        "description": "Welcome to the Piscinexa configuration! Let's start by setting up the basic information for your pool.\n\n- Enter a unique name for your pool.\n- Select the pool type (square or round).",
         "data": {
           "name": "Pool name",
           "pool_type": "Pool type",
@@ -14,7 +14,7 @@
       },
       "dimensions": {
         "title": "Step 2 - Pool Dimensions",
-        "description": "Enter your pool's dimensions to calculate its volume.\n\n- For a square pool, provide the length, width, and depth.\n- For a round pool, provide the diameter and depth.\n\nValues must be in meters.",
+        "description": "Enter the dimensions of your pool to calculate its volume.\n\n- If your pool is square, provide the length, width, and depth.\n- If your pool is round, provide the diameter and depth.\n\nValues should be in meters.",
         "data": {
           "length": "Length (meters)",
           "width": "Width (meters)",
@@ -23,16 +23,16 @@
         }
       },
       "ph_config": {
-        "title": "Step 3 - pH Sensor Setup",
-        "description": "Choose how to configure the pH for your pool.\n\n- **Manual input**: Enter the current measured and target pH values.\n- **Select a sensor**: Use an existing sensor to measure the current pH.",
+        "title": "Step 3 - pH Sensor Configuration",
+        "description": "Choose how to configure the pH for your pool.\n\n- **Manual entry**: Enter the current measured and target pH values.\n- **Select a sensor**: Use an existing sensor to measure the current pH.",
         "data": {
           "ph_config_choice": "pH configuration method",
-          "manual": "Manual input",
+          "manual": "Manual entry",
           "sensor": "Select a sensor"
         }
       },
       "ph_manual": {
-        "title": "Step 3 - Manual pH Input",
+        "title": "Step 3 - Manual pH Entry",
         "description": "Enter the pH values for your pool.\n\n- **Current pH (measured)**: The current pH of your pool, measured manually (optional).\n- **Target pH (ideal)**: The ideal pH you want to achieve (required, typically between 7.2 and 7.6 for a pool).",
         "no_sensor_ph": "Piscinexa could not find a compatible pH sensor. You must configure the values manually.",
         "data": {
@@ -41,12 +41,12 @@
         }
       },
       "ph_sensor": {
-        "title": "Step 3 - Select pH Sensor",
+        "title": "Step 3 - Select a pH Sensor",
         "description": "Select a sensor to measure the current pH of your pool and set the ideal target value.\n\n- **pH sensor**: Choose an existing sensor in your system (optional, select 'No sensor' to skip).\n- **Target pH (ideal)**: The ideal pH you want to achieve (required, typically between 7.2 and 7.6 for a pool).",
         "data": {
           "ph_sensor": "pH sensor",
           "ph_target": "Target pH (ideal)",
-          "no_sensor": "No sensor (manual input)"
+          "no_sensor": "No sensor (manual entry)"
         }
       },
       "confirm_ph_sensor": {
@@ -59,16 +59,16 @@
         }
       },
       "chlore_config": {
-        "title": "Step 4 - Chlorine Sensor Setup",
-        "description": "Choose how to configure the chlorine for your pool.\n\n- **Manual input**: Enter the current measured and target chlorine values.\n- **Select a sensor**: Use an existing sensor to measure the current chlorine.",
+        "title": "Step 4 - Chlorine Sensor Configuration",
+        "description": "Choose how to configure the chlorine for your pool.\n\n- **Manual entry**: Enter the current measured and target chlorine values.\n- **Select a sensor**: Use an existing sensor to measure the current chlorine.",
         "data": {
           "chlore_config_choice": "Chlorine configuration method",
-          "manual": "Manual input",
+          "manual": "Manual entry",
           "sensor": "Select a sensor"
         }
       },
       "chlore_manual": {
-        "title": "Step 4 - Manual Chlorine Input",
+        "title": "Step 4 - Manual Chlorine Entry",
         "description": "Enter the chlorine values for your pool.\n\n- **Current chlorine (measured, mg/L)**: The current chlorine level in your pool, measured manually (optional).\n- **Target chlorine (ideal, mg/L)**: The ideal chlorine level you want to achieve (required, typically between 1 and 3 mg/L for a pool).",
         "no_sensor_chlore": "Piscinexa could not find a compatible chlorine sensor. You must configure the values manually.",
         "data": {
@@ -77,12 +77,12 @@
         }
       },
       "chlore_sensor": {
-        "title": "Step 4 - Select Chlorine Sensor",
+        "title": "Step 4 - Select a Chlorine Sensor",
         "description": "Select a sensor to measure the current chlorine level in your pool and set the ideal target value.\n\n- **Chlorine sensor**: Choose an existing sensor in your system (optional, select 'No sensor' to skip).\n- **Target chlorine (ideal, mg/L)**: The ideal chlorine level you want to achieve (required, typically between 1 and 3 mg/L for a pool).",
         "data": {
           "chlore_sensor": "Chlorine sensor",
           "chlore_target": "Target chlorine (ideal, mg/L)",
-          "no_sensor": "No sensor (manual input)"
+          "no_sensor": "No sensor (manual entry)"
         }
       },
       "confirm_chlore_sensor": {
@@ -95,16 +95,16 @@
         }
       },
       "temperature_config": {
-        "title": "Step 5 - Temperature Sensor Setup",
-        "description": "Choose how to configure the temperature for your pool.\n\n- **Manual input**: Enter the current measured pool temperature.\n- **Select a sensor**: Use an existing sensor to measure the current temperature.",
+        "title": "Step 5 - Temperature Sensor Configuration",
+        "description": "Choose how to configure the temperature for your pool.\n\n- **Manual entry**: Enter the current measured temperature of your pool.\n- **Select a sensor**: Use an existing sensor to measure the current temperature.",
         "data": {
           "temperature_config_choice": "Temperature configuration method",
-          "manual": "Manual input",
+          "manual": "Manual entry",
           "sensor": "Select a sensor"
         }
       },
       "temperature_manual": {
-        "title": "Step 5 - Manual Temperature Input",
+        "title": "Step 5 - Manual Temperature Entry",
         "description": "Enter the current measured temperature of your pool.\n\n- **Current temperature (°C)**: The current water temperature, measured manually (optional).",
         "no_sensor_temperature": "Piscinexa could not find a compatible temperature sensor. You must configure the values manually.",
         "data": {
@@ -112,11 +112,11 @@
         }
       },
       "temperature_sensor": {
-        "title": "Step 5 - Select Temperature Sensor",
+        "title": "Step 5 - Select a Temperature Sensor",
         "description": "Select a sensor to measure the current temperature of your pool.\n\n- **Temperature sensor**: Choose an existing sensor in your system (optional, select 'No sensor' to skip).",
         "data": {
           "temperature_sensor": "Temperature sensor",
-          "no_sensor": "No sensor (manual input)"
+          "no_sensor": "No sensor (manual entry)"
         }
       },
       "confirm_temperature_sensor": {
@@ -129,8 +129,8 @@
         }
       },
       "power_config": {
-        "title": "Step 6 - Power Sensor Setup",
-        "description": "Choose whether to use a sensor to measure the power consumption of your pool or leave this field empty.\n\n- **Manual input**: Leave this field empty.\n- **Select a sensor**: Enter the ID of an existing sensor to measure power consumption.",
+        "title": "Step 6 - Power Sensor Configuration",
+        "description": "Choose whether to use a sensor to measure the power consumption of your pool or leave this field empty.\n\n- **Manual entry**: Leave this field empty.\n- **Select a sensor**: Enter the ID of an existing sensor to measure power consumption.",
         "data": {
           "power_config_choice": "Power configuration method",
           "manual": "Manual (no sensor)",
@@ -138,13 +138,13 @@
         }
       },
       "power_manual": {
-        "title": "Step 6 - Manual Power Input",
+        "title": "Step 6 - Manual Power Entry",
         "description": "No power sensor will be used.",
-        "no_sensor_power": "Piscinexa could not find a compatible power sensor. Proceeding without a sensor.",
+        "no_sensor_power": "Piscinexa could not find a compatible power sensor. Continuing without a sensor.",
         "data": {}
       },
       "power_sensor": {
-        "title": "Step 6 - Select Power Sensor",
+        "title": "Step 6 - Select a Power Sensor",
         "description": "Enter the entity ID of the sensor to measure power consumption.\n\n- **Power sensor entity ID**: Provide the exact entity ID (optional, leave empty to skip, e.g., sensor.pool_power).",
         "data": {
           "power_sensor_entity_id": "Power sensor entity ID"
@@ -155,7 +155,7 @@
         "description": "No power sensor was selected. What would you like to do?",
         "data": {
           "confirm_choice": "Choice",
-          "manual": "Proceed without sensor",
+          "manual": "Continue without sensor",
           "retry": "Retry sensor selection"
         }
       },
@@ -163,21 +163,21 @@
         "title": "Step 7 - Treatment Types Configuration",
         "description": "Select the types of chemical treatments used for your pool.",
         "data": {
-          "ph_plus_treatment": "pH+ Treatment Type",
-          "ph_minus_treatment": "pH- Treatment Type",
-          "chlore_treatment": "Chlorine Treatment Type",
+          "ph_plus_treatment": "pH+ treatment type",
+          "ph_minus_treatment": "pH- treatment type",
+          "chlore_treatment": "Chlorine treatment type",
           "ph_plus_treatment_liquid": "Liquid",
           "ph_plus_treatment_granules": "Granules",
           "ph_minus_treatment_liquid": "Liquid",
           "ph_minus_treatment_granules": "Granules",
           "chlore_treatment_liquid": "Liquid",
-          "chlore_treatment_shock": "Chlorine shock (powder)",
-          "chlore_treatment_tablet": "Slow-release tablet"
+          "chlore_treatment_shock": "Shock chlorine (powder)",
+          "chlore_treatment_tablet": "Slow-dissolving tablet"
         }
       },
       "summary": {
         "title": "Step 8 - Summary",
-        "description": "Here is a summary of your configuration. Review the details before confirming.\n\n{summary}",
+        "description": "Here is a summary of your configuration. Please review the details before confirming.\n\n{summary}",
         "data": {},
         "labels": {
           "pool_name": "Pool name",
@@ -207,13 +207,14 @@
       },
       "init": {
         "title": "Piscinexa Options",
-        "description": "Adjust the target settings for your pool.\n\n- **Target pH**: The ideal pH value you want to achieve.\n- **Target chlorine**: The ideal chlorine level you want to achieve (mg/L).\n- **Sensors**: Select or update the sensors used to measure pH, chlorine, and temperature.",
+        "description": "Adjust the target parameters for your pool.\n\n- **Target pH**: The ideal pH value you want to achieve.\n- **Target chlorine**: The ideal chlorine level you want to achieve (mg/L).\n- **Sensors**: Select or update the sensors used to measure pH, chlorine, temperature, and power.",
         "data": {
           "ph_target": "Target pH (ideal)",
           "chlore_target": "Target chlorine (ideal, mg/L)",
           "temperature_sensor": "Temperature sensor",
           "chlore_sensor": "Chlorine sensor",
           "ph_sensor": "pH sensor",
+          "power_sensor_entity_id": "Power sensor",
           "no_sensor_temperature": "No temperature sensor",
           "no_sensor_chlore": "No chlorine sensor",
           "no_sensor_ph": "No pH sensor"
@@ -286,9 +287,9 @@
         "name": "Chlorine to Add",
         "unit_of_measurement": "g",
         "messages": {
-          "remove_chlorine": "Chlorine level is too high, consider reducing it.",
-          "volume_unavailable": "Water volume unavailable, cannot calculate dose.",
-          "temperature_unavailable": "Temperature unavailable, cannot calculate dose.",
+          "remove_chlorine": "Chlorine level too high, consider reducing it.",
+          "volume_unavailable": "Water volume unavailable, unable to calculate dose.",
+          "temperature_unavailable": "Temperature unavailable, unable to calculate dose.",
           "calculation_error": "Error calculating chlorine dose."
         }
       },
@@ -298,25 +299,25 @@
       },
       "piscinexa_log": {
         "name": "Pool Log",
-        "default_value": "No actions"
+        "default_value": "No action"
       },
       "piscinexa_pool_state": {
         "name": "Pool State",
         "states": {
           "temperature_too_cold": "Temperature too cold",
           "temperature_too_hot": "Temperature too hot",
-          "temperature_ideal": "Temperature ideal",
+          "temperature_ideal": "Ideal temperature",
           "temperature_unavailable": "Temperature unavailable",
           "chlore_too_low": "Chlorine too low",
           "chlore_too_high": "Chlorine too high",
-          "chlore_ideal": "Chlorine ideal",
+          "chlore_ideal": "Ideal chlorine",
           "chlore_unavailable": "Chlorine unavailable",
           "ph_too_low": "pH too low",
           "ph_too_high": "pH too high",
-          "ph_ideal": "pH ideal",
+          "ph_ideal": "Ideal pH",
           "ph_unavailable": "pH unavailable",
-          "filtration_insufficient": "Filtration time insufficient",
-          "filtration_ideal": "Filtration time ideal",
+          "filtration_insufficient": "Insufficient filtration time",
+          "filtration_ideal": "Ideal filtration time",
           "filtration_unavailable": "Filtration time unavailable",
           "swimming_allowed": "Swimming allowed",
           "evaluation_error": "Evaluation error"
@@ -357,9 +358,9 @@
       "piscinexa_chlore_treatment": {
         "name": "Chlorine Treatment",
         "options": {
-          "liquid": "Liquid",
-          "shock": "Chlorine shock (powder)",
-          "tablet": "Slow-release tablet"
+          "shock": "Shock chlorine (powder)",
+          "tablet": "Slow-dissolving tablet",
+          "liquid": "Liquid"
         }
       }
     }
@@ -433,7 +434,7 @@
       }
     },
     "reset_valeurs": {
-      "description": "Resets the pool's pH and chlorine values to their default settings.",
+      "description": "Resets the pH and chlorine values of the pool to their default settings.",
       "fields": {
         "name": {
           "description": "The name of the pool to reset.",
@@ -453,7 +454,7 @@
           "example": "Chlorine"
         },
         "treatment_form": {
-          "description": "The form of the treatment (Liquid, Granules, Chlorine shock (powder), or Slow-release tablet).",
+          "description": "The form of the treatment (Liquid, Granules, Shock chlorine (powder), or Slow-dissolving tablet).",
           "example": "Liquid"
         },
         "quantity": {
@@ -473,6 +474,38 @@
     "apply_treatment_called": "Service apply_treatment called for pool {name}: {treatment_type} ({treatment_form}), quantity: {quantity}",
     "apply_treatment_action": "Applied treatment: {treatment_type} ({treatment_form}), quantity: {quantity}",
     "platform_load_error": "Error loading platform: {error}",
-    "platform_unload_error": "Error unloading platform: {error}"
+    "platform_unload_error": "Error unloading platform: {error}",
+    "translation_retrieval_error": "Error retrieving translation for key {key}: {error}",
+    "volume_calculation_error": "Error calculating volume for {name}: {error}",
+    "temperature_conversion_error": "Error converting temperature from {sensor_id}: {error}",
+    "default_temperature_invalid": "Default temperature invalid: {error}",
+    "temperature_sensor_unavailable": "Temperature sensor {sensor_id} unavailable",
+    "ph_sensor_unavailable": "pH sensor {sensor_id} unavailable",
+    "non_numeric_sensor_value": "Non-numeric value for sensor {sensor_id}: {state}",
+    "non_numeric_power_sensor_value": "Non-numeric value for power sensor {sensor_id}: {error}",
+    "input_number_read_error": "Error reading {type} from input_number: {error}",
+    "default_value_read_error": "Error reading {type}: {error}",
+    "ph_plus_unit_error": "Error determining pH+ unit: {error}",
+    "ph_minus_unit_error": "Error determining pH- unit: {error}",
+    "ph_plus_dose_error": "Error calculating pH+ dose for {name}: {error}",
+    "ph_minus_dose_error": "Error calculating pH- dose for {name}: {error}",
+    "ph_attributes_error": "Error retrieving pH+ attributes: {error}",
+    "ph_minus_attributes_error": "Error retrieving pH- attributes: {error}",
+    "chlore_dose_error": "Error calculating chlorine dose for {name}: {error}",
+    "chlore_attributes_error": "Error retrieving additional attributes: {error}",
+    "chlore_difference_error": "Error calculating chlorine difference for {name}: {error}",
+    "power_sensor_read_error": "Error reading power sensor: {error}",
+    "pool_state_error": "Error calculating pool state for {name}: {error}",
+    "pool_state_attributes_error": "Error retrieving pool state attributes: {error}",
+    "filtration_time_read_error": "Error reading performed filtration time: {error}",
+    "filtration_attributes_error": "Error retrieving performed filtration attributes: {error}",
+    "remove_chlorine_message": "Remove chlorine, no need currently",
+    "volume_unavailable_message": "Volume unavailable",
+    "temperature_unavailable_message": "Temperature unavailable",
+    "calculation_error_message": "Calculation error",
+    "no_action": "No action",
+    "input_number_missing": "input_number entity {entity_id} missing, please configure it manually",
+    "input_select_missing": "input_select entity {entity_id} missing, please configure it manually",
+    "chlore_unit_error": "Error determining chlorine unit: {error}"
   }
 }
