@@ -65,8 +65,6 @@ async def async_setup_entry(
         data["temperature"] = 20.0  # Valeur par défaut si manquante ou invalide
         hass.config_entries.async_update_entry(entry, data=data)
 
-    log_sensor = PiscinexaLogSensor(hass, entry)
-    hass.data[DOMAIN]["log"] = log_sensor
     name = entry.data["name"]
     sensors = [
         PiscinexaVolumeSensor(hass, entry, name),
@@ -83,7 +81,6 @@ async def async_setup_entry(
         PiscinexaChloreDifferenceSensor(hass, entry, name),
         PiscinexaPowerSensor(hass, entry, name),
         PiscinexaPoolStateSensor(hass, entry, name),
-        log_sensor,
     ]
     async_add_entities(sensors, True)
 
@@ -1201,57 +1198,6 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
                 )
             )
             return None
-
-class PiscinexaLogSensor(SensorEntity):
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry):
-        self._hass = hass
-        self._entry = entry
-        self._name = entry.data["name"]
-        self._attr_name = f"{DOMAIN}_{self._name}_log"
-        self._attr_friendly_name = f"{self._name.capitalize()} Journal"
-        self._attr_unique_id = f"{entry.entry_id}_log"
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, f"piscinexa_{self._name}")},
-            name=self._name.capitalize(),
-            manufacturer="Piscinexa",
-            model="Piscine",
-            sw_version="1.0.2",
-        )
-        self._attr_icon = "mdi:book"
-        self._attr_native_unit_of_measurement = None
-        self._state = deque(maxlen=10)
-        self._full_log = []  # Stocke tous les messages pour les attributs
-
-    @property
-    def name(self):
-        return self._attr_friendly_name
-
-    def log_action(self, action: str):
-        timestamped_action = f"{datetime.now()}: {action}"
-        self._state.append(timestamped_action)
-        self._full_log.append(timestamped_action)
-        self.async_write_ha_state()
-
-    @property
-    def native_value(self):
-        # Limiter la longueur de l'état à 255 caractères
-        full_state = "\n".join(self._state) if self._state else get_translation("no_action")
-        if len(full_state) > 255:
-            # Tronquer à environ 250 caractères pour laisser une marge
-            truncated = full_state[:250]
-            # S'assurer de ne pas couper au milieu d'un mot
-            last_space = truncated.rfind(" ")
-            if last_space > 0:
-                truncated = truncated[:last_space]
-            return truncated + "..."
-        return full_state
-
-    @property
-    def extra_state_attributes(self):
-        # Retourner la liste complète des messages dans les attributs
-        return {
-            "full_log": self._full_log
-        }
 
 class PiscinexaPowerSensor(SensorEntity):
     def __init__(self, hass, entry, name):
