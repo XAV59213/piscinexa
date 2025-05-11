@@ -455,7 +455,6 @@ class PiscinexaOptionsFlow(config_entries.OptionsFlow):
     """Gérer le flux des options pour Piscinexa."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry):
-        self.config_entry = config_entry
         self._data: Dict[str, Any] = dict(config_entry.data)
         self._errors: Dict[str, str] = {}
 
