@@ -28,13 +28,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     def get_translation(key: str, placeholders: dict = None) -> str:
         """Récupère une traduction avec des placeholders."""
         try:
-            translated = hass.data[DOMAIN]["translations"].get(key, key)
+            translated = hass.data[DOMAIN]["translations"].get(key, None)
+            if translated is None:
+                _LOGGER.warning(f"Clé de traduction manquante : {key}")
+                return f"Erreur : traduction manquante pour {key}"  # Message par défaut en français
             if placeholders:
                 return translated.format(**placeholders)
             return translated
         except Exception as e:
             _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
-            return key  # Retourne la clé brute si la traduction échoue
+            return f"Erreur : traduction indisponible pour {key}"  # Message par défaut en français
 
     # Vérification et définition des valeurs par défaut pour chlore_target, ph_target et temperature
     if "chlore_target" not in hass.data[DOMAIN][entry.entry_id]:
@@ -49,7 +52,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN][entry.entry_id]["ph_target"] = 7.4
     if "temperature" not in hass.data[DOMAIN][entry.entry_id] or not isinstance(hass.data[DOMAIN][entry.entry_id]["temperature"], (int, float)):
         _LOGGER.warning(
-            get_translation("default_temperature_invalid", {"error": "Temperature missing or invalid, setting default: 20.0"})
+            get_translation("default_temperature_invalid", {"error": "Température manquante ou invalide, définition par défaut : 20.0"})
         )
         hass.data[DOMAIN][entry.entry_id]["temperature"] = 20.0
 
@@ -198,13 +201,16 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     def get_translation(key: str, placeholders: dict = None) -> str:
         """Récupère une traduction avec des placeholders."""
         try:
-            translated = hass.data[DOMAIN]["translations"].get(key, key)
+            translated = hass.data[DOMAIN]["translations"].get(key, None)
+            if translated is None:
+                _LOGGER.warning(f"Clé de traduction manquante : {key}")
+                return f"Erreur : traduction manquante pour {key}"  # Message par défaut en français
             if placeholders:
                 return translated.format(**placeholders)
             return translated
         except Exception as e:
             _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
-            return key  # Retourne la clé brute si la traduction échoue
+            return f"Erreur : traduction indisponible pour {key}"  # Message par défaut en français
 
     try:
         await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
