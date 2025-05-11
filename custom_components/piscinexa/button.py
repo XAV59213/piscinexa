@@ -39,14 +39,13 @@ class PiscinexaButton(ButtonEntity):
             sw_version=VERSION,
         )
         self._attr_icon = "mdi:cog"
+        # Nom par défaut en français, sera remplacé par la traduction
         self._attr_name = "Tester" if action == "test" else "Réinitialiser"
 
     async def async_added_to_hass(self):
         """Configure le nom du bouton après ajout à Home Assistant."""
         translation_key = f"entity.button.piscinexa_{self._action}.name"
         default_name = "Tester" if self._action == "test" else "Réinitialiser"
-        if self._hass.config.language != "fr":
-            default_name = "Test" if self._action == "test" else "Reset"
         
         try:
             self._attr_name = self._hass.data[DOMAIN]["translations"].get(translation_key, default_name)
