@@ -258,8 +258,7 @@
         "unit_of_measurement": "°C"
       },
       "piscinexa_ph": {
-        "name": "pH",
-        "unit_of_measurement": "mg/L"
+        "name": "pH"
       },
       "piscinexa_ph_plus_ajouter": {
         "name": "pH+ à Ajouter",
@@ -270,8 +269,7 @@
         "unit_of_measurement": "L"
       },
       "piscinexa_ph_target": {
-        "name": "pH Cible",
-        "unit_of_measurement": "mg/L"
+        "name": "pH Cible"
       },
       "piscinexa_chlore": {
         "name": "Chlore",
