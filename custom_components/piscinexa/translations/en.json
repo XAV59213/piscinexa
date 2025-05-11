@@ -237,7 +237,7 @@
       "unexpected_error": "Unexpected error during configuration: {error}",
       "sensor_unavailable": "Selected sensor is unavailable.",
       "sensor_non_numeric": "Selected sensor does not provide a numeric value."
-          }
+    }
   },
   "entity": {
     "sensor": {
@@ -258,8 +258,7 @@
         "unit_of_measurement": "°C"
       },
       "piscinexa_ph": {
-        "name": "pH",
-        "unit_of_measurement": "mg/L"
+        "name": "pH"
       },
       "piscinexa_ph_plus_ajouter": {
         "name": "pH+ to Add",
@@ -270,8 +269,7 @@
         "unit_of_measurement": "L"
       },
       "piscinexa_ph_target": {
-        "name": "Target pH",
-        "unit_of_measurement": "mg/L"
+        "name": "Target pH"
       },
       "piscinexa_chlore": {
         "name": "Chlorine",
