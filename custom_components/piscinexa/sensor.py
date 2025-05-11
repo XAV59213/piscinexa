@@ -408,7 +408,7 @@ class PiscinexaPhSensor(SensorEntity):
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:water"
-        self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
+        self._attr_native_unit_of_measurement = None
         self._subscriptions = []
         sensor_id = self._entry.data.get("ph_sensor")
         if sensor_id:
@@ -476,7 +476,7 @@ class PiscinexaPhSensor(SensorEntity):
                                 "min": 0,
                                 "max": 14,
                                 "step": 0.1,
-                                "unit_of_measurement": UNIT_MG_PER_LITER,
+                                "unit_of_measurement": None,
                             },
                         )
                     return value
@@ -777,7 +777,7 @@ class PiscinexaPhTargetSensor(SensorEntity):
             sw_version="1.0.2",
         )
         self._attr_icon = "mdi:target"
-        self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
+        self._attr_native_unit_of_measurement = None
         self._subscriptions = []
         input_id = f"input_number.{name}_ph_target"
         if hass.states.get(input_id):  # Vérifier si l'entité existe
