@@ -17,8 +17,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = entry.data.copy()
 
-    # Charger les traductions
-    translations = await async_get_translations(
+    # Charger les traductions et les stocker globalement
+    hass.data[DOMAIN]["translations"] = await async_get_translations(
         hass,
         hass.config.language,
         "logs",
@@ -28,7 +28,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     def get_translation(key: str, placeholders: dict = None) -> str:
         """Récupère une traduction avec des placeholders."""
         try:
-            translated = translations.get(key, key)
+            translated = hass.data[DOMAIN]["translations"].get(key, key)
             if placeholders:
                 return translated.format(**placeholders)
             return translated
@@ -195,17 +195,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Déchargez une entrée de configuration pour Piscinexa."""
-    translations = await async_get_translations(
-        hass,
-        hass.config.language,
-        "logs",
-        integrations={DOMAIN},
-    )
-
     def get_translation(key: str, placeholders: dict = None) -> str:
         """Récupère une traduction avec des placeholders."""
         try:
-            translated = translations.get(key, key)
+            translated = hass.data[DOMAIN]["translations"].get(key, key)
             if placeholders:
                 return translated.format(**placeholders)
             return translated
