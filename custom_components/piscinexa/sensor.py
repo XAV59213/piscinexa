@@ -19,6 +19,7 @@ from .const import (
     UNIT_LITERS,
     UNIT_GRAMS,
     UNIT_MG_PER_LITER,
+    VERSION,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -97,7 +98,7 @@ class PiscinexaVolumeSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:pool"
         self._attr_native_unit_of_measurement = UNIT_CUBIC_METERS
@@ -142,7 +143,7 @@ class PiscinexaTempsFiltrationRecommandeSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:clock"
         self._attr_native_unit_of_measurement = UNIT_HOURS
@@ -217,7 +218,7 @@ class PiscinexaTempsFiltrationEffectueSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:clock-check"
         self._attr_native_unit_of_measurement = UNIT_HOURS
@@ -312,7 +313,7 @@ class PiscinexaTemperatureSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:thermometer"
         self._attr_native_unit_of_measurement = "°C"
@@ -405,7 +406,7 @@ class PiscinexaPhSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:water"
         self._attr_native_unit_of_measurement = None
@@ -526,7 +527,7 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:bottle-tonic-plus"
         self._subscriptions = []
@@ -650,7 +651,7 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:water-minus"
         self._subscriptions = []
@@ -774,7 +775,7 @@ class PiscinexaPhTargetSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:target"
         self._attr_native_unit_of_measurement = None
@@ -833,7 +834,7 @@ class PiscinexaChloreSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:water-check"
         self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
@@ -946,7 +947,7 @@ class PiscinexaChloreTargetSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:target"
         self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
@@ -1005,7 +1006,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:bottle-tonic-plus"
         self._message = None
@@ -1159,7 +1160,7 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:delta"
         self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
@@ -1212,7 +1213,7 @@ class PiscinexaPowerSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:flash"
         self._attr_native_unit_of_measurement = "W"
@@ -1272,7 +1273,7 @@ class PiscinexaPoolStateSensor(SensorEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:pool"
         self._attr_native_unit_of_measurement = None
