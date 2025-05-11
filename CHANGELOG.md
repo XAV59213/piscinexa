@@ -1,8 +1,13 @@
+[1.0.12] - 2025-05-11
+Fixed
+- Removed incorrect unit_of_measurement (mg/L) for piscinexa_ph and piscinexa_ph_target in en.json and fr.json.
+- Removed incorrect unit_of_measurement (mg/L) for input_number.piscine_ph_current and piscine_test_ph_current in configuration.yaml.
 ChangelogAll notable changes to the Piscinexa Home Assistant integration will be documented in this file.The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
+
 [1.0.11] - 2025-05-09
 Fixed
 
-Fixed SyntaxError in sensor.py caused by invalid string Liang, Tony <tony.liang@oracle.com> in PiscinexaTempsFiltrationRecommandeSensor icon definition.
+Fixed SyntaxError in sensor.py caused by invalid string in PiscinexaTempsFiltrationRecommandeSensor icon definition.
 
 [1.0.10] - 2025-05-09
 Changed
