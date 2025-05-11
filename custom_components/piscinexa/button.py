@@ -5,7 +5,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.translation import async_get_translations
-from .const import DOMAIN
+from .const import DOMAIN, VERSION
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ class PiscinexaButton(ButtonEntity):
             name=name.capitalize(),
             manufacturer="Piscinexa",
             model="Piscine",
-            sw_version="1.0.2",
+            sw_version=VERSION,
         )
         self._attr_icon = "mdi:cog"
         self._attr_name = "Tester" if action == "test" else "Réinitialiser"
