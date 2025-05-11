@@ -234,8 +234,10 @@
       "dimensions_invalid": "Invalid dimensions (must be greater than 0).",
       "required_field": "This field is required.",
       "invalid_number": "Invalid numeric value.",
-      "unexpected_error": "Unexpected error during configuration: {error}"
-    }
+      "unexpected_error": "Unexpected error during configuration: {error}",
+      "sensor_unavailable": "Selected sensor is unavailable.",
+      "sensor_non_numeric": "Selected sensor does not provide a numeric value."
+          }
   },
   "entity": {
     "sensor": {
