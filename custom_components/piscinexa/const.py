@@ -23,3 +23,6 @@ UNIT_MG_PER_LITER = "mg/L"
 
 # Constante mathématique
 PI = 3.14159265359
+
+# Version de l'intégration
+VERSION = "1.0.11"
