@@ -45,11 +45,23 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         break
                 if not self._errors:
                     return await self.async_step_dimensions()
+
+        # Récupérer les traductions pour les options du type de piscine
+        translations = self.hass.data[DOMAIN]["translations"]
+        pool_type_square_label = translations.get("config.step.user.data.pool_type_square", "Carrée")
+        pool_type_round_label = translations.get("config.step.user.data.pool_type_round", "Ronde")
+
+        # Créer un mapping des valeurs brutes vers les libellés traduits
+        pool_type_options = {
+            POOL_TYPE_SQUARE: pool_type_square_label,
+            POOL_TYPE_ROUND: pool_type_round_label,
+        }
+
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
                 vol.Required(CONF_NAME): str,
-                vol.Required(CONF_POOL_TYPE): vol.In([POOL_TYPE_SQUARE, POOL_TYPE_ROUND]),
+                vol.Required(CONF_POOL_TYPE): vol.In(pool_type_options),
             }),
             errors=self._errors,
         )
@@ -100,10 +112,22 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if choice == "manual":
                 return await self.async_step_ph_manual()
             return await self.async_step_ph_sensor()
+
+        # Récupérer les traductions pour les options
+        translations = self.hass.data[DOMAIN]["translations"]
+        manual_label = translations.get("config.step.ph_config.data.manual", "Saisie manuelle")
+        sensor_label = translations.get("config.step.ph_config.data.sensor", "Sélectionner un capteur")
+
+        # Créer un mapping des valeurs brutes vers les libellés traduits
+        config_options = {
+            "manual": manual_label,
+            "sensor": sensor_label,
+        }
+
         return self.async_show_form(
             step_id="ph_config",
             data_schema=vol.Schema({
-                vol.Required("ph_config_choice", default="manual"): vol.In(["manual", "sensor"]),
+                vol.Required("ph_config_choice", default="manual"): vol.In(config_options),
             }),
             errors=self._errors,
         )
@@ -162,10 +186,22 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if choice == "manual":
                 return await self.async_step_ph_manual()
             return await self.async_step_ph_sensor()
+
+        # Récupérer les traductions pour les options
+        translations = self.hass.data[DOMAIN]["translations"]
+        manual_label = translations.get("config.step.confirm_ph_sensor.data.manual", "Saisir manuellement")
+        retry_label = translations.get("config.step.confirm_ph_sensor.data.retry", "Réessayer la sélection du capteur")
+
+        # Créer un mapping des valeurs brutes vers les libellés traduits
+        confirm_options = {
+            "manual": manual_label,
+            "retry": retry_label,
+        }
+
         return self.async_show_form(
             step_id="confirm_ph_sensor",
             data_schema=vol.Schema({
-                vol.Required("confirm_choice", default="manual"): vol.In(["manual", "retry"]),
+                vol.Required("confirm_choice", default="manual"): vol.In(confirm_options),
             }),
             errors=self._errors,
         )
@@ -179,10 +215,22 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if choice == "manual":
                 return await self.async_step_chlore_manual()
             return await self.async_step_chlore_sensor()
+
+        # Récupérer les traductions pour les options
+        translations = self.hass.data[DOMAIN]["translations"]
+        manual_label = translations.get("config.step.chlore_config.data.manual", "Saisie manuelle")
+        sensor_label = translations.get("config.step.chlore_config.data.sensor", "Sélectionner un capteur")
+
+        # Créer un mapping des valeurs brutes vers les libellés traduits
+        config_options = {
+            "manual": manual_label,
+            "sensor": sensor_label,
+        }
+
         return self.async_show_form(
             step_id="chlore_config",
             data_schema=vol.Schema({
-                vol.Required("chlore_config_choice", default="manual"): vol.In(["manual", "sensor"]),
+                vol.Required("chlore_config_choice", default="manual"): vol.In(config_options),
             }),
             errors=self._errors,
         )
@@ -241,10 +289,22 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if choice == "manual":
                 return await self.async_step_chlore_manual()
             return await self.async_step_chlore_sensor()
+
+        # Récupérer les traductions pour les options
+        translations = self.hass.data[DOMAIN]["translations"]
+        manual_label = translations.get("config.step.confirm_chlore_sensor.data.manual", "Saisir manuellement")
+        retry_label = translations.get("config.step.confirm_chlore_sensor.data.retry", "Réessayer la sélection du capteur")
+
+        # Créer un mapping des valeurs brutes vers les libellés traduits
+        confirm_options = {
+            "manual": manual_label,
+            "retry": retry_label,
+        }
+
         return self.async_show_form(
             step_id="confirm_chlore_sensor",
             data_schema=vol.Schema({
-                vol.Required("confirm_choice", default="manual"): vol.In(["manual", "retry"]),
+                vol.Required("confirm_choice", default="manual"): vol.In(confirm_options),
             }),
             errors=self._errors,
         )
@@ -258,10 +318,22 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if choice == "manual":
                 return await self.async_step_temperature_manual()
             return await self.async_step_temperature_sensor()
+
+        # Récupérer les traductions pour les options
+        translations = self.hass.data[DOMAIN]["translations"]
+        manual_label = translations.get("config.step.temperature_config.data.manual", "Saisie manuelle")
+        sensor_label = translations.get("config.step.temperature_config.data.sensor", "Sélectionner un capteur")
+
+        # Créer un mapping des valeurs brutes vers les libellés traduits
+        config_options = {
+            "manual": manual_label,
+            "sensor": sensor_label,
+        }
+
         return self.async_show_form(
             step_id="temperature_config",
             data_schema=vol.Schema({
-                vol.Required("temperature_config_choice", default="manual"): vol.In(["manual", "sensor"]),
+                vol.Required("temperature_config_choice", default="manual"): vol.In(config_options),
             }),
             errors=self._errors,
         )
@@ -312,10 +384,22 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if choice == "manual":
                 return await self.async_step_temperature_manual()
             return await self.async_step_temperature_sensor()
+
+        # Récupérer les traductions pour les options
+        translations = self.hass.data[DOMAIN]["translations"]
+        manual_label = translations.get("config.step.confirm_temperature_sensor.data.manual", "Saisir manuellement")
+        retry_label = translations.get("config.step.confirm_temperature_sensor.data.retry", "Réessayer la sélection du capteur")
+
+        # Créer un mapping des valeurs brutes vers les libellés traduits
+        confirm_options = {
+            "manual": manual_label,
+            "retry": retry_label,
+        }
+
         return self.async_show_form(
             step_id="confirm_temperature_sensor",
             data_schema=vol.Schema({
-                vol.Required("confirm_choice", default="manual"): vol.In(["manual", "retry"]),
+                vol.Required("confirm_choice", default="manual"): vol.In(confirm_options),
             }),
             errors=self._errors,
         )
@@ -329,10 +413,22 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if choice == "manual":
                 return await self.async_step_power_manual()
             return await self.async_step_power_sensor()
+
+        # Récupérer les traductions pour les options
+        translations = self.hass.data[DOMAIN]["translations"]
+        manual_label = translations.get("config.step.power_config.data.manual", "Manuel (aucun capteur)")
+        sensor_label = translations.get("config.step.power_config.data.sensor", "Sélectionner un capteur")
+
+        # Créer un mapping des valeurs brutes vers les libellés traduits
+        config_options = {
+            "manual": manual_label,
+            "sensor": sensor_label,
+        }
+
         return self.async_show_form(
             step_id="power_config",
             data_schema=vol.Schema({
-                vol.Required("power_config_choice", default="manual"): vol.In(["manual", "sensor"]),
+                vol.Required("power_config_choice", default="manual"): vol.In(config_options),
             }),
             errors=self._errors,
         )
@@ -377,10 +473,22 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if choice == "manual":
                 return await self.async_step_power_manual()
             return await self.async_step_power_sensor()
+
+        # Récupérer les traductions pour les options
+        translations = self.hass.data[DOMAIN]["translations"]
+        manual_label = translations.get("config.step.confirm_power_sensor.data.manual", "Poursuivre sans capteur")
+        retry_label = translations.get("config.step.confirm_power_sensor.data.retry", "Réessayer la sélection du capteur")
+
+        # Créer un mapping des valeurs brutes vers les libellés traduits
+        confirm_options = {
+            "manual": manual_label,
+            "retry": retry_label,
+        }
+
         return self.async_show_form(
             step_id="confirm_power_sensor",
             data_schema=vol.Schema({
-                vol.Required("confirm_choice", default="manual"): vol.In(["manual", "retry"]),
+                vol.Required("confirm_choice", default="manual"): vol.In(confirm_options),
             }),
             errors=self._errors,
         )
