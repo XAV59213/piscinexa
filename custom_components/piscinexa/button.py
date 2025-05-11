@@ -4,7 +4,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.helpers.translation import async_get_translations
 from .const import DOMAIN, VERSION
 
 _LOGGER = logging.getLogger(__name__)
@@ -14,6 +13,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
+    """Configurez les boutons pour Piscinexa."""
     name = entry.data["name"]
     entities = [
         PiscinexaButton(hass, entry, name, "test"),
@@ -22,7 +22,10 @@ async def async_setup_entry(
     async_add_entities(entities, True)
 
 class PiscinexaButton(ButtonEntity):
+    """Représente un bouton pour l'intégration Piscinexa."""
+
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str, action: str):
+        """Initialise le bouton Piscinexa."""
         self._hass = hass
         self._entry = entry
         self._name = name
@@ -37,21 +40,21 @@ class PiscinexaButton(ButtonEntity):
         )
         self._attr_icon = "mdi:cog"
         self._attr_name = "Tester" if action == "test" else "Réinitialiser"
-        self._translations = None
 
     async def async_added_to_hass(self):
-        self._translations = await async_get_translations(
-            self._hass,
-            self._hass.config.language,
-            "entity",
-            integrations={DOMAIN},
-        )
+        """Configure le nom du bouton après ajout à Home Assistant."""
         translation_key = f"entity.button.piscinexa_{self._action}.name"
         default_name = "Tester" if self._action == "test" else "Réinitialiser"
         if self._hass.config.language != "fr":
             default_name = "Test" if self._action == "test" else "Reset"
         
-        self._attr_name = self._translations.get(translation_key, default_name)
+        try:
+            self._attr_name = self._hass.data[DOMAIN]["translations"].get(translation_key, default_name)
+        except Exception as e:
+            _LOGGER.warning(
+                f"Erreur lors de la récupération de la traduction pour la clé {translation_key}: {e}"
+            )
+            self._attr_name = default_name
         
         if self._attr_name.lower() == self._name.lower():
             _LOGGER.warning(
@@ -67,6 +70,7 @@ class PiscinexaButton(ButtonEntity):
         self.async_write_ha_state()
 
     async def async_press(self):
+        """Gère l'action de pression du bouton."""
         service_name = f"{self._action}_calcul" if self._action == "test" else f"{self._action}_valeurs"
         await self._hass.services.async_call(
             DOMAIN,
