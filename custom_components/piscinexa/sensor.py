@@ -56,6 +56,7 @@ async def async_setup_entry(
         PiscinexaPhPlusAjouterSensor(hass, entry, name),
         PiscinexaPhMinusAjouterSensor(hass, entry, name),
         PiscinexaPhTargetSensor(hass, entry, name),
+        PiscinexaPhDifferenceSensor(hass, entry, name),  # Ajout du nouveau capteur
         PiscinexaChloreSensor(hass, entry, name),
         PiscinexaChloreTargetSensor(hass, entry, name),
         PiscinexaChloreAjouterSensor(hass, entry, name),
@@ -823,6 +824,76 @@ class PiscinexaPhTargetSensor(SensorEntity):
                     self._hass,
                     "default_value_read_error",
                     {"type": "pH cible", "error": str(e)}
+                )
+            )
+            return None
+
+class PiscinexaPhDifferenceSensor(SensorEntity):
+    """Capteur pour la différence entre le pH cible et le pH actuel."""
+
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_phdifference"
+        self._attr_friendly_name = f"{name.capitalize()} pH Différence"
+        self._attr_unique_id = f"{entry.entry_id}_ph_difference"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version=VERSION,
+        )
+        self._attr_icon = "mdi:delta"
+        self._attr_native_unit_of_measurement = None  # Pas d'unité pour le pH
+        self._subscriptions = []
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_ph"], self._async_update_from_ph
+            )
+        )
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_ph_target"], self._async_update_from_ph_target
+            )
+        )
+
+    async def async_will_remove_from_hass(self):
+        """Nettoie les abonnements lors de la suppression de l'entité."""
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_ph(self, event):
+        """Met à jour l'état lors d'un changement du capteur pH."""
+        self.async_schedule_update_ha_state(True)
+
+    @callback
+    def _async_update_from_ph_target(self, event):
+        """Met à jour l'état lors d'un changement du pH cible."""
+        self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        """Retourne le nom convivial du capteur."""
+        return self._attr_friendly_name
+
+    @property
+    def native_value(self):
+        """Calcule la différence entre le pH cible et le pH actuel."""
+        try:
+            ph_current = float(self._entry.data["ph_current"])
+            ph_target = float(self._entry.data["ph_target"])
+            difference = ph_target - ph_current
+            return round(difference, 1)
+        except Exception as e:
+            _LOGGER.error(
+                get_translation(
+                    self._hass,
+                    "ph_difference_error",
+                    {"name": self._name, "error": str(e)}
                 )
             )
             return None
