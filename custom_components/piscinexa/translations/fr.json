@@ -258,7 +258,8 @@
         "unit_of_measurement": "°C"
       },
       "piscinexa_ph": {
-        "name": "pH"
+        "name": "pH",
+        "unit_of_measurement": ""
       },
       "piscinexa_ph_plus_ajouter": {
         "name": "pH+ à Ajouter",
@@ -269,7 +270,12 @@
         "unit_of_measurement": "L"
       },
       "piscinexa_ph_target": {
-        "name": "pH Cible"
+        "name": "pH Cible",
+        "unit_of_measurement": ""
+      },
+      "piscinexa_phdifference": {
+        "name": "Différence pH",
+        "unit_of_measurement": ""
       },
       "piscinexa_chlore": {
         "name": "Chlore",
@@ -303,6 +309,7 @@
       },
       "piscinexa_pool_state": {
         "name": "État Piscine",
+        "unit_of_measurement": "",
         "states": {
           "temperature_too_cold": "Température trop froide",
           "temperature_too_hot": "Température trop chaude",
@@ -491,6 +498,7 @@
     "ph_minus_dose_error": "Erreur calcul dose pH- pour {name}: {error}",
     "ph_attributes_error": "Erreur récupération attributs pH+: {error}",
     "ph_minus_attributes_error": "Erreur récupération attributs pH-: {error}",
+    "ph_difference_error": "Erreur calcul différence pH pour {name}: {error}",
     "chlore_dose_error": "Erreur calcul dose chlore pour {name}: {error}",
     "chlore_attributes_error": "Erreur récupération attributs supplémentaires: {error}",
     "chlore_difference_error": "Erreur calcul différence chlore pour {name}: {error}",
