@@ -38,6 +38,9 @@ views:
           - entity: sensor.piscinexa_{{ pool_name }}_phdifference
           - entity: sensor.piscinexa_{{ pool_name }}_ph_treatment
           - entity: sensor.piscinexa_{{ pool_name }}_chlore_treatment
+          - entity: sensor.piscinexa_{{ pool_name }}_etat_chlore
+          - entity: sensor.piscinexa_{{ pool_name }}_etat_ph
+          - entity: sensor.piscinexa_{{ pool_name }}_etat_temperature
       - type: conditional
         conditions:
           - entity: sensor.piscinexa_{{ pool_name }}_ph_plus_ajouter
