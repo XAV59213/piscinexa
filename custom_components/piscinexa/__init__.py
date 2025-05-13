@@ -12,28 +12,18 @@ _LOGGER = logging.getLogger(__name__)
 # Liste des plateformes à charger
 PLATFORMS = ["sensor", "button"]
 
-async def async_setup(hass: HomeAssistant, config: dict) -> bool:
-    """Configurez le composant Piscinexa."""
-    hass.data.setdefault(DOMAIN, {})
-    return True
-
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Configurez une entrée de configuration pour Piscinexa."""
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = entry.data.copy()
 
     # Charger les traductions et les stocker globalement
-    try:
-        translations = await async_get_translations(
-            hass,
-            hass.config.language,
-            "logs",
-            integrations={DOMAIN},
-        )
-        hass.data[DOMAIN]["translations"] = translations
-    except Exception as e:
-        _LOGGER.error(f"Erreur lors du chargement des traductions: {e}")
-        raise ConfigEntryNotReady from e
+    hass.data[DOMAIN]["translations"] = await async_get_translations(
+        hass,
+        hass.config.language,
+        "logs",
+        integrations={DOMAIN},
+    )
 
     def get_translation(key: str, placeholders: dict = None) -> str:
         """Récupère une traduction avec des placeholders."""
