@@ -258,7 +258,8 @@
         "unit_of_measurement": "°C"
       },
       "piscinexa_ph": {
-        "name": "pH"
+        "name": "pH",
+        "unit_of_measurement": ""
       },
       "piscinexa_ph_plus_ajouter": {
         "name": "pH+ à Ajouter",
@@ -269,7 +270,8 @@
         "unit_of_measurement": "L"
       },
       "piscinexa_ph_target": {
-        "name": "pH Cible"
+        "name": "pH Cible",
+        "unit_of_measurement": ""
       },
       "piscinexa_chlore": {
         "name": "Chlore",
@@ -321,6 +323,24 @@
           "filtration_unavailable": "Temps de filtration indisponible",
           "swimming_allowed": "Baignade autorisée",
           "evaluation_error": "Erreur d'évaluation"
+        }
+      },
+      "piscinexa_phdifference": {
+        "name": "Différence pH",
+        "unit_of_measurement": ""
+      },
+      "piscinexa_ph_treatment": {
+        "name": "Traitement pH",
+        "unit_of_measurement": "",
+        "states": {
+          "no_treatment_needed": "Aucun traitement nécessaire"
+        }
+      },
+      "piscinexa_chlore_treatment": {
+        "name": "Traitement Chlore",
+        "unit_of_measurement": "",
+        "states": {
+          "no_treatment_needed": "Aucun traitement nécessaire"
         }
       }
     },
@@ -506,6 +526,10 @@
     "no_action": "Aucune action",
     "input_number_missing": "Entité input_number {entity_id} manquante, veuillez la configurer manuellement",
     "input_select_missing": "Entité input_select {entity_id} manquante, veuillez la configurer manuellement",
-    "chlore_unit_error": "Erreur détermination unité chlore: {error}"
+    "chlore_unit_error": "Erreur détermination unité chlore: {error}",
+    "ph_difference_error": "Erreur calcul différence pH pour {name}: {error}",
+    "ph_treatment_error": "Erreur détermination traitement pH pour {name}: {error}",
+    "chlore_treatment_error": "Erreur détermination traitement chlore pour {name}: {error}",
+    "no_treatment_needed": "Aucun traitement nécessaire"
   }
 }
