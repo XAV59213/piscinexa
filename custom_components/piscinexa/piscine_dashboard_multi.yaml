@@ -23,6 +23,9 @@ views:
           - entity: sensor.piscinexa_{{ pool.name }}_phdifference
           - entity: sensor.piscinexa_{{ pool.name }}_ph_treatment
           - entity: sensor.piscinexa_{{ pool.name }}_chlore_treatment
+          - entity: sensor.piscinexa_{{ pool.name }}_etat_chlore
+          - entity: sensor.piscinexa_{{ pool.name }}_etat_ph
+          - entity: sensor.piscinexa_{{ pool.name }}_etat_temperature
       {% endfor %}
       - type: entities
         title: Manual Input
