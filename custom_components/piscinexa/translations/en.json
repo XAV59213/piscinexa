@@ -342,6 +342,31 @@
         "states": {
           "no_treatment_needed": "No treatment needed"
         }
+      },
+      "piscinexa_etat_chlore": {
+        "name": "Chlorine State",
+        "unit_of_measurement": "",
+        "states": {
+          "chlore_state_ok": "OK",
+          "chlore_state_adjust": "Please adjust the chlorine"
+        }
+      },
+      "piscinexa_etat_ph": {
+        "name": "pH State",
+        "unit_of_measurement": "",
+        "states": {
+          "ph_state_ok": "OK",
+          "ph_state_adjust": "Please adjust the pH"
+        }
+      },
+      "piscinexa_etat_temperature": {
+        "name": "Temperature State",
+        "unit_of_measurement": "",
+        "states": {
+          "temperature_state_wait": "Wait a bit",
+          "temperature_state_good": "It's getting good",
+          "temperature_state_relax": "You can relax"
+        }
       }
     },
     "button": {
@@ -530,6 +555,9 @@
     "ph_difference_error": "Error calculating pH difference for {name}: {error}",
     "ph_treatment_error": "Error determining pH treatment for {name}: {error}",
     "chlore_treatment_error": "Error determining chlorine treatment for {name}: {error}",
-    "no_treatment_needed": "No treatment needed"
+    "no_treatment_needed": "No treatment needed",
+    "chlore_state_error": "Error calculating chlorine state for {name}: {error}",
+    "ph_state_error": "Error calculating pH state for {name}: {error}",
+    "temperature_state_error": "Error calculating temperature state for {name}: {error}"
   }
 }
