@@ -342,6 +342,31 @@
         "states": {
           "no_treatment_needed": "Aucun traitement nécessaire"
         }
+      },
+      "piscinexa_etat_chlore": {
+        "name": "État Chlore",
+        "unit_of_measurement": "",
+        "states": {
+          "chlore_state_ok": "OK",
+          "chlore_state_adjust": "Veuillez réajuster le chlore"
+        }
+      },
+      "piscinexa_etat_ph": {
+        "name": "État pH",
+        "unit_of_measurement": "",
+        "states": {
+          "ph_state_ok": "OK",
+          "ph_state_adjust": "Veuillez réajuster le pH"
+        }
+      },
+      "piscinexa_etat_temperature": {
+        "name": "État Température",
+        "unit_of_measurement": "",
+        "states": {
+          "temperature_state_wait": "Attendre un peu",
+          "temperature_state_good": "Ça vient bon",
+          "temperature_state_relax": "Vous pouvez vous détendre"
+        }
       }
     },
     "button": {
@@ -379,7 +404,7 @@
         "name": "Traitement Chlore",
         "options": {
           "shock": "Chlore choc (poudre)",
-          "tablet": "Pastille à dissolution lente",
+          " tablet": "Pastille à dissolution lente",
           "liquid": "Liquide"
         }
       }
@@ -530,6 +555,9 @@
     "ph_difference_error": "Erreur calcul différence pH pour {name}: {error}",
     "ph_treatment_error": "Erreur détermination traitement pH pour {name}: {error}",
     "chlore_treatment_error": "Erreur détermination traitement chlore pour {name}: {error}",
-    "no_treatment_needed": "Aucun traitement nécessaire"
+    "no_treatment_needed": "Aucun traitement nécessaire",
+    "chlore_state_error": "Erreur calcul état chlore pour {name}: {error}",
+    "ph_state_error": "Erreur calcul état pH pour {name}: {error}",
+    "temperature_state_error": "Erreur calcul état température pour {name}: {error}"
   }
 }
