@@ -62,6 +62,9 @@ async def async_setup_entry(
         PiscinexaChloreDifferenceSensor(hass, entry, name),
         PiscinexaPowerSensor(hass, entry, name),
         PiscinexaPoolStateSensor(hass, entry, name),
+        PiscinexaPhDifferenceSensor(hass, entry, name),
+        PiscinexaPhTreatmentSensor(hass, entry, name),
+        PiscinexaChloreTreatmentSensor(hass, entry, name),
     ]
     async_add_entities(sensors, True)
 
@@ -1412,3 +1415,255 @@ class PiscinexaPoolStateSensor(SensorEntity):
                 )
             )
         return attributes
+
+class PiscinexaPhDifferenceSensor(SensorEntity):
+    """Capteur pour la différence entre le pH actuel et le pH cible."""
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_phdifference"
+        self._attr_friendly_name = f"{name.capitalize()} pH Différence"
+        self._attr_unique_id = f"{entry.entry_id}_ph_difference"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version=VERSION,
+        )
+        self._attr_icon = "mdi:delta"
+        self._attr_native_unit_of_measurement = None
+        self._subscriptions = []
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_ph"], self._async_update_from_ph
+            )
+        )
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_ph_target"], self._async_update_from_ph_target
+            )
+        )
+
+    async def async_will_remove_from_hass(self):
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_ph(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @callback
+    def _async_update_from_ph_target(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
+    def native_value(self):
+        try:
+            ph_current = float(self._entry.data["ph_current"])
+            ph_target = float(self._entry.data["ph_target"])
+            difference = ph_target - ph_current
+            return round(difference, 1)
+        except Exception as e:
+            _LOGGER.error(
+                get_translation(
+                    self._hass,
+                    "ph_difference_error",
+                    {"name": self._name, "error": str(e)}
+                )
+            )
+            return None
+
+class PiscinexaPhTreatmentSensor(SensorEntity):
+    """Capteur pour le type de traitement pH sélectionné (pH+ ou pH-)."""
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_ph_treatment"
+        self._attr_friendly_name = f"{name.capitalize()} pH Traitement"
+        self._attr_unique_id = f"{entry.entry_id}_ph_treatment"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version=VERSION,
+        )
+        self._attr_icon = "mdi:water-pump"
+        self._attr_native_unit_of_measurement = None
+        self._subscriptions = []
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_ph"], self._async_update_from_ph
+            )
+        )
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_ph_target"], self._async_update_from_ph_target
+            )
+        )
+        self._input_select_ph_plus = f"input_select.{name}_ph_plus_treatment"
+        self._input_select_ph_minus = f"input_select.{name}_ph_minus_treatment"
+        if hass.states.get(self._input_select_ph_plus):
+            self._subscriptions.append(
+                async_track_state_change_event(
+                    hass, [self._input_select_ph_plus], self._async_update_from_select
+                )
+            )
+        else:
+            _LOGGER.warning(
+                get_translation(
+                    self._hass,
+                    "input_select_missing",
+                    {"entity_id": self._input_select_ph_plus}
+                )
+            )
+        if hass.states.get(self._input_select_ph_minus):
+            self._subscriptions.append(
+                async_track_state_change_event(
+                    hass, [self._input_select_ph_minus], self._async_update_from_select
+                )
+            )
+        else:
+            _LOGGER.warning(
+                get_translation(
+                    self._hass,
+                    "input_select_missing",
+                    {"entity_id": self._input_select_ph_minus}
+                )
+            )
+
+    async def async_will_remove_from_hass(self):
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_ph(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @callback
+    def _async_update_from_ph_target(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @callback
+    def _async_update_from_select(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
+    def native_value(self):
+        try:
+            ph_current = float(self._entry.data["ph_current"])
+            ph_target = float(self._entry.data["ph_target"])
+            if ph_current < ph_target:
+                select_state = self._hass.states.get(self._input_select_ph_plus)
+                return select_state.state if select_state and select_state.state not in ("unknown", "unavailable") else "Liquide"
+            elif ph_current > ph_target:
+                select_state = self._hass.states.get(self._input_select_ph_minus)
+                return select_state.state if select_state and select_state.state not in ("unknown", "unavailable") else "Liquide"
+            return get_translation(self._hass, "no_treatment_needed")
+        except Exception as e:
+            _LOGGER.error(
+                get_translation(
+                    self._hass,
+                    "ph_treatment_error",
+                    {"name": self._name, "error": str(e)}
+                )
+            )
+            return None
+
+class PiscinexaChloreTreatmentSensor(SensorEntity):
+    """Capteur pour le type de traitement chlore sélectionné."""
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_chlore_treatment"
+        self._attr_friendly_name = f"{name.capitalize()} Chlore Traitement"
+        self._attr_unique_id = f"{entry.entry_id}_chlore_treatment"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version=VERSION,
+        )
+        self._attr_icon = "mdi:water-check"
+        self._attr_native_unit_of_measurement = None
+        self._subscriptions = []
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_chlore"], self._async_update_from_chlore
+            )
+        )
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, [f"sensor.{DOMAIN}_{name}_chlore_target"], self._async_update_from_chlore_target
+            )
+        )
+        self._input_select_id = f"input_select.{name}_chlore_treatment"
+        if hass.states.get(self._input_select_id):
+            self._subscriptions.append(
+                async_track_state_change_event(
+                    hass, [self._input_select_id], self._async_update_from_select
+                )
+            )
+        else:
+            _LOGGER.warning(
+                get_translation(
+                    self._hass,
+                    "input_select_missing",
+                    {"entity_id": self._input_select_id}
+                )
+            )
+
+    async def async_will_remove_from_hass(self):
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_chlore(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @callback
+    def _async_update_from_chlore_target(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @callback
+    def _async_update_from_select(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
+    def native_value(self):
+        try:
+            chlore_current = float(self._entry.data["chlore_current"])
+            chlore_target = float(self._entry.data["chlore_target"])
+            if chlore_current < chlore_target:
+                select_state = self._hass.states.get(self._input_select_id)
+                return select_state.state if select_state and select_state.state not in ("unknown", "unavailable") else "Chlore choc (poudre)"
+            return get_translation(self._hass, "no_treatment_needed")
+        except Exception as e:
+            _LOGGER.error(
+                get_translation(
+                    self._hass,
+                    "chlore_treatment_error",
+                    {"name": self._name, "error": str(e)}
+                )
+            )
+            return None
