@@ -46,15 +46,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if not self._errors:
                     return await self.async_step_dimensions()
 
-        # Récupérer les traductions pour les options du type de piscine
-        translations = self.hass.data[DOMAIN]["translations"]
-        pool_type_square_label = translations.get("config.step.user.data.pool_type_square", "Carrée")
-        pool_type_round_label = translations.get("config.step.user.data.pool_type_round", "Ronde")
-
-        # Créer un mapping des valeurs brutes vers les libellés traduits
+        # Options par défaut pour le type de piscine
         pool_type_options = {
-            POOL_TYPE_SQUARE: pool_type_square_label,
-            POOL_TYPE_ROUND: pool_type_round_label,
+            POOL_TYPE_SQUARE: "Square",
+            POOL_TYPE_ROUND: "Round",
         }
 
         return self.async_show_form(
@@ -113,15 +108,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_ph_manual()
             return await self.async_step_ph_sensor()
 
-        # Récupérer les traductions pour les options
-        translations = self.hass.data[DOMAIN]["translations"]
-        manual_label = translations.get("config.step.ph_config.data.manual", "Saisie manuelle")
-        sensor_label = translations.get("config.step.ph_config.data.sensor", "Sélectionner un capteur")
-
-        # Créer un mapping des valeurs brutes vers les libellés traduits
+        # Options par défaut pour la configuration pH
         config_options = {
-            "manual": manual_label,
-            "sensor": sensor_label,
+            "manual": "Manual entry",
+            "sensor": "Select a sensor",
         }
 
         return self.async_show_form(
@@ -187,15 +177,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_ph_manual()
             return await self.async_step_ph_sensor()
 
-        # Récupérer les traductions pour les options
-        translations = self.hass.data[DOMAIN]["translations"]
-        manual_label = translations.get("config.step.confirm_ph_sensor.data.manual", "Saisir manuellement")
-        retry_label = translations.get("config.step.confirm_ph_sensor.data.retry", "Réessayer la sélection du capteur")
-
-        # Créer un mapping des valeurs brutes vers les libellés traduits
+        # Options par défaut pour la confirmation
         confirm_options = {
-            "manual": manual_label,
-            "retry": retry_label,
+            "manual": "Enter manually",
+            "retry": "Retry sensor selection",
         }
 
         return self.async_show_form(
@@ -216,15 +201,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_chlore_manual()
             return await self.async_step_chlore_sensor()
 
-        # Récupérer les traductions pour les options
-        translations = self.hass.data[DOMAIN]["translations"]
-        manual_label = translations.get("config.step.chlore_config.data.manual", "Saisie manuelle")
-        sensor_label = translations.get("config.step.chlore_config.data.sensor", "Sélectionner un capteur")
-
-        # Créer un mapping des valeurs brutes vers les libellés traduits
+        # Options par défaut pour la configuration chlore
         config_options = {
-            "manual": manual_label,
-            "sensor": sensor_label,
+            "manual": "Manual entry",
+            "sensor": "Select a sensor",
         }
 
         return self.async_show_form(
@@ -290,15 +270,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_chlore_manual()
             return await self.async_step_chlore_sensor()
 
-        # Récupérer les traductions pour les options
-        translations = self.hass.data[DOMAIN]["translations"]
-        manual_label = translations.get("config.step.confirm_chlore_sensor.data.manual", "Saisir manuellement")
-        retry_label = translations.get("config.step.confirm_chlore_sensor.data.retry", "Réessayer la sélection du capteur")
-
-        # Créer un mapping des valeurs brutes vers les libellés traduits
+        # Options par défaut pour la confirmation
         confirm_options = {
-            "manual": manual_label,
-            "retry": retry_label,
+            "manual": "Enter manually",
+            "retry": "Retry sensor selection",
         }
 
         return self.async_show_form(
@@ -319,15 +294,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_temperature_manual()
             return await self.async_step_temperature_sensor()
 
-        # Récupérer les traductions pour les options
-        translations = self.hass.data[DOMAIN]["translations"]
-        manual_label = translations.get("config.step.temperature_config.data.manual", "Saisie manuelle")
-        sensor_label = translations.get("config.step.temperature_config.data.sensor", "Sélectionner un capteur")
-
-        # Créer un mapping des valeurs brutes vers les libellés traduits
+        # Options par défaut pour la configuration température
         config_options = {
-            "manual": manual_label,
-            "sensor": sensor_label,
+            "manual": "Manual entry",
+            "sensor": "Select a sensor",
         }
 
         return self.async_show_form(
@@ -385,15 +355,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_temperature_manual()
             return await self.async_step_temperature_sensor()
 
-        # Récupérer les traductions pour les options
-        translations = self.hass.data[DOMAIN]["translations"]
-        manual_label = translations.get("config.step.confirm_temperature_sensor.data.manual", "Saisir manuellement")
-        retry_label = translations.get("config.step.confirm_temperature_sensor.data.retry", "Réessayer la sélection du capteur")
-
-        # Créer un mapping des valeurs brutes vers les libellés traduits
+        # Options par défaut pour la confirmation
         confirm_options = {
-            "manual": manual_label,
-            "retry": retry_label,
+            "manual": "Enter manually",
+            "retry": "Retry sensor selection",
         }
 
         return self.async_show_form(
@@ -414,15 +379,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_power_manual()
             return await self.async_step_power_sensor()
 
-        # Récupérer les traductions pour les options
-        translations = self.hass.data[DOMAIN]["translations"]
-        manual_label = translations.get("config.step.power_config.data.manual", "Manuel (aucun capteur)")
-        sensor_label = translations.get("config.step.power_config.data.sensor", "Sélectionner un capteur")
-
-        # Créer un mapping des valeurs brutes vers les libellés traduits
+        # Options par défaut pour la configuration puissance
         config_options = {
-            "manual": manual_label,
-            "sensor": sensor_label,
+            "manual": "Manual (no sensor)",
+            "sensor": "Select a sensor",
         }
 
         return self.async_show_form(
@@ -474,15 +434,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_power_manual()
             return await self.async_step_power_sensor()
 
-        # Récupérer les traductions pour les options
-        translations = self.hass.data[DOMAIN]["translations"]
-        manual_label = translations.get("config.step.confirm_power_sensor.data.manual", "Poursuivre sans capteur")
-        retry_label = translations.get("config.step.confirm_power_sensor.data.retry", "Réessayer la sélection du capteur")
-
-        # Créer un mapping des valeurs brutes vers les libellés traduits
+        # Options par défaut pour la confirmation
         confirm_options = {
-            "manual": manual_label,
-            "retry": retry_label,
+            "manual": "Continue without sensor",
+            "retry": "Retry sensor selection",
         }
 
         return self.async_show_form(
@@ -502,9 +457,9 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="treatment_config",
             data_schema=vol.Schema({
-                vol.Required("ph_plus_treatment", default="Liquide"): vol.In(["Liquide", "Granulés"]),
-                vol.Required("ph_minus_treatment", default="Liquide"): vol.In(["Liquide", "Granulés"]),
-                vol.Required("chlore_treatment", default="Chlore choc (poudre)"): vol.In(["Liquide", "Chlore choc (poudre)", "Pastille lente"]),
+                vol.Required("ph_plus_treatment", default="Liquid"): vol.In(["Liquid", "Granules"]),
+                vol.Required("ph_minus_treatment", default="Liquid"): vol.In(["Liquid", "Granules"]),
+                vol.Required("chlore_treatment", default="Shock chlorine (powder)"): vol.In(["Liquid", "Shock chlorine (powder)", "Slow-dissolving tablet"]),
             }),
             errors=self._errors,
         )
@@ -517,34 +472,34 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data=self._data
             )
         summary = (
-            f"Nom de la piscine: {self._data[CONF_NAME]}\n"
-            f"Type de piscine: {self._data[CONF_POOL_TYPE]}\n"
+            f"Pool name: {self._data[CONF_NAME]}\n"
+            f"Pool type: {self._data[CONF_POOL_TYPE]}\n"
             f"Dimensions:\n"
         )
         if self._data[CONF_POOL_TYPE] == POOL_TYPE_SQUARE:
             summary += (
-                f"  Longueur: {self._data[CONF_LENGTH]} m\n"
-                f"  Largeur: {self._data[CONF_WIDTH]} m\n"
-                f"  Profondeur: {self._data[CONF_DEPTH]} m\n"
+                f"  Length: {self._data[CONF_LENGTH]} m\n"
+                f"  Width: {self._data[CONF_WIDTH]} m\n"
+                f"  Depth: {self._data[CONF_DEPTH]} m\n"
             )
         else:
             summary += (
-                f"  Diamètre: {self._data[CONF_DIAMETER]} m\n"
-                f"  Profondeur: {self._data[CONF_DEPTH]} m\n"
+                f"  Diameter: {self._data[CONF_DIAMETER]} m\n"
+                f"  Depth: {self._data[CONF_DEPTH]} m\n"
             )
         summary += (
-            f"pH actuel: {self._data.get('ph_current', 'Non défini')}\n"
-            f"pH cible: {self._data.get('ph_target')}\n"
-            f"Source pH: {self._data.get('ph_sensor', 'Manuel')}\n"
-            f"Type de traitement pH+: {self._data.get('ph_plus_treatment', 'Non défini')}\n"
-            f"Type de traitement pH-: {self._data.get('ph_minus_treatment', 'Non défini')}\n"
-            f"Chlore actuel: {self._data.get('chlore_current', 'Non défini')} mg/L\n"
-            f"Chlore cible: {self._data.get('chlore_target')} mg/L\n"
-            f"Source chlore: {self._data.get('chlore_sensor', 'Manuel')}\n"
-            f"Type de traitement chlore: {self._data.get('chlore_treatment', 'Non défini')}\n"
-            f"Température: {self._data.get('temperature', 'Non défini')} °C\n"
-            f"Source température: {self._data.get('temperature_sensor', 'Manuel')}\n"
-            f"Source puissance: {self._data.get('power_sensor_entity_id', 'Non défini')}\n"
+            f"Current pH: {self._data.get('ph_current', 'Not defined')}\n"
+            f"Target pH: {self._data.get('ph_target')}\n"
+            f"pH source: {self._data.get('ph_sensor', 'Manual')}\n"
+            f"pH+ treatment type: {self._data.get('ph_plus_treatment', 'Not defined')}\n"
+            f"pH- treatment type: {self._data.get('ph_minus_treatment', 'Not defined')}\n"
+            f"Current chlorine: {self._data.get('chlore_current', 'Not defined')} mg/L\n"
+            f"Target chlorine: {self._data.get('chlore_target')} mg/L\n"
+            f"Chlorine source: {self._data.get('chlore_sensor', 'Manual')}\n"
+            f"Chlorine treatment type: {self._data.get('chlore_treatment', 'Not defined')}\n"
+            f"Temperature: {self._data.get('temperature', 'Not defined')} °C\n"
+            f"Temperature source: {self._data.get('temperature_sensor', 'Manual')}\n"
+            f"Power source: {self._data.get('power_sensor_entity_id', 'Not defined')}\n"
         )
         return self.async_show_form(
             step_id="summary",
