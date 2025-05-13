@@ -1,8 +1,23 @@
-[1.0.12] - 2025-05-11
-Fixed
-- Removed incorrect unit_of_measurement (mg/L) for piscinexa_ph and piscinexa_ph_target in en.json and fr.json.
-- Removed incorrect unit_of_measurement (mg/L) for input_number.piscine_ph_current and piscine_test_ph_current in configuration.yaml.
-ChangelogAll notable changes to the Piscinexa Home Assistant integration will be documented in this file.The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
+## [1.0.13] - 2025-05-13
+### Added
+- Added new sensors: `pH Difference`, `pH Treatment`, and `Chlorine Treatment` to provide detailed monitoring of pH and chlorine treatment requirements.
+- Updated dashboard configurations (`piscine_dashboard_custom_component.yaml` and `piscine_dashboard_multi.yaml`) to include the new sensors.
+- Added translations for new sensors in `translations/en.json` and `translations/fr.json`.
+- Fixed `TypeError: expected str, got NoneType` by removing `null` values in translation files.
+- Fixed `KeyError: 'piscinexa'` in `config_flow.py` by removing dynamic translation access.
+
+## [1.0.12] - 2025-04-15
+### Changed
+- Improved performance of sensor updates.
+- Updated documentation for better clarity.
+
+## [1.0.11] - 2025-03-10
+### Fixed
+- Resolved issue with power sensor initialization.
+
+## [1.0.10] - 2025-02-20
+
+
 
 [1.0.11] - 2025-05-09
 Fixed
