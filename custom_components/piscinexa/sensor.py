@@ -65,6 +65,9 @@ async def async_setup_entry(
         PiscinexaPhDifferenceSensor(hass, entry, name),
         PiscinexaPhTreatmentSensor(hass, entry, name),
         PiscinexaChloreTreatmentSensor(hass, entry, name),
+        PiscinexaChloreStateSensor(hass, entry, name),
+        PiscinexaPhStateSensor(hass, entry, name),
+        PiscinexaTemperatureStateSensor(hass, entry, name),
     ]
     async_add_entities(sensors, True)
 
@@ -1664,6 +1667,195 @@ class PiscinexaChloreTreatmentSensor(SensorEntity):
                     self._hass,
                     "chlore_treatment_error",
                     {"name": self._name, "error": str(e)}
+                )
+            )
+            return None
+
+class PiscinexaChloreStateSensor(SensorEntity):
+    """Capteur pour l'état du chlore (OK ou à réajuster)."""
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_etat_chlore"
+        self._attr_friendly_name = f"{name.capitalize()} État Chlore"
+        self._attr_unique_id = f"{entry.entry_id}_etat_chlore"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version=VERSION,
+        )
+        self._attr_icon = "mdi:water-check"
+        self._attr_native_unit_of_measurement = None
+        self._subscriptions = []
+        entities_to_track = [
+            f"sensor.{DOMAIN}_{name}_chlore",
+            f"sensor.{DOMAIN}_{name}_chlore_target",
+        ]
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, entities_to_track, self._async_update_from_sensors
+            )
+        )
+
+    async def async_will_remove_from_hass(self):
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_sensors(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
+    def native_value(self):
+        try:
+            chlore_current = float(self._entry.data["chlore_current"])
+            chlore_target = float(self._entry.data["chlore_target"])
+            # Tolérance de ±0.1 mg/L
+            if abs(chlore_current - chlore_target) <= 0.1:
+                return get_translation(self._hass, "chlore_state_ok", default="OK")
+            return get_translation(self._hass, "chlore_state_adjust", default="Veuillez réajuster le chlore")
+        except Exception as e:
+            _LOGGER.error(
+                get_translation(
+                    self._hass,
+                    "chlore_state_error",
+                    {"name": self._name, "error": str(e)},
+                    default="Erreur calcul état chlore pour {name}: {error}"
+                )
+            )
+            return None
+
+class PiscinexaPhStateSensor(SensorEntity):
+    """Capteur pour l'état du pH (OK ou à réajuster)."""
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_etat_ph"
+        self._attr_friendly_name = f"{name.capitalize()} État pH"
+        self._attr_unique_id = f"{entry.entry_id}_etat_ph"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version=VERSION,
+        )
+        self._attr_icon = "mdi:water"
+        self._attr_native_unit_of_measurement = None
+        self._subscriptions = []
+        entities_to_track = [
+            f"sensor.{DOMAIN}_{name}_ph",
+            f"sensor.{DOMAIN}_{name}_ph_target",
+        ]
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, entities_to_track, self._async_update_from_sensors
+            )
+        )
+
+    async def async_will_remove_from_hass(self):
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_sensors(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
+    def native_value(self):
+        try:
+            ph_current = float(self._entry.data["ph_current"])
+            ph_target = float(self._entry.data["ph_target"])
+            # Tolérance de ±0.2
+            if abs(ph_current - ph_target) <= 0.2:
+                return get_translation(self._hass, "ph_state_ok", default="OK")
+            return get_translation(self._hass, "ph_state_adjust", default="Veuillez réajuster le pH")
+        except Exception as e:
+            _LOGGER.error(
+                get_translation(
+                    self._hass,
+                    "ph_state_error",
+                    {"name": self._name, "error": str(e)},
+                    default="Erreur calcul état pH pour {name}: {error}"
+                )
+            )
+            return None
+
+class PiscinexaTemperatureStateSensor(SensorEntity):
+    """Capteur pour l'état de la température."""
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{DOMAIN}_{name}_etat_temperature"
+        self._attr_friendly_name = f"{name.capitalize()} État Température"
+        self._attr_unique_id = f"{entry.entry_id}_etat_temperature"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version=VERSION,
+        )
+        self._attr_icon = "mdi:thermometer"
+        self._attr_native_unit_of_measurement = None
+        self._subscriptions = []
+        entities_to_track = [
+            f"sensor.{DOMAIN}_{name}_temperature",
+        ]
+        self._subscriptions.append(
+            async_track_state_change_event(
+                hass, entities_to_track, self._async_update_from_sensors
+            )
+        )
+
+    async def async_will_remove_from_hass(self):
+        for subscription in self._subscriptions:
+            subscription()
+        self._subscriptions.clear()
+
+    @callback
+    def _async_update_from_sensors(self, event):
+        self.async_schedule_update_ha_state(True)
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
+    def native_value(self):
+        try:
+            temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
+            if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
+                temperature = float(temp_entity.state)
+                if temperature < 18:
+                    return get_translation(self._hass, "temperature_state_wait", default="Attendre un peu")
+                elif 18 <= temperature <= 20:
+                    return get_translation(self._hass, "temperature_state_good", default="Ça vient bon")
+                else:
+                    return get_translation(self._hass, "temperature_state_relax", default="Vous pouvez vous détendre")
+            return get_translation(self._hass, "temperature_unavailable", default="Température indisponible")
+        except Exception as e:
+            _LOGGER.error(
+                get_translation(
+                    self._hass,
+                    "temperature_state_error",
+                    {"name": self._name, "error": str(e)},
+                    default="Erreur calcul état température pour {name}: {error}"
                 )
             )
             return None
