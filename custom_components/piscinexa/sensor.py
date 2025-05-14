@@ -517,6 +517,7 @@ class PiscinexaPhSensor(SensorEntity):
             return None
 
 class PiscinexaPhPlusAjouterSensor(SensorEntity):
+    """Capteur pour calculer la quantité totale de pH+ à ajouter."""
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -597,22 +598,73 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
     @property
     def native_value(self):
         try:
-            ph_current = float(self._entry.data["ph_current"])
-            ph_target = float(self._entry.data["ph_target"])
+            # Récupérer les valeurs de pH actuel et cible avec des valeurs par défaut
+            try:
+                ph_current = float(self._entry.data.get("ph_current", 7.0))
+            except (ValueError, TypeError) as e:
+                _LOGGER.warning(
+                    get_translation(
+                        self._hass,
+                        "default_value_read_error",
+                        {"type": "pH actuel", "error": str(e)}
+                    )
+                )
+                ph_current = 7.0  # Valeur par défaut si la conversion échoue
+
+            try:
+                ph_target = float(self._entry.data.get("ph_target", 7.4))
+            except (ValueError, TypeError) as e:
+                _LOGGER.warning(
+                    get_translation(
+                        self._hass,
+                        "default_value_read_error",
+                        {"type": "pH cible", "error": str(e)}
+                    )
+                )
+                ph_target = 7.4  # Valeur par défaut si la conversion échoue
+
+            # Vérifier si pH actuel est inférieur à pH cible (logique inversée par rapport à pH-)
             if ph_current >= ph_target:
-                return 0
+                return 0  # Rien à ajouter, donc retourne 0
+
+            # Récupérer le volume d'eau
             volume = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume and volume.state not in ("unknown", "unavailable"):
-                volume_val = float(volume.state)
-                ph_difference = ph_target - ph_current
-                select_state = self._hass.states.get(self._input_select_id)
-                treatment = select_state.state if select_state and select_state.state not in ("unknown", "unavailable") else "Liquide"
-                if treatment == "Liquide":
-                    dose = ph_difference * volume_val * 0.01
-                else:
-                    dose = ph_difference * volume_val * 1.0
-                return round(dose, 2)
-            return None
+                try:
+                    volume_val = float(volume.state)
+                except ValueError as e:
+                    _LOGGER.warning(
+                        get_translation(
+                            self._hass,
+                            "non_numeric_sensor_value",
+                            {"sensor_id": f"sensor.{DOMAIN}_{self._name}_volume_eau", "state": volume.state}
+                        )
+                    )
+                    volume_val = 30.0  # Valeur par défaut (par exemple, 30 m³)
+            else:
+                _LOGGER.warning(
+                    get_translation(
+                        self._hass,
+                        "volume_unavailable_message"
+                    )
+                )
+                volume_val = 30.0  # Valeur par défaut si le volume est indisponible
+
+            # Calculer la différence de pH
+            ph_difference = ph_target - ph_current
+
+            # Récupérer le type de traitement
+            select_state = self._hass.states.get(self._input_select_id)
+            treatment = select_state.state if select_state and select_state.state not in ("unknown", "unavailable") else "Liquide"
+
+            # Calculer la dose totale en fonction du volume et du type de traitement
+            if treatment == "Liquide":
+                dose = ph_difference * volume_val * 0.012  # 0.012 L par m³ par unité de pH (même coefficient que pH-)
+            else:  # Granulés
+                dose = ph_difference * volume_val * 1.2  # 1.2 g par m³ par unité de pH (même coefficient que pH-)
+
+            return round(dose, 2)
+
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -621,7 +673,7 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
                     {"name": self._name, "error": str(e)}
                 )
             )
-            return None
+            return 0  # Retourner 0 au lieu de None pour éviter "inconnu"
 
     @property
     def extra_state_attributes(self):
