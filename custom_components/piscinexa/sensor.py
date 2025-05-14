@@ -1012,6 +1012,7 @@ class PiscinexaChloreTargetSensor(SensorEntity):
             return None
 
 class PiscinexaChloreAjouterSensor(SensorEntity):
+    """Capteur pour calculer la quantité de chlore à ajouter."""
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -1037,11 +1038,6 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"sensor.{DOMAIN}_{name}_volume_eau"], self._async_update_from_volume
-            )
-        )
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, [f"sensor.{DOMAIN}_{name}_temperature"], self._async_update_from_temperature
             )
         )
         self._input_select_id = f"input_select.{name}_chlore_treatment"
@@ -1074,10 +1070,6 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         self.async_schedule_update_ha_state(True)
 
     @callback
-    def _async_update_from_temperature(self, event):
-        self.async_schedule_update_ha_state(True)
-
-    @callback
     def _async_update_from_select(self, event):
         self.async_schedule_update_ha_state(True)
 
@@ -1090,10 +1082,10 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         select_state = self._hass.states.get(self._input_select_id)
         if select_state and select_state.state not in ("unknown", "unavailable"):
             if select_state.state == "Liquide":
-                return UNIT_LITERS
+                return UNIT_GRAMS  # Grammes pour "Liquide"
             elif select_state.state == "Pastille lente":
-                return "unités"
-            return UNIT_GRAMS
+                return "unités"  # Unités pour "Pastille lente"
+            return UNIT_GRAMS  # Grammes pour "Chlore choc (poudre)"
         _LOGGER.debug(
             get_translation(
                 self._hass,
@@ -1106,33 +1098,77 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
     @property
     def native_value(self):
         try:
-            chlore_current = float(self._entry.data["chlore_current"])
-            chlore_target = float(self._entry.data["chlore_target"])
+            # Récupérer les valeurs de chlore actuel et cible avec des valeurs par défaut
+            try:
+                chlore_current = float(self._entry.data.get("chlore_current", 1.0))
+            except (ValueError, TypeError) as e:
+                _LOGGER.warning(
+                    get_translation(
+                        self._hass,
+                        "default_value_read_error",
+                        {"type": "chlore actuel", "error": str(e)}
+                    )
+                )
+                chlore_current = 1.0  # Valeur par défaut si la conversion échoue
+
+            try:
+                chlore_target = float(self._entry.data.get("chlore_target", 2.0))
+            except (ValueError, TypeError) as e:
+                _LOGGER.warning(
+                    get_translation(
+                        self._hass,
+                        "default_value_read_error",
+                        {"type": "chlore cible", "error": str(e)}
+                    )
+                )
+                chlore_target = 2.0  # Valeur par défaut si la conversion échoue
+
+            # Récupérer le volume d'eau
             volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume_entity and volume_entity.state not in ("unknown", "unavailable"):
-                volume_val = float(volume_entity.state)
-                temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
-                if temp_entity and temp_entity.state not in ("unknown", "unavailable"):
-                    temperature = float(temp_entity.state)
-                    temp_factor = max(1, 1 + (temperature - 20) * 0.02)
-                    chlore_difference = chlore_target - chlore_current
-                    select_state = self._hass.states.get(self._input_select_id)
-                    treatment = select_state.state if select_state and select_state.state not in ("unknown", "unavailable") else "Chlore choc (poudre)"
-                    if treatment == "Liquide":
-                        dose = chlore_difference * volume_val * 0.1 * temp_factor
-                    elif treatment == "Pastille lente":
-                        dose = (chlore_difference * volume_val / 20) * temp_factor
-                    else:
-                        dose = chlore_difference * volume_val * 0.01 * temp_factor
-                    if dose <= 0:
-                        self._message = get_translation(self._hass, "remove_chlorine_message")
-                        return 0
-                    self._message = None
-                    return round(dose, 2)
-                self._message = get_translation(self._hass, "temperature_unavailable_message")
-                return None
-            self._message = get_translation(self._hass, "volume_unavailable_message")
-            return None
+                try:
+                    volume_val = float(volume_entity.state)
+                except ValueError as e:
+                    _LOGGER.warning(
+                        get_translation(
+                            self._hass,
+                            "non_numeric_sensor_value",
+                            {"sensor_id": f"sensor.{DOMAIN}_{self._name}_volume_eau", "state": volume_entity.state}
+                        )
+                    )
+                    volume_val = 30.0  # Valeur par défaut (par exemple, 30 m³)
+            else:
+                _LOGGER.warning(
+                    get_translation(
+                        self._hass,
+                        "volume_unavailable_message"
+                    )
+                )
+                volume_val = 30.0  # Valeur par défaut si le volume est indisponible
+
+            # Calculer la différence de chlore
+            chlore_difference = chlore_target - chlore_current
+
+            # Récupérer le type de traitement
+            select_state = self._hass.states.get(self._input_select_id)
+            treatment = select_state.state if select_state and select_state.state not in ("unknown", "unavailable") else "Chlore choc (poudre)"
+
+            # Calculer la dose en fonction du type de traitement
+            if treatment == "Liquide":
+                dose = chlore_difference * volume_val * 10  # 10 g par mg/L par m³ pour "Liquide"
+            elif treatment == "Pastille lente":
+                dose = (chlore_difference * volume_val) / 20  # 1 pastille pour 20 m³ par mg/L
+            else:  # Chlore choc (poudre)
+                dose = chlore_difference * volume_val * 10  # 10 g par mg/L par m³ pour "Chlore choc (poudre)"
+
+            # Si la dose est négative ou nulle, indiquer qu'aucun chlore n'est nécessaire
+            if dose <= 0:
+                self._message = get_translation(self._hass, "remove_chlorine_message")
+                return 0
+
+            self._message = None
+            return round(dose, 2)
+
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -1142,7 +1178,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
                 )
             )
             self._message = get_translation(self._hass, "calculation_error_message")
-            return None
+            return 0  # Retourner 0 au lieu de None pour éviter "inconnu"
 
     @property
     def extra_state_attributes(self):
@@ -1153,10 +1189,6 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             volume_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_volume_eau")
             if volume_entity:
                 attributes["volume"] = float(volume_entity.state)
-            temp_entity = self._hass.states.get(f"sensor.{DOMAIN}_{self._name}_temperature")
-            if temp_entity:
-                attributes["temperature"] = float(temp_entity.state)
-                attributes["temp_factor"] = max(1, 1 + (attributes["temperature"] - 20) * 0.02)
             if self._message:
                 attributes["message"] = self._message
         except Exception as e:
