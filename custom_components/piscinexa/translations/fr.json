@@ -22,7 +22,123 @@
           "chlore_sensor": "Capteur de chlore (optionnel)",
           "chlore_target": "Chlore cible (mg/L)",
           "power_sensor_entity_id": "Capteur de puissance (optionnel)"
+        },
+        "pool_types": {
+          "square": "Carrée",
+          "round": "Ronde"
         }
+      },
+      "dimensions": {
+        "description": "Entrez les dimensions de votre piscine."
+      },
+      "ph_config": {
+        "description": "Choisissez le mode de configuration du pH.",
+        "data": {
+          "ph_config_choice": "Mode de configuration du pH"
+        },
+        "options": {
+          "manual": "Saisie manuelle",
+          "sensor": "Sélectionner un capteur"
+        }
+      },
+      "ph_manual": {
+        "description": "Entrez manuellement les valeurs de pH."
+      },
+      "ph_sensor": {
+        "description": "Sélectionnez un capteur pour le pH ou entrez une valeur cible."
+      },
+      "confirm_ph_sensor": {
+        "description": "Aucun capteur de pH sélectionné. Que voulez-vous faire ?",
+        "options": {
+          "manual": "Saisir manuellement",
+          "retry": "Réessayer la sélection du capteur"
+        }
+      },
+      "chlore_config": {
+        "description": "Choisissez le mode de configuration du chlore.",
+        "data": {
+          "chlore_config_choice": "Mode de configuration du chlore"
+        },
+        "options": {
+          "manual": "Saisie manuelle",
+          "sensor": "Sélectionner un capteur"
+        }
+      },
+      "chlore_manual": {
+        "description": "Entrez manuellement les valeurs de chlore."
+      },
+      "chlore_sensor": {
+        "description": "Sélectionnez un capteur pour le chlore ou entrez une valeur cible."
+      },
+      "confirm_chlore_sensor": {
+        "description": "Aucun capteur de chlore sélectionné. Que voulez-vous faire ?",
+        "options": {
+          "manual": "Saisir manuellement",
+          "retry": "Réessayer la sélection du capteur"
+        }
+      },
+      "temperature_config": {
+        "description": "Choisissez le mode de configuration de la température.",
+        "data": {
+          "temperature_config_choice": "Mode de configuration de la température"
+        },
+        "options": {
+          "manual": "Saisie manuelle",
+          "sensor": "Sélectionner un capteur"
+        }
+      },
+      "temperature_manual": {
+        "description": "Entrez manuellement la température."
+      },
+      "temperature_sensor": {
+        "description": "Sélectionnez un capteur pour la température."
+      },
+      "confirm_temperature_sensor": {
+        "description": "Aucun capteur de température sélectionné. Que voulez-vous faire ?",
+        "options": {
+          "manual": "Saisir manuellement",
+          "retry": "Réessayer la sélection du capteur"
+        }
+      },
+      "power_config": {
+        "description": "Choisissez le mode de configuration du capteur de puissance.",
+        "data": {
+          "power_config_choice": "Mode de configuration du capteur de puissance"
+        },
+        "options": {
+          "manual": "Manuel (pas de capteur)",
+          "sensor": "Sélectionner un capteur"
+        }
+      },
+      "power_manual": {
+        "description": "Aucun capteur de puissance sélectionné. Cliquez sur suivant pour continuer."
+      },
+      "power_sensor": {
+        "description": "Sélectionnez un capteur de puissance."
+      },
+      "confirm_power_sensor": {
+        "description": "Aucun capteur de puissance sélectionné. Que voulez-vous faire ?",
+        "options": {
+          "manual": "Continuer sans capteur",
+          "retry": "Réessayer la sélection du capteur"
+        }
+      },
+      "treatment_config": {
+        "description": "Sélectionnez les types de traitement pour pH et chlore.",
+        "data": {
+          "ph_plus_treatment": "Type de traitement pH+",
+          "ph_minus_treatment": "Type de traitement pH-",
+          "chlore_treatment": "Type de traitement chlore"
+        },
+        "treatment_options": {
+          "liquid": "Liquide",
+          "granules": "Granulés",
+          "shock_chlorine_powder": "Chlore choc (poudre)",
+          "slow_dissolving_tablet": "Pastille lente"
+        }
+      },
+      "summary": {
+        "description": "Vérifiez les détails de la configuration de votre piscine :\n{summary}"
       }
     },
     "error": {
