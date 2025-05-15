@@ -1,4 +1,5 @@
 {
+  "platform_load_error": "Error loading the Piscinexa platform: {error}",
   "title": "Piscinexa - Configuration",
   "config": {
     "step": {
