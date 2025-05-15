@@ -1,224 +1,189 @@
-"""Initialisation du composant Piscinexa."""
+"""Intégration Piscinexa pour Home Assistant."""
+import json
 import logging
-from homeassistant.core import HomeAssistant, ServiceCall
+import os
+from functools import partial
+
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_NAME
-from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers.translation import async_get_translations
-from .const import DOMAIN, POOL_TYPE_SQUARE
+from homeassistant.const import Platform
+from homeassistant.core import HomeAssistant
+
+DOMAIN = "piscinexa"
+VERSION = "1.0.0"
 
 _LOGGER = logging.getLogger(__name__)
 
-# Liste des plateformes à charger
-PLATFORMS = ["sensor", "button"]
+PLATFORMS = [Platform.SENSOR, Platform.BUTTON]
+
+
+async def async_setup(hass: HomeAssistant, config: dict) -> bool:
+    """Configure l'intégration Piscinexa."""
+    hass.data.setdefault(DOMAIN, {})
+
+    # Charger les traductions de manière asynchrone
+    lang = hass.config.language
+    translation_file = os.path.join(os.path.dirname(__file__), "translations", f"{lang}.json")
+    if not os.path.exists(translation_file):
+        # Fallback sur l'anglais si le fichier de langue n'existe pas
+        translation_file = os.path.join(os.path.dirname(__file__), "translations", "en.json")
+        _LOGGER.warning(f"Fichier de traduction pour la langue {lang} non trouvé, utilisation de en.json")
+
+    try:
+        # Utilisation de run_in_executor pour exécuter l'opération de lecture de fichier de manière asynchrone
+        def read_file(file_path):
+            with open(file_path, encoding="utf-8") as f:
+                return json.load(f)
+
+        translations = await hass.loop.run_in_executor(None, read_file, translation_file)
+        hass.data[DOMAIN]["translations"] = translations
+        _LOGGER.debug(f"Traductions chargées pour la langue {lang}: {translations}")
+    except Exception as e:
+        _LOGGER.error(f"Échec du chargement des traductions depuis {translation_file}: {e}")
+        hass.data[DOMAIN]["translations"] = {}
+
+    # Créer les entités input_number et input_select si elles n'existent pas
+    input_numbers = [
+        ("input_number.piscine_ph_current", {
+            "name": "pH Actuel Piscine",
+            "min": 0,
+            "max": 14,
+            "step": 0.1,
+            "initial": 7.0
+        }),
+        ("input_number.piscine_ph_target", {
+            "name": "pH Cible Piscine",
+            "min": 0,
+            "max": 14,
+            "step": 0.1,
+            "initial": 7.4
+        }),
+        ("input_number.piscine_chlore_current", {
+            "name": "Chlore Actuel Piscine",
+            "min": 0,
+            "max": 10,
+            "step": 0.1,
+            "unit_of_measurement": "mg/L",
+            "initial": 1.0
+        }),
+        ("input_number.piscine_chlore_target", {
+            "name": "Chlore Cible Piscine",
+            "min": 0,
+            "max": 10,
+            "step": 0.1,
+            "unit_of_measurement": "mg/L",
+            "initial": 2.0
+        }),
+        ("input_number.spa_ph_current", {
+            "name": "pH Actuel Spa",
+            "min": 0,
+            "max": 14,
+            "step": 0.1,
+            "initial": 7.0
+        }),
+        ("input_number.spa_ph_target", {
+            "name": "pH Cible Spa",
+            "min": 0,
+            "max": 14,
+            "step": 0.1,
+            "initial": 7.4
+        }),
+        ("input_number.spa_chlore_current", {
+            "name": "Chlore Actuel Spa",
+            "min": 0,
+            "max": 10,
+            "step": 0.1,
+            "unit_of_measurement": "mg/L",
+            "initial": 1.0
+        }),
+        ("input_number.spa_chlore_target", {
+            "name": "Chlore Cible Spa",
+            "min": 0,
+            "max": 10,
+            "step": 0.1,
+            "unit_of_measurement": "mg/L",
+            "initial": 2.0
+        }),
+        ("input_number.piscine_test_ph_current", {
+            "name": "pH Actuel Piscine Test",
+            "min": 0,
+            "max": 14,
+            "step": 0.1,
+            "initial": 7.0
+        }),
+        ("input_number.piscine_test_ph_target", {
+            "name": "pH Cible Piscine Test",
+            "min": 0,
+            "max": 14,
+            "step": 0.1,
+            "initial": 7.4
+        }),
+        ("input_number.piscine_test_chlore_current", {
+            "name": "Chlore Actuel Piscine Test",
+            "min": 0,
+            "max": 10,
+            "step": 0.1,
+            "unit_of_measurement": "mg/L",
+            "initial": 1.0
+        }),
+        ("input_number.piscine_test_chlore_target", {
+            "name": "Chlore Cible Piscine Test",
+            "min": 0,
+            "max": 10,
+            "step": 0.1,
+            "unit_of_measurement": "mg/L",
+            "initial": 2.0
+        }),
+    ]
+
+    input_selects = [
+        ("input_select.piscine_ph_plus_treatment", ["Liquide", "Poudre"]),
+        ("input_select.piscine_ph_minus_treatment", ["Liquide", "Poudre"]),
+        ("input_select.piscine_chlore_treatment", ["Liquide", "Pastille lente", "Chlore choc (poudre)"]),
+        ("input_select.spa_ph_plus_treatment", ["Liquide", "Poudre"]),
+        ("input_select.spa_ph_minus_treatment", ["Liquide", "Poudre"]),
+        ("input_select.spa_chlore_treatment", ["Liquide", "Pastille lente", "Chlore choc (poudre)"]),
+        ("input_select.piscine_test_ph_plus_treatment", ["Liquide", "Poudre"]),
+        ("input_select.piscine_test_ph_minus_treatment", ["Liquide", "Poudre"]),
+        ("input_select.piscine_test_chlore_treatment", ["Liquide", "Pastille lente", "Chlore choc (poudre)"]),
+    ]
+
+    for entity_id, attributes in input_numbers:
+        if not hass.states.get(entity_id):
+            hass.states.async_set(entity_id, attributes.get("initial", 0), attributes)
+            _LOGGER.debug(f"Création de l'entité {entity_id} avec les attributs {attributes}")
+
+    for entity_id, options in input_selects:
+        if not hass.states.get(entity_id):
+            hass.states.async_set(entity_id, options[0], {
+                "options": options,
+                "name": entity_id.split(".")[1].replace("_", " ").title()
+            })
+            _LOGGER.debug(f"Création de l'entité {entity_id} avec les options {options}")
+
+    return True
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Configurez une entrée de configuration pour Piscinexa."""
-    hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = entry.data.copy()
-
-    # Charger les traductions et les stocker globalement
-    hass.data[DOMAIN]["translations"] = await async_get_translations(
-        hass,
-        hass.config.language,
-        "logs",
-        integrations={DOMAIN},
-    )
-
-    def get_translation(key: str, placeholders: dict = None) -> str:
-        """Récupère une traduction avec des placeholders."""
-        try:
-            translated = hass.data[DOMAIN]["translations"].get(key, None)
-            if translated is None:
-                _LOGGER.warning(f"Clé de traduction manquante : {key}")
-                return f"Erreur : traduction manquante pour {key}"  # Message par défaut en français
-            if placeholders:
-                return translated.format(**placeholders)
-            return translated
-        except Exception as e:
-            _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
-            return f"Erreur : traduction indisponible pour {key}"  # Message par défaut en français
-
-    # Vérification et définition des valeurs par défaut pour chlore_target, ph_target et temperature
-    if "chlore_target" not in hass.data[DOMAIN][entry.entry_id]:
-        _LOGGER.warning(
-            get_translation("chlore_target_missing", {"default_value": "2.0"})
-        )
-        hass.data[DOMAIN][entry.entry_id]["chlore_target"] = 2.0
-    if "ph_target" not in hass.data[DOMAIN][entry.entry_id]:
-        _LOGGER.warning(
-            get_translation("ph_target_missing", {"default_value": "7.4"})
-        )
-        hass.data[DOMAIN][entry.entry_id]["ph_target"] = 7.4
-    if "temperature" not in hass.data[DOMAIN][entry.entry_id] or not isinstance(hass.data[DOMAIN][entry.entry_id]["temperature"], (int, float)):
-        _LOGGER.warning(
-            get_translation("default_temperature_invalid", {"error": "Température manquante ou invalide, définition par défaut : 20.0"})
-        )
-        hass.data[DOMAIN][entry.entry_id]["temperature"] = 20.0
-
-    async def handle_test_calcul(call: ServiceCall):
-        name = hass.data[DOMAIN][entry.entry_id]["name"]
-        _LOGGER.info(
-            get_translation("test_calcul_called", {"name": name})
-        )
-        log_sensor = hass.data[DOMAIN].get("log")
-        if log_sensor and name in log_sensor._name:
-            log_sensor.log_action(
-                get_translation("test_calcul_action")
-            )
-
-    async def handle_reset_valeurs(call: ServiceCall):
-        name = hass.data[DOMAIN][entry.entry_id]["name"]
-        _LOGGER.info(
-            get_translation("reset_valeurs_called", {"name": name})
-        )
-        data = {
-            "name": name,
-            "pool_type": hass.data[DOMAIN][entry.entry_id]["pool_type"],
-            "ph_current": 7.0,
-            "ph_target": 7.4,
-            "chlore_current": 1.0,
-            "chlore_target": 2.0,
-            "temperature": 20.0,
-        }
-        if data["pool_type"] == POOL_TYPE_SQUARE:
-            data.update({
-                "length": float(entry.data.get("length", 5.0)),
-                "width": float(entry.data.get("width", 4.0)),
-                "depth": float(entry.data.get("depth", 1.5))
-            })
-        else:
-            data.update({
-                "diameter": float(entry.data.get("diameter", 4.0)),
-                "depth": float(entry.data.get("depth", 1.5))
-            })
-        # Inclure power_sensor_entity_id dans les données
-        if "power_sensor_entity_id" in entry.data:
-            data["power_sensor_entity_id"] = entry.data["power_sensor_entity_id"]
-        hass.data[DOMAIN][entry.entry_id].update(data)
-
-        for entity_id in [f"input_number.{name}_chlore_current", f"input_number.{name}_ph_current"]:
-            entity = hass.states.get(entity_id)
-            if entity:
-                if "chlore" in entity_id:
-                    await hass.services.async_call(
-                        "input_number", "set_value",
-                        {"entity_id": entity_id, "value": 1.0}
-                    )
-                elif "ph" in entity_id:
-                    await hass.services.async_call(
-                        "input_number", "set_value",
-                        {"entity_id": entity_id, "value": 7.0}
-                    )
-
-        log_sensor = hass.data[DOMAIN].get("log")
-        if log_sensor and name in log_sensor._name:
-            log_sensor.log_action(
-                get_translation("reset_valeurs_action")
-            )
-        await hass.config_entries.async_reload(entry.entry_id)
-
-    async def handle_apply_treatment(call: ServiceCall):
-        name = call.data.get("name", hass.data[DOMAIN][entry.entry_id]["name"])
-        treatment_type = call.data.get("treatment_type")
-        treatment_form = call.data.get("treatment_form")
-        quantity = float(call.data.get("quantity", 0.0))
-
-        _LOGGER.info(
-            get_translation(
-                "apply_treatment_called",
-                {
-                    "name": name,
-                    "treatment_type": treatment_type,
-                    "treatment_form": treatment_form,
-                    "quantity": str(quantity)
-                }
-            )
-        )
-
-        if treatment_type in ["pH+", "pH-"]:
-            ph_current = float(hass.data[DOMAIN][entry.entry_id]["ph_current"])
-            volume = float(hass.states.get(f"sensor.{DOMAIN}_{name}_volume_eau").state)
-            if treatment_form == "Liquide":
-                ph_change = quantity / (volume * 10)
-            else:
-                ph_change = quantity / (volume * 100)
-            if treatment_type == "pH+":
-                new_ph = ph_current + ph_change
-            else:
-                new_ph = ph_current - ph_change
-            hass.data[DOMAIN][entry.entry_id]["ph_current"] = round(new_ph, 1)
-            await hass.services.async_call(
-                "input_number", "set_value",
-                {"entity_id": f"input_number.{name}_ph_current", "value": new_ph}
-            )
-        elif treatment_type == "Chlore":
-            chlore_current = float(hass.data[DOMAIN][entry.entry_id]["chlore_current"])
-            volume = float(hass.states.get(f"sensor.{DOMAIN}_{name}_volume_eau").state)
-            if treatment_form == "Liquide":
-                chlore_change = quantity / (volume * 10)
-            elif treatment_form == "Pastille lente":
-                chlore_change = quantity / (volume * 0.5)
-            else:
-                chlore_change = quantity / (volume * 10)
-            new_chlore = chlore_current + chlore_change
-            hass.data[DOMAIN][entry.entry_id]["chlore_current"] = round(new_chlore, 1)
-            await hass.services.async_call(
-                "input_number", "set_value",
-                {"entity_id": f"input_number.{name}_chlore_current", "value": new_chlore}
-            )
-
-        log_sensor = hass.data[DOMAIN].get("log")
-        if log_sensor and name in log_sensor._name:
-            log_sensor.log_action(
-                get_translation(
-                    "apply_treatment_action",
-                    {
-                        "treatment_type": treatment_type,
-                        "treatment_form": treatment_form,
-                        "quantity": str(quantity)
-                    }
-                )
-            )
-        await hass.config_entries.async_reload(entry.entry_id)
-
-    hass.services.async_register(DOMAIN, "test_calcul", handle_test_calcul)
-    hass.services.async_register(DOMAIN, "reset_valeurs", handle_reset_valeurs)
-    hass.services.async_register(DOMAIN, "apply_treatment", handle_apply_treatment)
+    """Configure une entrée Piscinexa."""
+    hass.data[DOMAIN][entry.entry_id] = {"temperature": entry.data.get("temperature", 20.0)}
 
     try:
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+        return True
     except Exception as e:
         _LOGGER.error(
-            get_translation("platform_load_error", {"error": str(e)})
-        )
-        raise ConfigEntryNotReady from e
-
-    return True
-
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Déchargez une entrée de configuration pour Piscinexa."""
-    def get_translation(key: str, placeholders: dict = None) -> str:
-        """Récupère une traduction avec des placeholders."""
-        try:
-            translated = hass.data[DOMAIN]["translations"].get(key, None)
-            if translated is None:
-                _LOGGER.warning(f"Clé de traduction manquante : {key}")
-                return f"Erreur : traduction manquante pour {key}"  # Message par défaut en français
-            if placeholders:
-                return translated.format(**placeholders)
-            return translated
-        except Exception as e:
-            _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
-            return f"Erreur : traduction indisponible pour {key}"  # Message par défaut en français
-
-    try:
-        await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    except Exception as e:
-        _LOGGER.error(
-            get_translation("platform_unload_error", {"error": str(e)})
+            hass.data[DOMAIN]["translations"].get(
+                "platform_load_error",
+                f"Error loading the Piscinexa platform: {e}"
+            ),
+            {"error": str(e)}
         )
         return False
 
-    hass.data[DOMAIN].pop(entry.entry_id)
-    return True
+
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Décharge une entrée Piscinexa."""
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unload_ok:
+        hass.data[DOMAIN].pop(entry.entry_id, None)
+    return unload_ok
