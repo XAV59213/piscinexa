@@ -147,9 +147,10 @@
   "filtration_attributes_error": "Erreur lors de la récupération des attributs de filtration: {error}",
   "ph_sensor_unavailable": "Capteur de pH {sensor_id} indisponible.",
   "input_number_missing": "Input_number manquant: {entity_id}",
+  "input_select_missing": "Input_select manquant: {entity_id}",
   "input_number_read_error": "Erreur lors de la lecture de l'input_number pour {type}: {error}",
   "default_value_read_error": "Erreur lors de la lecture de la valeur par défaut pour {type}: {error}",
-  "volume_unavailable_message": "Volume d'eau indisponible.",
+  "volume_unavailable_message": "Volume d'eau indisponible",
   "ph_plus_dose_error": "Erreur lors du calcul de la dose de pH+ pour {name}: {error}",
   "ph_plus_unit_error": "Erreur lors de la détermination de l'unité pour pH+: {error}",
   "ph_attributes_error": "Erreur lors de la récupération des attributs pH: {error}",
@@ -193,5 +194,6 @@
   "ph_state_ok": "OK",
   "ph_state_adjust": "Veuillez réajuster le pH",
   "no_treatment_needed": "Aucun traitement nécessaire",
-  "no_action": "Aucune action enregistrée"
+  "no_action": "Aucune action enregistrée",
+  "test_calcul_called": "Service test_calcul appelé pour la piscine {name}"
 }
