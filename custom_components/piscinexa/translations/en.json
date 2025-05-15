@@ -22,7 +22,123 @@
           "chlore_sensor": "Chlorine Sensor (optional)",
           "chlore_target": "Target Chlorine (mg/L)",
           "power_sensor_entity_id": "Power Sensor (optional)"
+        },
+        "pool_types": {
+          "square": "Square",
+          "round": "Round"
         }
+      },
+      "dimensions": {
+        "description": "Enter the dimensions of your pool."
+      },
+      "ph_config": {
+        "description": "Choose the pH configuration mode.",
+        "data": {
+          "ph_config_choice": "pH Configuration Mode"
+        },
+        "options": {
+          "manual": "Manual entry",
+          "sensor": "Select a sensor"
+        }
+      },
+      "ph_manual": {
+        "description": "Enter the pH values manually."
+      },
+      "ph_sensor": {
+        "description": "Select a sensor for pH or enter a target value."
+      },
+      "confirm_ph_sensor": {
+        "description": "No pH sensor selected. What would you like to do?",
+        "options": {
+          "manual": "Enter manually",
+          "retry": "Retry sensor selection"
+        }
+      },
+      "chlore_config": {
+        "description": "Choose the chlorine configuration mode.",
+        "data": {
+          "chlore_config_choice": "Chlorine Configuration Mode"
+        },
+        "options": {
+          "manual": "Manual entry",
+          "sensor": "Select a sensor"
+        }
+      },
+      "chlore_manual": {
+        "description": "Enter the chlorine values manually."
+      },
+      "chlore_sensor": {
+        "description": "Select a sensor for chlorine or enter a target value."
+      },
+      "confirm_chlore_sensor": {
+        "description": "No chlorine sensor selected. What would you like to do?",
+        "options": {
+          "manual": "Enter manually",
+          "retry": "Retry sensor selection"
+        }
+      },
+      "temperature_config": {
+        "description": "Choose the temperature configuration mode.",
+        "data": {
+          "temperature_config_choice": "Temperature Configuration Mode"
+        },
+        "options": {
+          "manual": "Manual entry",
+          "sensor": "Select a sensor"
+        }
+      },
+      "temperature_manual": {
+        "description": "Enter the temperature manually."
+      },
+      "temperature_sensor": {
+        "description": "Select a sensor for temperature."
+      },
+      "confirm_temperature_sensor": {
+        "description": "No temperature sensor selected. What would you like to do?",
+        "options": {
+          "manual": "Enter manually",
+          "retry": "Retry sensor selection"
+        }
+      },
+      "power_config": {
+        "description": "Choose the power sensor configuration mode.",
+        "data": {
+          "power_config_choice": "Power Sensor Configuration Mode"
+        },
+        "options": {
+          "manual": "Manual (no sensor)",
+          "sensor": "Select a sensor"
+        }
+      },
+      "power_manual": {
+        "description": "No power sensor selected. Click next to continue."
+      },
+      "power_sensor": {
+        "description": "Select a power sensor."
+      },
+      "confirm_power_sensor": {
+        "description": "No power sensor selected. What would you like to do?",
+        "options": {
+          "manual": "Continue without sensor",
+          "retry": "Retry sensor selection"
+        }
+      },
+      "treatment_config": {
+        "description": "Select the treatment types for pH and chlorine.",
+        "data": {
+          "ph_plus_treatment": "pH+ Treatment Type",
+          "ph_minus_treatment": "pH- Treatment Type",
+          "chlore_treatment": "Chlorine Treatment Type"
+        },
+        "treatment_options": {
+          "liquid": "Liquid",
+          "granules": "Granules",
+          "shock_chlorine_powder": "Shock chlorine (powder)",
+          "slow_dissolving_tablet": "Slow-dissolving tablet"
+        }
+      },
+      "summary": {
+        "description": "Review your pool configuration details:\n{summary}"
       }
     },
     "error": {
