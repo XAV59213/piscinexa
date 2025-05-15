@@ -20,6 +20,34 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+def get_translation(hass: HomeAssistant, key: str, default: str = None) -> str:
+    """Récupère une traduction depuis le cache, gérant les clés imbriquées."""
+    try:
+        # Vérifier si les traductions sont bien chargées
+        if DOMAIN not in hass.data or "translations" not in hass.data[DOMAIN]:
+            _LOGGER.warning(f"Traductions non chargées dans hass.data[{DOMAIN}]['translations']")
+            return default or key
+
+        # Diviser la clé en parties pour gérer les sous-dictionnaires
+        keys = key.split(".")
+        translation = hass.data[DOMAIN]["translations"]
+        for k in keys:
+            if isinstance(translation, dict):
+                translation = translation.get(k)
+            else:
+                _LOGGER.warning(f"Clé de traduction {key} non trouvée dans la structure")
+                return default or key
+
+        if translation is None:
+            _LOGGER.warning(f"Valeur pour la clé de traduction {key} est None")
+            return default or key
+
+        _LOGGER.debug(f"Traduction récupérée pour la clé {key}: {translation}")
+        return translation
+    except Exception as e:
+        _LOGGER.error(f"Erreur lors de la récupération de la traduction pour la clé {key}: {e}")
+        return default or key
+
 class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Gérer le flux de configuration pour Piscinexa."""
 
@@ -46,11 +74,12 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if not self._errors:
                     return await self.async_step_dimensions()
 
-        # Options par défaut pour le type de piscine
+        # Utiliser les traductions pour les types de piscine
         pool_type_options = {
-            POOL_TYPE_SQUARE: "Square",
-            POOL_TYPE_ROUND: "Round",
+            POOL_TYPE_SQUARE: get_translation(self.hass, "config.step.user.pool_types.square", "Square"),
+            POOL_TYPE_ROUND: get_translation(self.hass, "config.step.user.pool_types.round", "Round"),
         }
+        _LOGGER.debug(f"Options de type de piscine: {pool_type_options}")
 
         return self.async_show_form(
             step_id="user",
@@ -80,6 +109,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     self._errors["base"] = "dimensions_invalid"
             if not self._errors:
                 return await self.async_step_ph_config()
+
         schema = vol.Schema({
             vol.Required(CONF_DEPTH, default=1.5): vol.Coerce(float),
         })
@@ -92,6 +122,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             schema = schema.extend({
                 vol.Required(CONF_DIAMETER, default=4.0): vol.Coerce(float),
             })
+
         return self.async_show_form(
             step_id="dimensions",
             data_schema=schema,
@@ -108,10 +139,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_ph_manual()
             return await self.async_step_ph_sensor()
 
-        # Options par défaut pour la configuration pH
+        # Utiliser les traductions pour les options de configuration
         config_options = {
-            "manual": "Manual entry",
-            "sensor": "Select a sensor",
+            "manual": get_translation(self.hass, "config.step.ph_config.options.manual", "Manual entry"),
+            "sensor": get_translation(self.hass, "config.step.ph_config.options.sensor", "Select a sensor"),
         }
 
         return self.async_show_form(
@@ -177,10 +208,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_ph_manual()
             return await self.async_step_ph_sensor()
 
-        # Options par défaut pour la confirmation
+        # Utiliser les traductions pour les options de confirmation
         confirm_options = {
-            "manual": "Enter manually",
-            "retry": "Retry sensor selection",
+            "manual": get_translation(self.hass, "config.step.confirm_ph_sensor.options.manual", "Enter manually"),
+            "retry": get_translation(self.hass, "config.step.confirm_ph_sensor.options.retry", "Retry sensor selection"),
         }
 
         return self.async_show_form(
@@ -201,10 +232,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_chlore_manual()
             return await self.async_step_chlore_sensor()
 
-        # Options par défaut pour la configuration chlore
+        # Utiliser les traductions pour les options de configuration
         config_options = {
-            "manual": "Manual entry",
-            "sensor": "Select a sensor",
+            "manual": get_translation(self.hass, "config.step.chlore_config.options.manual", "Manual entry"),
+            "sensor": get_translation(self.hass, "config.step.chlore_config.options.sensor", "Select a sensor"),
         }
 
         return self.async_show_form(
@@ -270,10 +301,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_chlore_manual()
             return await self.async_step_chlore_sensor()
 
-        # Options par défaut pour la confirmation
+        # Utiliser les traductions pour les options de confirmation
         confirm_options = {
-            "manual": "Enter manually",
-            "retry": "Retry sensor selection",
+            "manual": get_translation(self.hass, "config.step.confirm_chlore_sensor.options.manual", "Enter manually"),
+            "retry": get_translation(self.hass, "config.step.confirm_chlore_sensor.options.retry", "Retry sensor selection"),
         }
 
         return self.async_show_form(
@@ -294,10 +325,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_temperature_manual()
             return await self.async_step_temperature_sensor()
 
-        # Options par défaut pour la configuration température
+        # Utiliser les traductions pour les options de configuration
         config_options = {
-            "manual": "Manual entry",
-            "sensor": "Select a sensor",
+            "manual": get_translation(self.hass, "config.step.temperature_config.options.manual", "Manual entry"),
+            "sensor": get_translation(self.hass, "config.step.temperature_config.options.sensor", "Select a sensor"),
         }
 
         return self.async_show_form(
@@ -355,10 +386,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_temperature_manual()
             return await self.async_step_temperature_sensor()
 
-        # Options par défaut pour la confirmation
+        # Utiliser les traductions pour les options de confirmation
         confirm_options = {
-            "manual": "Enter manually",
-            "retry": "Retry sensor selection",
+            "manual": get_translation(self.hass, "config.step.confirm_temperature_sensor.options.manual", "Enter manually"),
+            "retry": get_translation(self.hass, "config.step.confirm_temperature_sensor.options.retry", "Retry sensor selection"),
         }
 
         return self.async_show_form(
@@ -379,10 +410,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_power_manual()
             return await self.async_step_power_sensor()
 
-        # Options par défaut pour la configuration puissance
+        # Utiliser les traductions pour les options de configuration
         config_options = {
-            "manual": "Manual (no sensor)",
-            "sensor": "Select a sensor",
+            "manual": get_translation(self.hass, "config.step.power_config.options.manual", "Manual (no sensor)"),
+            "sensor": get_translation(self.hass, "config.step.power_config.options.sensor", "Select a sensor"),
         }
 
         return self.async_show_form(
@@ -434,10 +465,10 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return await self.async_step_power_manual()
             return await self.async_step_power_sensor()
 
-        # Options par défaut pour la confirmation
+        # Utiliser les traductions pour les options de confirmation
         confirm_options = {
-            "manual": "Continue without sensor",
-            "retry": "Retry sensor selection",
+            "manual": get_translation(self.hass, "config.step.confirm_power_sensor.options.manual", "Continue without sensor"),
+            "retry": get_translation(self.hass, "config.step.confirm_power_sensor.options.retry", "Retry sensor selection"),
         }
 
         return self.async_show_form(
@@ -454,12 +485,24 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             self._data.update(user_input)
             return await self.async_step_summary()
+
+        # Utiliser les traductions pour les options de traitement
+        ph_treatment_options = {
+            "Liquid": get_translation(self.hass, "config.step.treatment_config.treatment_options.liquid", "Liquid"),
+            "Granules": get_translation(self.hass, "config.step.treatment_config.treatment_options.granules", "Granules"),
+        }
+        chlore_treatment_options = {
+            "Liquid": get_translation(self.hass, "config.step.treatment_config.treatment_options.liquid", "Liquid"),
+            "Shock chlorine (powder)": get_translation(self.hass, "config.step.treatment_config.treatment_options.shock_chlorine_powder", "Shock chlorine (powder)"),
+            "Slow-dissolving tablet": get_translation(self.hass, "config.step.treatment_config.treatment_options.slow_dissolving_tablet", "Slow-dissolving tablet"),
+        }
+
         return self.async_show_form(
             step_id="treatment_config",
             data_schema=vol.Schema({
-                vol.Required("ph_plus_treatment", default="Liquid"): vol.In(["Liquid", "Granules"]),
-                vol.Required("ph_minus_treatment", default="Liquid"): vol.In(["Liquid", "Granules"]),
-                vol.Required("chlore_treatment", default="Shock chlorine (powder)"): vol.In(["Liquid", "Shock chlorine (powder)", "Slow-dissolving tablet"]),
+                vol.Required("ph_plus_treatment", default="Liquid"): vol.In(ph_treatment_options),
+                vol.Required("ph_minus_treatment", default="Liquid"): vol.In(ph_treatment_options),
+                vol.Required("chlore_treatment", default="Shock chlorine (powder)"): vol.In(chlore_treatment_options),
             }),
             errors=self._errors,
         )
@@ -471,6 +514,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 title=f"Piscinexa {self._data[CONF_NAME]}",
                 data=self._data
             )
+
         summary = (
             f"Pool name: {self._data[CONF_NAME]}\n"
             f"Pool type: {self._data[CONF_POOL_TYPE]}\n"
@@ -501,6 +545,7 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             f"Temperature source: {self._data.get('temperature_sensor', 'Manual')}\n"
             f"Power source: {self._data.get('power_sensor_entity_id', 'Not defined')}\n"
         )
+
         return self.async_show_form(
             step_id="summary",
             description_placeholders={"summary": summary},
