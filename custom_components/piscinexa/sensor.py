@@ -8,6 +8,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.const import CONF_NAME
 from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.util import dt as dt_util
 from .const import (
     DOMAIN,
     POOL_TYPE_SQUARE,
@@ -40,15 +41,41 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Configurez les capteurs pour Piscinexa."""
-    # S'assurer que "temperature" est défini dans les données de l'entrée
     data = entry.data.copy()
     if "temperature" not in data or not isinstance(data["temperature"], (int, float)):
-        data["temperature"] = 20.0  # Valeur par défaut si manquante ou invalide
+        data["temperature"] = 20.0
         hass.config_entries.async_update_entry(entry, data=data)
 
+    # Vérification des données de configuration
+    required_keys = ["pool_type", "depth"]
+    if data.get("pool_type") == POOL_TYPE_SQUARE:
+        required_keys.extend(["length", "width"])
+    else:
+        required_keys.append("diameter")
+
+    for key in required_keys:
+        if key not in data or data[key] is None:
+            _LOGGER.warning(f"Clé manquante ou None dans la configuration: {key}. Utilisation de la valeur par défaut.")
+            if key == "pool_type":
+                data["pool_type"] = POOL_TYPE_SQUARE
+            elif key == "depth":
+                data["depth"] = 1.5
+            elif key == "length":
+                data["length"] = 5.0
+            elif key == "width":
+                data["width"] = 4.0
+            elif key == "diameter":
+                data["diameter"] = 4.0
+            hass.config_entries.async_update_entry(entry, data=data)
+
     name = entry.data["name"]
+    
+    # Initialiser d'abord le capteur de volume, car les autres en dépendent
+    volume_sensor = PiscinexaVolumeSensor(hass, entry, name)
+    async_add_entities([volume_sensor], True)
+
+    # Puis initialiser les autres capteurs
     sensors = [
-        PiscinexaVolumeSensor(hass, entry, name),
         PiscinexaTempsFiltrationRecommandeSensor(hass, entry, name),
         PiscinexaTempsFiltrationEffectueSensor(hass, entry, name),
         PiscinexaTemperatureSensor(hass, entry, name),
@@ -96,16 +123,51 @@ class PiscinexaVolumeSensor(SensorEntity):
     @property
     def native_value(self):
         try:
-            pool_type = self._entry.data["pool_type"]
-            depth = float(self._entry.data["depth"])
+            pool_type = self._entry.data.get("pool_type")
+            if pool_type not in (POOL_TYPE_SQUARE, POOL_TYPE_ROUND):
+                _LOGGER.error(
+                    get_translation(
+                        self._hass,
+                        "volume_calculation_error",
+                        {"name": self._name, "error": f"Type de piscine invalide: {pool_type}"}
+                    )
+                )
+                return 30.0
+
+            # Log des données de configuration pour diagnostic
+            _LOGGER.debug(
+                f"pool_type={pool_type}, "
+                f"depth={self._entry.data.get('depth')}, "
+                f"length={self._entry.data.get('length')}, "
+                f"width={self._entry.data.get('width')}, "
+                f"diameter={self._entry.data.get('diameter')}"
+            )
+
+            def safe_float(value, key, default):
+                try:
+                    return float(value)
+                except (ValueError, TypeError, KeyError) as e:
+                    _LOGGER.warning(
+                        get_translation(
+                            self._hass,
+                            "invalid_dimension",
+                            {"key": key, "value": value, "error": str(e)}
+                        )
+                    )
+                    return default
+
+            depth = safe_float(self._entry.data.get("depth"), "depth", 1.5)
+            
             if pool_type == POOL_TYPE_SQUARE:
-                length = float(self._entry.data["length"])
-                width = float(self._entry.data["width"])
+                length = safe_float(self._entry.data.get("length"), "length", 5.0)
+                width = safe_float(self._entry.data.get("width"), "width", 4.0)
                 volume = length * width * depth
             else:
-                diameter = float(self._entry.data["diameter"])
+                diameter = safe_float(self._entry.data.get("diameter"), "diameter", 4.0)
                 radius = diameter / 2
                 volume = PI * radius * radius * depth
+
+            _LOGGER.debug(f"Volume calculé pour {self._name}: {volume} m³")
             return round(volume, 2)
         except Exception as e:
             _LOGGER.error(
@@ -115,7 +177,7 @@ class PiscinexaVolumeSensor(SensorEntity):
                     {"name": self._name, "error": str(e)}
                 )
             )
-            return None
+            return 30.0
 
 class PiscinexaTempsFiltrationRecommandeSensor(SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
@@ -644,13 +706,7 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
                     )
                     volume_val = 30.0
             else:
-                _LOGGER.warning(
-                    get_translation(
-                        self._hass,
-                        "volume_unavailable_message"
-                    )
-                )
-                volume_val = 30.0
+                volume_val = 30.0  # Pas d'avertissement, car PiscinexaVolumeSensor garantit une valeur
 
             ph_difference = ph_target - ph_current
             select_state = self._hass.states.get(self._input_select_id)
@@ -1184,13 +1240,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
                     )
                     volume_val = 30.0
             else:
-                _LOGGER.warning(
-                    get_translation(
-                        self._hass,
-                        "volume_unavailable_message"
-                    )
-                )
-                volume_val = 30.0
+                volume_val = 30.0  # Pas d'avertissement, car PiscinexaVolumeSensor garantit une valeur
 
             chlore_difference = chlore_target - chlore_current
             select_state = self._hass.states.get(self._input_select_id)
@@ -1469,18 +1519,31 @@ class PiscinexaPoolStateSensor(SensorEntity):
     def extra_state_attributes(self):
         attributes = {}
         try:
+            # Helper function to safely convert state to float
+            def safe_float(state, default=None):
+                if state and state not in ("unavailable", "unknown"):
+                    try:
+                        return float(state)
+                    except (ValueError, TypeError):
+                        return default
+                return default
+
             temp_entity = self._hass.states.get(f"sensor.{self._name}_temperature")
             if temp_entity:
-                attributes["temperature"] = float(temp_entity.state)
+                attributes["temperature"] = safe_float(temp_entity.state)
+
             chlore_entity = self._hass.states.get(f"sensor.{self._name}_chlore")
             if chlore_entity:
-                attributes["chlore"] = float(chlore_entity.state)
+                attributes["chlore"] = safe_float(chlore_entity.state)
+
             ph_entity = self._hass.states.get(f"sensor.{self._name}_ph")
             if ph_entity:
-                attributes["ph"] = float(ph_entity.state)
+                attributes["ph"] = safe_float(ph_entity.state)
+
             filtration_entity = self._hass.states.get(f"sensor.{self._name}_tempsfiltration_recommande")
             if filtration_entity:
-                attributes["temps_filtration_recommande"] = float(filtration_entity.state)
+                attributes["temps_filtration_recommande"] = safe_float(filtration_entity.state)
+
         except Exception as e:
             _LOGGER.error(
                 get_translation(
