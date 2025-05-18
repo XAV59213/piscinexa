@@ -1,0 +1,216 @@
+type: sections
+max_columns: 4
+title: Piscine
+path: pisine
+sections:
+  - type: grid
+    cards:
+      - show_name: true
+        show_icon: true
+        type: button
+        entity: input_select.piscine_ph_plus_treatment
+      - show_name: true
+        show_icon: true
+        type: button
+        entity: input_select.piscine_ph_minus_treatment
+      - show_name: true
+        show_icon: true
+        type: button
+        entity: input_select.piscine_chlore_treatment
+      - show_name: true
+        show_icon: true
+        type: button
+        entity: input_number.piscine_chlore_current
+      - show_name: true
+        show_icon: true
+        type: button
+        entity: input_number.piscine_ph_current
+      - type: heading
+        heading: 💧Gestion de piscine
+        heading_style: title
+        badges:
+          - type: entity
+            entity: sensor.piscine_chlore_difference
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: 🧪 Informations principales Clhore 🧪
+            show_header_toggle: false
+            entities:
+              - entity: input_number.piscine_chlore_target
+                icon: mdi:pool
+              - entity: sensor.piscine_chlore_difference
+                icon: mdi:clock
+            state_color: true
+          - type: entities
+            title: 🧪 Qualité de l'eau Clhore
+            show_header_toggle: false
+            entities:
+              - entity: sensor.piscine_chlore_actuel
+                name: Chlore actuel
+                icon: mdi:water-check
+              - entity: sensor.piscine_chlore_a_ajouter
+                name: Chlore à ajouter
+                icon: mdi:bottle-tonic-plus
+          - type: history-graph
+            title: 📊 Historique Chlore (48h)
+            hours_to_show: 48
+            refresh_interval: 300
+            entities:
+              - entity: sensor.piscinexa_piscine_chlore
+                name: Chlore
+            logarithmic_scale: true
+          - type: history-graph
+            title: " 💊 Historique pH et Chlore (48h)"
+            hours_to_show: 48
+            refresh_interval: 300
+            entities:
+              - entity: sensor.piscinexa_piscine_ph
+              - entity: sensor.piscinexa_piscine_chlore
+            logarithmic_scale: true
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: ⚖️ Informations principales pH ⚖️
+            show_header_toggle: false
+            entities:
+              - entity: input_number.piscine_ph_target
+                icon: mdi:clock
+              - entity: sensor.piscine_ph_difference
+                name: Piscine pH Différence
+            state_color: true
+          - type: entities
+            title: ⚖️ Qualité de l'eau pH
+            show_header_toggle: false
+            entities:
+              - entity: sensor.piscine_ph_actuel
+                name: pH actuel
+                icon: mdi:water-ph
+              - entity: sensor.piscine_ph_a_ajouter_2
+              - entity: sensor.piscine_ph_a_ajouter
+          - type: history-graph
+            title: 📊  Historique Ph (48h)
+            hours_to_show: 48
+            refresh_interval: 300
+            entities:
+              - entity: sensor.piscinexa_piscine_ph
+            logarithmic_scale: true
+          - type: history-graph
+            title: 🌡️ Historique Température (48h)
+            hours_to_show: 48
+            refresh_interval: 300
+            entities:
+              - entity: sensor.temperature_piscine_temperature
+              - entity: sensor.bermerain_temperature
+            logarithmic_scale: true
+          - graph: line
+            type: sensor
+            entity: input_number.piscine_ph_current
+            detail: 1
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: "🏊 Contrôle Qualité Piscine 🏊 "
+            show_header_toggle: false
+            entities:
+              - entity: sensor.piscine_volume_d_eau
+                name: Volume d'eau
+                icon: mdi:pool
+              - entity: sensor.piscine_temps_de_filtration_recommande
+                name: Temps de filtration recommandé
+                icon: mdi:clock
+              - entity: sensor.piscine_temps_de_filtration_effectue
+              - entity: sensor.temperature_piscine_temperature
+                name: Piscine Température
+              - entity: sensor.bermerain_temperature
+            state_color: true
+          - type: entities
+            title: 💧Qualité de l'eau 💧
+            show_header_toggle: false
+            entities:
+              - entity: sensor.piscine_etat_ph
+                name: pH actuel
+                icon: mdi:water-ph
+              - entity: sensor.piscine_etat_chlore
+                name: Chlore actuel
+                icon: mdi:water-check
+              - entity: sensor.piscine_etat_temperature
+          - type: entities
+            title: ⚡ Consommation
+            show_header_toggle: false
+            entities:
+              - entity: sensor.piscine_consommation_puissance
+                name: Consommation de puissance
+                icon: mdi:flash
+              - entity: switch.pompe_piscine
+          - type: entities
+            title: Journal des actions
+            show_header_toggle: false
+            entities:
+              - entity: update.piscinexa_update
+                name: Journal
+                icon: mdi:notebook
+              - entity: switch.piscinexa_pre_release
+          - type: horizontal-stack
+            cards:
+              - show_name: true
+                show_icon: true
+                type: button
+                entity: button.tester
+                name: Tester les calculs
+                icon: mdi:calculator
+                tap_action:
+                  action: call-service
+                  service: piscinexa.test_calcul
+                  service_data:
+                    name: piscine
+              - show_name: true
+                show_icon: true
+                type: button
+                entity: button.reinitialiser
+                name: Réinitialiser les valeurs
+                icon: mdi:refresh
+                tap_action:
+                  action: call-service
+                  service: piscinexa.reset_valeurs
+                  service_data:
+                    name: piscine
+          - type: history-graph
+            title: 📆 Calendrier Pompage
+            hours_to_show: 48
+            refresh_interval: 300
+            entities:
+              - entity: calendar.pompage_piscine
+            logarithmic_scale: true
+    column_span: 3
+badges:
+  - type: entity
+    show_name: false
+    show_state: true
+    show_icon: true
+    entity: sensor.piscine_consommation_puissance
+  - type: entity
+    show_name: false
+    show_state: true
+    show_icon: true
+    entity: sensor.piscine_etat_de_la_piscine
+  - type: entity
+    show_name: false
+    show_state: true
+    show_icon: true
+    entity: calendar.pompage_piscine
+  - type: entity
+    show_name: false
+    show_state: true
+    show_icon: true
+    entity: sensor.piscine_pool_type
+    show_entity_picture: true
+icon: mdi:pool-thermometer
+cards: []
+background:
+  opacity: 33
+  alignment: center
+  size: cover
+  repeat: repeat
+  attachment: fixed
+  image: /api/image/serve/ee19a3b80b5723ffc28a5140eb6a77e9/original
