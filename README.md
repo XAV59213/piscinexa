@@ -31,7 +31,7 @@ Shortcut:
 ## Mise à jour 🔄
 Si vous installez manuellement, remplacez simplement le dossier custom_components/piscinexa par la nouvelle version, puis redémarrez Home Assistant.
 ## Exemple de tableau de bord 📊
-Un fichier YAML est fourni ici : piscine_dashboard_custom_component.yaml
+Un fichier YAML est fourni ici : [piscine_dashboard_custom_component.yaml](https://github.com/XAV59213/piscinexa/blob/main/custom_components/piscinexa/piscine_dashboard_advanced.yaml)
 
 ![Logo](./images/Capture%20d%E2%80%99%C3%A9cran%20du%202025-05-18%2012-17-32.png)
 ## Changelog 📜
