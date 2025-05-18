@@ -1,10 +1,10 @@
 blueprint:
-  name: Alerte qualité d'eau - Piscinexa
-  description: Envoie une notification si l'état global de la piscine passe à "alerte"
+  name: Alerte qualite d'eau - Piscinexa
+  description: Envoie une notification si l'etat global de la piscine passe a "alerte"
   domain: automation
   input:
     piscine_global_sensor:
-      name: Capteur état global piscine
+      name: Capteur etat global piscine
       selector:
         entity:
           domain: sensor
@@ -25,7 +25,7 @@ action:
     target: !input notification_target
     data:
       message: >
-        ⚠️ Alerte qualité d'eau : l'état global de votre piscine est passé en alerte.
-        Pensez à vérifier le pH, le taux de chlore et la température.
+        Alerte qualite d'eau : l'etat global de votre piscine est passe en alerte.
+        Verifiez le pH, le taux de chlore et la temperature.
 
 mode: single
