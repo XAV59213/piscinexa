@@ -42,7 +42,11 @@ async def async_setup_entry(
 ) -> None:
     """Configurez les capteurs pour Piscinexa."""
     data = entry.data.copy()
+    # Log pour afficher toutes les données de configuration
+    _LOGGER.debug(f"Données de configuration complètes dans entry.data: {data}")
+    
     if "temperature" not in data or not isinstance(data["temperature"], (int, float)):
+        _LOGGER.info("Température non définie ou invalide, utilisation de la valeur par défaut: 20.0°C")
         data["temperature"] = 20.0
         hass.config_entries.async_update_entry(entry, data=data)
 
@@ -67,6 +71,9 @@ async def async_setup_entry(
             elif key == "diameter":
                 data["diameter"] = 4.0
             hass.config_entries.async_update_entry(entry, data=data)
+
+    # Log après correction des valeurs par défaut
+    _LOGGER.debug(f"Données de configuration après correction: {data}")
 
     name = entry.data["name"]
     
@@ -116,6 +123,7 @@ class PiscinexaVolumeSensor(SensorEntity):
         )
         self._attr_icon = "mdi:pool"
         self._attr_native_unit_of_measurement = UNIT_CUBIC_METERS
+        self._last_state = None
 
     @property
     def name(self):
@@ -169,7 +177,21 @@ class PiscinexaVolumeSensor(SensorEntity):
                 volume = PI * radius * radius * depth
 
             _LOGGER.debug(f"Volume calculé pour {self._name}: {volume} m³")
-            return round(volume, 2)
+            new_value = round(volume, 2)
+
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+
+            return new_value
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -198,6 +220,7 @@ class PiscinexaTempsFiltrationRecommandeSensor(SensorEntity):
         self._attr_icon = "mdi:clock"
         self._attr_native_unit_of_measurement = UNIT_HOURS
         self._subscriptions = []
+        self._last_state = None
         sensor_id = self._entry.data.get("temperature_sensor")
         if sensor_id:
             self._subscriptions.append(
@@ -226,7 +249,19 @@ class PiscinexaTempsFiltrationRecommandeSensor(SensorEntity):
             state = self._hass.states.get(sensor_id)
             if state and state.state not in ("unknown", "unavailable"):
                 try:
-                    return round(float(state.state) / 2, 1)
+                    new_value = round(float(state.state) / 2, 1)
+                    # Log si l'état a changé
+                    if self._last_state != new_value:
+                        _LOGGER.info(
+                            get_translation(
+                                self._hass,
+                                "state_changed",
+                                {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                                default="État changé pour {name}: {old_state} → {new_state}"
+                            )
+                        )
+                        self._last_state = new_value
+                    return new_value
                 except Exception as e:
                     _LOGGER.warning(
                         get_translation(
@@ -244,10 +279,22 @@ class PiscinexaTempsFiltrationRecommandeSensor(SensorEntity):
                         {"sensor_id": sensor_id}
                     )
                 )
-                return None  # Retourne None si le capteur est indisponible
+                return None
         try:
             temperature = float(self._entry.data.get("temperature", 20.0))
-            return round(temperature / 2, 1)
+            new_value = round(temperature / 2, 1)
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+            return new_value
         except (ValueError, TypeError) as e:
             _LOGGER.error(
                 get_translation(
@@ -275,10 +322,11 @@ class PiscinexaTempsFiltrationEffectueSensor(SensorEntity):
         )
         self._attr_icon = "mdi:clock-check"
         self._attr_native_unit_of_measurement = UNIT_HOURS
-        self._attr_state_class = "total_increasing"  # Persistance après redémarrage
+        self._attr_state_class = "total_increasing"
         self._subscriptions = []
         self._filtration_time = 0.0
         self._last_active_time = None
+        self._last_state = None
         sensor_id = self._entry.data.get("power_sensor_entity_id")
         if sensor_id:
             self._subscriptions.append(
@@ -328,7 +376,19 @@ class PiscinexaTempsFiltrationEffectueSensor(SensorEntity):
     @property
     def native_value(self):
         try:
-            return round(self._filtration_time, 1)
+            new_value = round(self._filtration_time, 1)
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+            return new_value
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -358,7 +418,6 @@ class PiscinexaTempsFiltrationEffectueSensor(SensorEntity):
         return attributes
 
 class PiscinexaTemperatureSensor(SensorEntity):
-    """Capteur pour la température de la piscine."""
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -376,6 +435,7 @@ class PiscinexaTemperatureSensor(SensorEntity):
         self._attr_icon = "mdi:thermometer"
         self._attr_native_unit_of_measurement = "°C"
         self._subscriptions = []
+        self._last_state = None
         sensor_id = self._entry.data.get("temperature_sensor")
         if sensor_id:
             self._subscriptions.append(
@@ -414,10 +474,23 @@ class PiscinexaTemperatureSensor(SensorEntity):
                     unit = state.attributes.get("unit_of_measurement", "").lower()
                     if unit in ("°f", "f", "fahrenheit"):
                         value = (value - 32) * 5 / 9
-                    value = round(value, 1)
-                    self._hass.data[DOMAIN][self._entry.entry_id]["temperature"] = value
-                    _LOGGER.debug(f"Valeur du capteur externe {sensor_id} utilisée: {value}")
-                    return value
+                    new_value = round(value, 1)
+                    self._hass.data[DOMAIN][self._entry.entry_id]["temperature"] = new_value
+                    _LOGGER.debug(f"Valeur du capteur externe {sensor_id} utilisée: {new_value}")
+
+                    # Log si l'état a changé
+                    if self._last_state != new_value:
+                        _LOGGER.info(
+                            get_translation(
+                                self._hass,
+                                "state_changed",
+                                {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                                default="État changé pour {name}: {old_state} → {new_state}"
+                            )
+                        )
+                        self._last_state = new_value
+
+                    return new_value
                 except ValueError as e:
                     _LOGGER.error(
                         get_translation(
@@ -441,16 +514,44 @@ class PiscinexaTemperatureSensor(SensorEntity):
                     try:
                         value = float(internal_sensor.state)
                         _LOGGER.debug(f"Utilisation de la valeur interne sensor.{self._name}_temperature: {value}")
-                        return round(value, 1)
+                        new_value = round(value, 1)
+
+                        # Log si l'état a changé
+                        if self._last_state != new_value:
+                            _LOGGER.info(
+                                get_translation(
+                                    self._hass,
+                                    "state_changed",
+                                    {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                                    default="État changé pour {name}: {old_state} → {new_state}"
+                                )
+                            )
+                            self._last_state = new_value
+
+                        return new_value
                     except ValueError as e:
                         _LOGGER.error(f"Erreur de conversion de sensor.{self._name}_temperature: {e}")
                         return None
-                return None  # Retourne None si le capteur est indisponible
+                return None
         try:
             temperature = float(self._entry.data.get("temperature", 20.0))
             _LOGGER.debug(f"Utilisation de la température par défaut/manuelle: {temperature}")
             self._hass.data[DOMAIN][self._entry.entry_id]["temperature"] = temperature
-            return round(temperature, 1)
+            new_value = round(temperature, 1)
+
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+
+            return new_value
         except (ValueError, TypeError) as e:
             _LOGGER.error(
                 get_translation(
@@ -479,6 +580,7 @@ class PiscinexaPhSensor(SensorEntity):
         self._attr_icon = "mdi:water"
         self._attr_native_unit_of_measurement = None
         self._subscriptions = []
+        self._last_state = None
         sensor_id = self._entry.data.get("ph_sensor")
         if sensor_id:
             self._subscriptions.append(
@@ -550,6 +652,17 @@ class PiscinexaPhSensor(SensorEntity):
                                 "unit_of_measurement": None,
                             },
                         )
+                    # Log si l'état a changé
+                    if self._last_state != value:
+                        _LOGGER.info(
+                            get_translation(
+                                self._hass,
+                                "state_changed",
+                                {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": value},
+                                default="État changé pour {name}: {old_state} → {new_state}"
+                            )
+                        )
+                        self._last_state = value
                     return value
                 except ValueError as e:
                     _LOGGER.error(
@@ -565,6 +678,17 @@ class PiscinexaPhSensor(SensorEntity):
             try:
                 value = round(float(input_state.state), 1)
                 self._hass.data[DOMAIN][self._entry.entry_id]["ph_current"] = value
+                # Log si l'état a changé
+                if self._last_state != value:
+                    _LOGGER.info(
+                        get_translation(
+                            self._hass,
+                            "state_changed",
+                            {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": value},
+                            default="État changé pour {name}: {old_state} → {new_state}"
+                        )
+                    )
+                    self._last_state = value
                 return value
             except Exception as e:
                 _LOGGER.warning(
@@ -576,7 +700,19 @@ class PiscinexaPhSensor(SensorEntity):
                 )
                 return None
         try:
-            return round(float(self._entry.data["ph_current"]), 1)
+            value = round(float(self._entry.data["ph_current"]), 1)
+            # Log si l'état a changé
+            if self._last_state != value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = value
+            return value
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -588,7 +724,6 @@ class PiscinexaPhSensor(SensorEntity):
             return None
 
 class PiscinexaPhPlusAjouterSensor(SensorEntity):
-    """Capteur pour calculer la quantité totale de pH+ à ajouter."""
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -605,6 +740,7 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
         )
         self._attr_icon = "mdi:bottle-tonic-plus"
         self._subscriptions = []
+        self._last_state = None
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"sensor.{name}_ph"], self._async_update_from_ph
@@ -710,7 +846,7 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
                     )
                     volume_val = 30.0
             else:
-                volume_val = 30.0  # Pas d'avertissement, car PiscinexaVolumeSensor garantit une valeur
+                volume_val = 30.0
 
             ph_difference = ph_target - ph_current
             select_state = self._hass.states.get(self._input_select_id)
@@ -719,7 +855,21 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
                 dose = ph_difference * volume_val * 0.012
             else:
                 dose = ph_difference * volume_val * 1.2
-            return round(dose, 2)
+            new_value = round(dose, 2)
+
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+
+            return new_value
 
         except Exception as e:
             _LOGGER.error(
@@ -769,6 +919,7 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
         )
         self._attr_icon = "mdi:water-minus"
         self._subscriptions = []
+        self._last_state = None
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"sensor.{name}_ph"], self._async_update_from_ph
@@ -847,7 +998,21 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
                     dose = ph_difference * volume_val * 0.012
                 else:
                     dose = ph_difference * volume_val * 1.2
-                return round(dose, 2)
+                new_value = round(dose, 2)
+
+                # Log si l'état a changé
+                if self._last_state != new_value:
+                    _LOGGER.info(
+                        get_translation(
+                            self._hass,
+                            "state_changed",
+                            {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                            default="État changé pour {name}: {old_state} → {new_state}"
+                        )
+                    )
+                    self._last_state = new_value
+
+                return new_value
             return None
         except Exception as e:
             _LOGGER.error(
@@ -898,6 +1063,7 @@ class PiscinexaPhTargetSensor(SensorEntity):
         self._attr_icon = "mdi:target"
         self._attr_native_unit_of_measurement = None
         self._subscriptions = []
+        self._last_state = None
         input_id = f"input_number.{name}_ph_target"
         if hass.states.get(input_id):
             self._subscriptions.append(
@@ -930,7 +1096,19 @@ class PiscinexaPhTargetSensor(SensorEntity):
     @property
     def native_value(self):
         try:
-            return round(float(self._entry.data["ph_target"]), 1)
+            new_value = round(float(self._entry.data["ph_target"]), 1)
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+            return new_value
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -959,6 +1137,7 @@ class PiscinexaChloreSensor(SensorEntity):
         self._attr_icon = "mdi:water-check"
         self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
         self._subscriptions = []
+        self._last_state = None
         sensor_id = self._entry.data.get("chlore_sensor")
         if sensor_id:
             self._subscriptions.append(
@@ -1021,6 +1200,17 @@ class PiscinexaChloreSensor(SensorEntity):
                                 "unit_of_measurement": UNIT_MG_PER_LITER,
                             },
                         )
+                    # Log si l'état a changé
+                    if self._last_state != value:
+                        _LOGGER.info(
+                            get_translation(
+                                self._hass,
+                                "state_changed",
+                                {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": value},
+                                default="État changé pour {name}: {old_state} → {new_state}"
+                            )
+                        )
+                        self._last_state = value
                     return value
                 except Exception as e:
                     _LOGGER.warning(
@@ -1036,6 +1226,17 @@ class PiscinexaChloreSensor(SensorEntity):
             try:
                 value = round(float(input_state.state), 1)
                 self._hass.data[DOMAIN][self._entry.entry_id]["chlore_current"] = value
+                # Log si l'état a changé
+                if self._last_state != value:
+                    _LOGGER.info(
+                        get_translation(
+                            self._hass,
+                            "state_changed",
+                            {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": value},
+                            default="État changé pour {name}: {old_state} → {new_state}"
+                        )
+                    )
+                    self._last_state = value
                 return value
             except Exception as e:
                 _LOGGER.warning(
@@ -1047,7 +1248,19 @@ class PiscinexaChloreSensor(SensorEntity):
                 )
                 return None
         try:
-            return round(float(self._entry.data["chlore_current"]), 1)
+            value = round(float(self._entry.data["chlore_current"]), 1)
+            # Log si l'état a changé
+            if self._last_state != value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = value
+            return value
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -1076,6 +1289,7 @@ class PiscinexaChloreTargetSensor(SensorEntity):
         self._attr_icon = "mdi:target"
         self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
         self._subscriptions = []
+        self._last_state = None
         input_id = f"input_number.{name}_chlore_target"
         if hass.states.get(input_id):
             self._subscriptions.append(
@@ -1108,7 +1322,19 @@ class PiscinexaChloreTargetSensor(SensorEntity):
     @property
     def native_value(self):
         try:
-            return round(float(self._entry.data["chlore_target"]), 1)
+            new_value = round(float(self._entry.data["chlore_target"]), 1)
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+            return new_value
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -1120,7 +1346,6 @@ class PiscinexaChloreTargetSensor(SensorEntity):
             return None
 
 class PiscinexaChloreAjouterSensor(SensorEntity):
-    """Capteur pour calculer la quantité de chlore à ajouter."""
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -1138,6 +1363,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         self._attr_icon = "mdi:bottle-tonic-plus"
         self._message = None
         self._subscriptions = []
+        self._last_state = None
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"sensor.{name}_chlore"], self._async_update_from_chlore
@@ -1244,7 +1470,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
                     )
                     volume_val = 30.0
             else:
-                volume_val = 30.0  # Pas d'avertissement, car PiscinexaVolumeSensor garantit une valeur
+                volume_val = 30.0
 
             chlore_difference = chlore_target - chlore_current
             select_state = self._hass.states.get(self._input_select_id)
@@ -1261,7 +1487,21 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
                 return 0
 
             self._message = None
-            return round(dose, 2)
+            new_value = round(dose, 2)
+
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+
+            return new_value
 
         except Exception as e:
             _LOGGER.error(
@@ -1313,6 +1553,7 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
         self._attr_icon = "mdi:delta"
         self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
         self._subscriptions = []
+        self._last_state = None
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"sensor.{name}_chlore"], self._async_update_from_chlore
@@ -1338,7 +1579,21 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
             chlore_current = float(self._entry.data["chlore_current"])
             chlore_target = float(self._entry.data["chlore_target"])
             difference = chlore_target - chlore_current
-            return round(difference, 1)
+            new_value = round(difference, 1)
+
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+
+            return new_value
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -1367,6 +1622,7 @@ class PiscinexaPowerSensor(SensorEntity):
         self._attr_icon = "mdi:flash"
         self._attr_native_unit_of_measurement = "W"
         self._subscriptions = []
+        self._last_state = None
         sensor_id = self._entry.data.get("power_sensor_entity_id")
         if sensor_id:
             self._subscriptions.append(
@@ -1399,6 +1655,19 @@ class PiscinexaPowerSensor(SensorEntity):
                     log = self._hass.data[DOMAIN].get("log")
                     if log:
                         log.log_action(f"Conso {self._name} : {value} W")
+
+                    # Log si l'état a changé
+                    if self._last_state != value:
+                        _LOGGER.info(
+                            get_translation(
+                                self._hass,
+                                "state_changed",
+                                {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": value},
+                                default="État changé pour {name}: {old_state} → {new_state}"
+                            )
+                        )
+                        self._last_state = value
+
                     return value
         except Exception as e:
             _LOGGER.warning(
@@ -1428,6 +1697,7 @@ class PiscinexaPoolStateSensor(SensorEntity):
         self._attr_icon = "mdi:pool"
         self._attr_native_unit_of_measurement = None
         self._subscriptions = []
+        self._last_state = None
         entities_to_track = [
             f"sensor.{name}_temperature",
             f"sensor.{name}_chlore",
@@ -1506,9 +1776,23 @@ class PiscinexaPoolStateSensor(SensorEntity):
                 get_translation(self._hass, "ph_ideal"),
                 get_translation(self._hass, "filtration_ideal")
             ] for issue in issues):
-                return get_translation(self._hass, "swimming_allowed")
+                new_value = get_translation(self._hass, "swimming_allowed")
             else:
-                return ", ".join(issues)
+                new_value = ", ".join(issues)
+
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+
+            return new_value
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -1575,15 +1859,12 @@ class PiscinexaPhDifferenceSensor(SensorEntity):
         self._attr_icon = "mdi:delta"
         self._attr_native_unit_of_measurement = None
         self._subscriptions = []
+        self._last_state = None
         self._subscriptions.append(
-            async_track_state_change_event(
-                hass, [f"sensor.{name}_ph"], self._async_update_from_ph
-            )
+            async_track_state_change_event(self._hass, [f"sensor.{name}_ph"], self._async_update_from_ph)
         )
         self._subscriptions.append(
-            async_track_state_change_event(
-                hass, [f"sensor.{name}_ph_target"], self._async_update_from_ph_target
-            )
+            async_track_state_change_event(self._hass, [f"sensor.{name}_ph_target"], self._async_update_from_ph_target)
         )
 
     async def async_will_remove_from_hass(self):
@@ -1609,7 +1890,21 @@ class PiscinexaPhDifferenceSensor(SensorEntity):
             ph_current = float(self._entry.data["ph_current"])
             ph_target = float(self._entry.data["ph_target"])
             difference = ph_target - ph_current
-            return round(difference, 1)
+            new_value = round(difference, 1)
+
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+
+            return new_value
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -1638,6 +1933,7 @@ class PiscinexaPhTreatmentSensor(SensorEntity):
         self._attr_icon = "mdi:water-pump"
         self._attr_native_unit_of_measurement = None
         self._subscriptions = []
+        self._last_state = None
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"sensor.{name}_ph"], self._async_update_from_ph
@@ -1707,11 +2003,26 @@ class PiscinexaPhTreatmentSensor(SensorEntity):
             ph_target = float(self._entry.data["ph_target"])
             if ph_current < ph_target:
                 select_state = self._hass.states.get(self._input_select_ph_plus)
-                return select_state.state if select_state and select_state.state not in ("unknown", "unavailable") else "Liquide"
+                new_value = select_state.state if select_state and select_state.state not in ("unknown", "unavailable") else "Liquide"
             elif ph_current > ph_target:
                 select_state = self._hass.states.get(self._input_select_ph_minus)
-                return select_state.state if select_state and select_state.state not in ("unknown", "unavailable") else "Liquide"
-            return get_translation(self._hass, "no_treatment_needed")
+                new_value = select_state.state if select_state and select_state.state not in ("unknown", "unavailable") else "Liquide"
+            else:
+                new_value = get_translation(self._hass, "no_treatment_needed")
+
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+
+            return new_value
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -1740,6 +2051,7 @@ class PiscinexaChloreTreatmentSensor(SensorEntity):
         self._attr_icon = "mdi:water-check"
         self._attr_native_unit_of_measurement = None
         self._subscriptions = []
+        self._last_state = None
         self._subscriptions.append(
             async_track_state_change_event(
                 hass, [f"sensor.{name}_chlore"], self._async_update_from_chlore
@@ -1794,8 +2106,23 @@ class PiscinexaChloreTreatmentSensor(SensorEntity):
             chlore_target = float(self._entry.data["chlore_target"])
             if chlore_current < chlore_target:
                 select_state = self._hass.states.get(self._input_select_id)
-                return select_state.state if select_state and select_state.state not in ("unknown", "unavailable") else "Chlore choc (poudre)"
-            return get_translation(self._hass, "no_treatment_needed")
+                new_value = select_state.state if select_state and select_state.state not in ("unknown", "unavailable") else "Chlore choc (poudre)"
+            else:
+                new_value = get_translation(self._hass, "no_treatment_needed")
+
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+
+            return new_value
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -1824,6 +2151,7 @@ class PiscinexaChloreStateSensor(SensorEntity):
         self._attr_icon = "mdi:water-check"
         self._attr_native_unit_of_measurement = None
         self._subscriptions = []
+        self._last_state = None
         entities_to_track = [
             f"sensor.{name}_chlore",
             f"sensor.{name}_chlore_target",
@@ -1852,9 +2180,21 @@ class PiscinexaChloreStateSensor(SensorEntity):
         try:
             chlore_current = float(self._entry.data["chlore_current"])
             chlore_target = float(self._entry.data["chlore_target"])
-            if abs(chlore_current - chlore_target) <= 0.1:
-                return get_translation(self._hass, "chlore_state_ok", default="OK")
-            return get_translation(self._hass, "chlore_state_adjust", default="Veuillez réajuster le chlore")
+            new_value = get_translation(self._hass, "chlore_state_ok", default="OK") if abs(chlore_current - chlore_target) <= 0.1 else get_translation(self._hass, "chlore_state_adjust", default="Veuillez réajuster le chlore")
+
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+
+            return new_value
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -1884,6 +2224,7 @@ class PiscinexaPhStateSensor(SensorEntity):
         self._attr_icon = "mdi:water"
         self._attr_native_unit_of_measurement = None
         self._subscriptions = []
+        self._last_state = None
         entities_to_track = [
             f"sensor.{name}_ph",
             f"sensor.{name}_ph_target",
@@ -1912,9 +2253,21 @@ class PiscinexaPhStateSensor(SensorEntity):
         try:
             ph_current = float(self._entry.data["ph_current"])
             ph_target = float(self._entry.data["ph_target"])
-            if abs(ph_current - ph_target) <= 0.2:
-                return get_translation(self._hass, "ph_state_ok", default="OK")
-            return get_translation(self._hass, "ph_state_adjust", default="Veuillez réajuster le pH")
+            new_value = get_translation(self._hass, "ph_state_ok", default="OK") if abs(ph_current - ph_target) <= 0.2 else get_translation(self._hass, "ph_state_adjust", default="Veuillez réajuster le pH")
+
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+
+            return new_value
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -1944,6 +2297,7 @@ class PiscinexaTemperatureStateSensor(SensorEntity):
         self._attr_icon = "mdi:thermometer"
         self._attr_native_unit_of_measurement = None
         self._subscriptions = []
+        self._last_state = None
         entities_to_track = [
             f"sensor.{name}_temperature",
         ]
@@ -1978,11 +2332,25 @@ class PiscinexaTemperatureStateSensor(SensorEntity):
                     temperature = float(temp_entity.state)
                     _LOGGER.debug(f"Température convertie: {temperature}")
                     if temperature < 18:
-                        return get_translation(self._hass, "temperature_state_wait", default="Attendre un peu")
+                        new_value = get_translation(self._hass, "temperature_state_wait", default="Attendre un peu")
                     elif 18 <= temperature <= 20:
-                        return get_translation(self._hass, "temperature_state_good", default="Ça vient bon")
+                        new_value = get_translation(self._hass, "temperature_state_good", default="Ça vient bon")
                     else:
-                        return get_translation(self._hass, "temperature_state_relax", default="Vous pouvez vous détendre")
+                        new_value = get_translation(self._hass, "temperature_state_relax", default="Vous pouvez vous détendre")
+
+                    # Log si l'état a changé
+                    if self._last_state != new_value:
+                        _LOGGER.info(
+                            get_translation(
+                                self._hass,
+                                "state_changed",
+                                {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                                default="État changé pour {name}: {old_state} → {new_state}"
+                            )
+                        )
+                        self._last_state = new_value
+
+                    return new_value
                 except ValueError as e:
                     _LOGGER.error(f"Erreur de conversion de la température: {e}, état={temp_entity.state}")
                     return get_translation(self._hass, "temperature_unavailable", default="Température indisponible")
@@ -1990,11 +2358,25 @@ class PiscinexaTemperatureStateSensor(SensorEntity):
                 temperature = float(self._entry.data.get("temperature", 20.0))
                 _LOGGER.debug(f"Utilisation de la température par défaut/manuelle: {temperature}")
                 if temperature < 18:
-                    return get_translation(self._hass, "temperature_state_wait", default="Attendre un peu")
+                    new_value = get_translation(self._hass, "temperature_state_wait", default="Attendre un peu")
                 elif 18 <= temperature <= 20:
-                    return get_translation(self._hass, "temperature_state_good", default="Ça vient bon")
+                    new_value = get_translation(self._hass, "temperature_state_good", default="Ça vient bon")
                 else:
-                    return get_translation(self._hass, "temperature_state_relax", default="Vous pouvez vous détendre")
+                    new_value = get_translation(self._hass, "temperature_state_relax", default="Vous pouvez vous détendre")
+
+                # Log si l'état a changé
+                if self._last_state != new_value:
+                    _LOGGER.info(
+                        get_translation(
+                            self._hass,
+                            "state_changed",
+                            {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                            default="État changé pour {name}: {old_state} → {new_state}"
+                        )
+                    )
+                    self._last_state = new_value
+
+                return new_value
             except (ValueError, TypeError) as e:
                 _LOGGER.error(f"Erreur de conversion de la température par défaut: {e}")
                 return get_translation(self._hass, "temperature_unavailable", default="Température indisponible")
@@ -2010,7 +2392,6 @@ class PiscinexaTemperatureStateSensor(SensorEntity):
             return get_translation(self._hass, "temperature_unavailable", default="Température indisponible")
 
 class PiscinexaPoolTypeSensor(SensorEntity):
-    """Capteur pour le type de piscine (ronde ou carrée)."""
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -2027,6 +2408,7 @@ class PiscinexaPoolTypeSensor(SensorEntity):
         )
         self._attr_icon = "mdi:shape-outline"
         self._attr_native_unit_of_measurement = None
+        self._last_state = None
 
     @property
     def name(self):
@@ -2036,10 +2418,13 @@ class PiscinexaPoolTypeSensor(SensorEntity):
     def native_value(self):
         try:
             pool_type = self._entry.data.get("pool_type")
+            _LOGGER.debug(f"Valeur de pool_type dans PiscinexaPoolTypeSensor pour {self._name}: {pool_type}")
             if pool_type == POOL_TYPE_SQUARE:
-                return get_translation(self._hass, "square_pool", default="Carrée")
+                _LOGGER.debug(f"Type de piscine reconnu comme carré pour {self._name}")
+                new_value = get_translation(self._hass, "square_pool", default="Carrée")
             elif pool_type == POOL_TYPE_ROUND:
-                return get_translation(self._hass, "round_pool", default="Ronde")
+                _LOGGER.debug(f"Type de piscine reconnu comme rond pour {self._name}")
+                new_value = get_translation(self._hass, "round_pool", default="Ronde")
             else:
                 _LOGGER.warning(
                     get_translation(
@@ -2049,7 +2434,21 @@ class PiscinexaPoolTypeSensor(SensorEntity):
                         default="Type de piscine invalide: {pool_type}"
                     )
                 )
-                return get_translation(self._hass, "unknown_pool_type", default="Inconnu")
+                new_value = get_translation(self._hass, "unknown_pool_type", default="Inconnu")
+
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+
+            return new_value
         except Exception as e:
             _LOGGER.error(
                 get_translation(
@@ -2059,13 +2458,28 @@ class PiscinexaPoolTypeSensor(SensorEntity):
                     default="Erreur lecture type piscine pour {name}: {error}"
                 )
             )
-            return get_translation(self._hass, "unknown_pool_type", default="Inconnu")
+            new_value = get_translation(self._hass, "unknown_pool_type", default="Inconnu")
+
+            # Log si l'état a changé
+            if self._last_state != new_value:
+                _LOGGER.info(
+                    get_translation(
+                        self._hass,
+                        "state_changed",
+                        {"name": self._attr_friendly_name, "old_state": self._last_state, "new_state": new_value},
+                        default="État changé pour {name}: {old_state} → {new_state}"
+                    )
+                )
+                self._last_state = new_value
+
+            return new_value
 
     @property
     def extra_state_attributes(self):
         attributes = {}
         try:
             pool_type = self._entry.data.get("pool_type")
+            _LOGGER.debug(f"Construction des attributs pour {self._name}, pool_type: {pool_type}")
             if pool_type == POOL_TYPE_SQUARE:
                 attributes["installation_info"] = get_translation(
                     self._hass,
@@ -2084,13 +2498,13 @@ class PiscinexaPoolTypeSensor(SensorEntity):
                     "unknown_installation_info",
                     default="Informations d'installation non disponibles."
                 )
-            # Ajouter d'autres informations d'installation si disponibles dans entry.data
             attributes["depth"] = self._entry.data.get("depth", "N/A")
             if pool_type == POOL_TYPE_SQUARE:
                 attributes["length"] = self._entry.data.get("length", "N/A")
                 attributes["width"] = self._entry.data.get("width", "N/A")
             else:
                 attributes["diameter"] = self._entry.data.get("diameter", "N/A")
+            _LOGGER.debug(f"Attributs générés pour {self._name}: {attributes}")
         except Exception as e:
             _LOGGER.error(
                 get_translation(
