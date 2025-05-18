@@ -95,6 +95,7 @@ async def async_setup_entry(
         PiscinexaChloreStateSensor(hass, entry, name),
         PiscinexaPhStateSensor(hass, entry, name),
         PiscinexaTemperatureStateSensor(hass, entry, name),
+        PiscinexaPoolTypeSensor(hass, entry, name),
     ]
     async_add_entities(sensors, True)
 
@@ -134,8 +135,8 @@ class PiscinexaVolumeSensor(SensorEntity):
                 )
                 return 30.0
 
-            # Log des données de configuration pour diagnostic
             _LOGGER.debug(
+                f"Données de configuration pour {self._name}: "
                 f"pool_type={pool_type}, "
                 f"depth={self._entry.data.get('depth')}, "
                 f"length={self._entry.data.get('length')}, "
@@ -243,6 +244,7 @@ class PiscinexaTempsFiltrationRecommandeSensor(SensorEntity):
                         {"sensor_id": sensor_id}
                     )
                 )
+                return None  # Retourne None si le capteur est indisponible
         try:
             temperature = float(self._entry.data.get("temperature", 20.0))
             return round(temperature / 2, 1)
@@ -273,6 +275,7 @@ class PiscinexaTempsFiltrationEffectueSensor(SensorEntity):
         )
         self._attr_icon = "mdi:clock-check"
         self._attr_native_unit_of_measurement = UNIT_HOURS
+        self._attr_state_class = "total_increasing"  # Persistance après redémarrage
         self._subscriptions = []
         self._filtration_time = 0.0
         self._last_active_time = None
@@ -441,7 +444,8 @@ class PiscinexaTemperatureSensor(SensorEntity):
                         return round(value, 1)
                     except ValueError as e:
                         _LOGGER.error(f"Erreur de conversion de sensor.{self._name}_temperature: {e}")
-        # Repli sur la valeur manuelle ou par défaut
+                        return None
+                return None  # Retourne None si le capteur est indisponible
         try:
             temperature = float(self._entry.data.get("temperature", 20.0))
             _LOGGER.debug(f"Utilisation de la température par défaut/manuelle: {temperature}")
@@ -1519,7 +1523,6 @@ class PiscinexaPoolStateSensor(SensorEntity):
     def extra_state_attributes(self):
         attributes = {}
         try:
-            # Helper function to safely convert state to float
             def safe_float(state, default=None):
                 if state and state not in ("unavailable", "unknown"):
                     try:
@@ -1555,7 +1558,6 @@ class PiscinexaPoolStateSensor(SensorEntity):
         return attributes
 
 class PiscinexaPhDifferenceSensor(SensorEntity):
-    """Capteur pour la différence entre le pH actuel et le pH cible."""
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -1619,7 +1621,6 @@ class PiscinexaPhDifferenceSensor(SensorEntity):
             return None
 
 class PiscinexaPhTreatmentSensor(SensorEntity):
-    """Capteur pour le type de traitement pH sélectionné (pH+ ou pH-)."""
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -1722,7 +1723,6 @@ class PiscinexaPhTreatmentSensor(SensorEntity):
             return None
 
 class PiscinexaChloreTreatmentSensor(SensorEntity):
-    """Capteur pour le type de traitement chlore sélectionné."""
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -1807,7 +1807,6 @@ class PiscinexaChloreTreatmentSensor(SensorEntity):
             return None
 
 class PiscinexaChloreStateSensor(SensorEntity):
-    """Capteur pour l'état du chlore (OK ou à réajuster)."""
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -1853,7 +1852,6 @@ class PiscinexaChloreStateSensor(SensorEntity):
         try:
             chlore_current = float(self._entry.data["chlore_current"])
             chlore_target = float(self._entry.data["chlore_target"])
-            # Tolérance de ±0.1 mg/L
             if abs(chlore_current - chlore_target) <= 0.1:
                 return get_translation(self._hass, "chlore_state_ok", default="OK")
             return get_translation(self._hass, "chlore_state_adjust", default="Veuillez réajuster le chlore")
@@ -1869,7 +1867,6 @@ class PiscinexaChloreStateSensor(SensorEntity):
             return None
 
 class PiscinexaPhStateSensor(SensorEntity):
-    """Capteur pour l'état du pH (OK ou à réajuster)."""
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -1915,7 +1912,6 @@ class PiscinexaPhStateSensor(SensorEntity):
         try:
             ph_current = float(self._entry.data["ph_current"])
             ph_target = float(self._entry.data["ph_target"])
-            # Tolérance de ±0.2
             if abs(ph_current - ph_target) <= 0.2:
                 return get_translation(self._hass, "ph_state_ok", default="OK")
             return get_translation(self._hass, "ph_state_adjust", default="Veuillez réajuster le pH")
@@ -1931,7 +1927,6 @@ class PiscinexaPhStateSensor(SensorEntity):
             return None
 
 class PiscinexaTemperatureStateSensor(SensorEntity):
-    """Capteur pour l'état de la température."""
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -1991,7 +1986,6 @@ class PiscinexaTemperatureStateSensor(SensorEntity):
                 except ValueError as e:
                     _LOGGER.error(f"Erreur de conversion de la température: {e}, état={temp_entity.state}")
                     return get_translation(self._hass, "temperature_unavailable", default="Température indisponible")
-            # Repli sur la valeur stockée dans entry.data si disponible
             try:
                 temperature = float(self._entry.data.get("temperature", 20.0))
                 _LOGGER.debug(f"Utilisation de la température par défaut/manuelle: {temperature}")
@@ -2014,3 +2008,101 @@ class PiscinexaTemperatureStateSensor(SensorEntity):
                 )
             )
             return get_translation(self._hass, "temperature_unavailable", default="Température indisponible")
+
+class PiscinexaPoolTypeSensor(SensorEntity):
+    """Capteur pour le type de piscine (ronde ou carrée)."""
+    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
+        self._hass = hass
+        self._entry = entry
+        self._name = name
+        self._attr_name = f"{name}_pool_type"
+        self._attr_friendly_name = f"{name.capitalize()} Type de Piscine"
+        self._attr_unique_id = f"{entry.entry_id}_pool_type"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, f"piscinexa_{name}")},
+            name=name.capitalize(),
+            manufacturer="Piscinexa",
+            model="Piscine",
+            sw_version=VERSION,
+        )
+        self._attr_icon = "mdi:shape-outline"
+        self._attr_native_unit_of_measurement = None
+
+    @property
+    def name(self):
+        return self._attr_friendly_name
+
+    @property
+    def native_value(self):
+        try:
+            pool_type = self._entry.data.get("pool_type")
+            if pool_type == POOL_TYPE_SQUARE:
+                return get_translation(self._hass, "square_pool", default="Carrée")
+            elif pool_type == POOL_TYPE_ROUND:
+                return get_translation(self._hass, "round_pool", default="Ronde")
+            else:
+                _LOGGER.warning(
+                    get_translation(
+                        self._hass,
+                        "invalid_pool_type",
+                        {"pool_type": pool_type},
+                        default="Type de piscine invalide: {pool_type}"
+                    )
+                )
+                return get_translation(self._hass, "unknown_pool_type", default="Inconnu")
+        except Exception as e:
+            _LOGGER.error(
+                get_translation(
+                    self._hass,
+                    "pool_type_read_error",
+                    {"name": self._name, "error": str(e)},
+                    default="Erreur lecture type piscine pour {name}: {error}"
+                )
+            )
+            return get_translation(self._hass, "unknown_pool_type", default="Inconnu")
+
+    @property
+    def extra_state_attributes(self):
+        attributes = {}
+        try:
+            pool_type = self._entry.data.get("pool_type")
+            if pool_type == POOL_TYPE_SQUARE:
+                attributes["installation_info"] = get_translation(
+                    self._hass,
+                    "square_pool_installation",
+                    default="Instructions pour piscines carrées : 1. Vérifier l'alignement des angles. 2. Installer des supports rigides. 3. Suivre les étapes du fabricant."
+                )
+            elif pool_type == POOL_TYPE_ROUND:
+                attributes["installation_info"] = get_translation(
+                    self._hass,
+                    "round_pool_installation",
+                    default="Instructions pour piscines rondes : 1. Choisir un emplacement plat. 2. Installer une base sableuse. 3. Monter la structure selon le manuel."
+                )
+            else:
+                attributes["installation_info"] = get_translation(
+                    self._hass,
+                    "unknown_installation_info",
+                    default="Informations d'installation non disponibles."
+                )
+            # Ajouter d'autres informations d'installation si disponibles dans entry.data
+            attributes["depth"] = self._entry.data.get("depth", "N/A")
+            if pool_type == POOL_TYPE_SQUARE:
+                attributes["length"] = self._entry.data.get("length", "N/A")
+                attributes["width"] = self._entry.data.get("width", "N/A")
+            else:
+                attributes["diameter"] = self._entry.data.get("diameter", "N/A")
+        except Exception as e:
+            _LOGGER.error(
+                get_translation(
+                    self._hass,
+                    "pool_type_attributes_error",
+                    {"name": self._name, "error": str(e)},
+                    default="Erreur lecture attributs type piscine pour {name}: {error}"
+                )
+            )
+            attributes["installation_info"] = get_translation(
+                self._hass,
+                "error_installation_info",
+                default="Erreur lors de la récupération des informations."
+            )
+        return attributes
