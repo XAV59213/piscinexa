@@ -166,11 +166,11 @@
       "unit_of_measurement": "heures"
     },
     "temperature": {
-      "name": "Température Eau",
+      "name": "Température de l'eau",
       "unit_of_measurement": "°C"
     },
     "etat_temperature": {
-      "name": "État Température",
+      "name": "État de la température",
       "unit_of_measurement": "",
       "states": {
         "temperature_state_wait": "Attendre un peu",
@@ -179,7 +179,7 @@
       }
     },
     "ph": {
-      "name": "pH Actuel",
+      "name": "pH actuel",
       "unit_of_measurement": ""
     },
     "ph_plus_ajouter": {
@@ -191,51 +191,55 @@
       "unit_of_measurement": "litres ou grammes"
     },
     "ph_target": {
-      "name": "pH Cible",
+      "name": "pH cible",
       "unit_of_measurement": ""
     },
     "chlore": {
-      "name": "Chlore Actuel",
+      "name": "Chlore actuel",
       "unit_of_measurement": "mg/L"
     },
     "chlore_target": {
-      "name": "Chlore Cible",
+      "name": "Chlore cible",
       "unit_of_measurement": "mg/L"
     },
     "chloreaajouter": {
-      "name": "Chlore à Ajouter",
+      "name": "Chlore à ajouter",
       "unit_of_measurement": "grammes ou unités"
     },
     "chloredifference": {
-      "name": "Chlore Différence",
+      "name": "Différence de chlore",
       "unit_of_measurement": "mg/L"
     },
     "consopuissance": {
-      "name": "Consommation Puissance",
+      "name": "Consommation de puissance",
       "unit_of_measurement": "W"
     },
     "pool_state": {
-      "name": "État de la Piscine",
+      "name": "État de la piscine",
       "unit_of_measurement": ""
     },
     "phdifference": {
-      "name": "pH Différence",
+      "name": "Différence de pH",
       "unit_of_measurement": ""
     },
     "ph_treatment": {
-      "name": "pH Traitement",
+      "name": "Traitement pH",
       "unit_of_measurement": ""
     },
     "chlore_treatment": {
-      "name": "Chlore Traitement",
+      "name": "Traitement chlore",
       "unit_of_measurement": ""
     },
     "etat_chlore": {
-      "name": "État Chlore",
+      "name": "État du chlore",
       "unit_of_measurement": ""
     },
     "etat_ph": {
-      "name": "État pH",
+      "name": "État du pH",
+      "unit_of_measurement": ""
+    },
+    "pool_type": {
+      "name": "Type de piscine",
       "unit_of_measurement": ""
     }
   },
@@ -253,63 +257,74 @@
       "description": "Applique le traitement recommandé pour la piscine {name}."
     }
   },
-  "volume_calculation_error": "Erreur lors du calcul du volume pour {name}: {error}",
-  "temperature_conversion_error": "Erreur de conversion de la température pour le capteur {sensor_id}: {error}",
+  "volume_calculation_error": "Erreur lors du calcul du volume pour {name} : {error}",
+  "invalid_dimension": "Dimension invalide pour {key} : {value}, erreur : {error}",
+  "temperature_conversion_error": "Erreur de conversion de la température pour le capteur {sensor_id} : {error}",
   "temperature_sensor_unavailable": "Capteur de température {sensor_id} indisponible.",
-  "default_temperature_invalid": "La température par défaut est invalide: {error}",
-  "non_numeric_sensor_value": "Valeur non numérique pour le capteur {sensor_id}: {state}",
-  "non_numeric_power_sensor_value": "Valeur non numérique pour le capteur de puissance {sensor_id}: {error}",
-  "filtration_time_read_error": "Erreur lors de la lecture du temps de filtration: {error}",
-  "filtration_attributes_error": "Erreur lors de la récupération des attributs de filtration: {error}",
+  "default_temperature_invalid": "Température par défaut invalide : {error}",
+  "non_numeric_sensor_value": "Valeur non numérique pour le capteur {sensor_id} : {state}",
+  "non_numeric_power_sensor_value": "Valeur non numérique pour le capteur de puissance {sensor_id} : {error}",
+  "filtration_time_read_error": "Erreur lors de la lecture du temps de filtration : {error}",
+  "filtration_attributes_error": "Erreur lors de la récupération des attributs de filtration : {error}",
   "ph_sensor_unavailable": "Capteur de pH {sensor_id} indisponible.",
-  "input_number_missing": "Input_number manquant: {entity_id}",
-  "input_select_missing": "Input_select manquant: {entity_id}",
-  "input_number_read_error": "Erreur lors de la lecture de l'input_number pour {type}: {error}",
-  "default_value_read_error": "Erreur lors de la lecture de la valeur par défaut pour {type}: {error}",
-  "volume_unavailable_message": "Volume d'eau indisponible",
-  "ph_plus_dose_error": "Erreur lors du calcul de la dose de pH+ pour {name}: {error}",
-  "ph_plus_unit_error": "Erreur lors de la détermination de l'unité pour pH+: {error}",
-  "ph_attributes_error": "Erreur lors de la récupération des attributs pH: {error}",
-  "ph_minus_dose_error": "Erreur lors du calcul de la dose de pH- pour {name}: {error}",
-  "ph_minus_unit_error": "Erreur lors de la détermination de l'unité pour pH-: {error}",
-  "ph_minus_attributes_error": "Erreur lors de la récupération des attributs pH-: {error}",
-  "chlore_dose_error": "Erreur lors du calcul de la dose de chlore pour {name}: {error}",
-  "chlore_unit_error": "Erreur lors de la détermination de l'unité pour le chlore: {error}",
-  "chlore_attributes_error": "Erreur lors de la récupération des attributs chlore: {error}",
-  "remove_chlorine_message": "Chlore suffisant, aucun ajout nécessaire.",
-  "calculation_error_message": "Erreur lors du calcul.",
-  "chlore_difference_error": "Erreur lors du calcul de la différence de chlore pour {name}: {error}",
-  "power_sensor_read_error": "Erreur lors de la lecture du capteur de puissance: {error}",
-  "pool_state_error": "Erreur lors de l'évaluation de l'état de la piscine pour {name}: {error}",
-  "pool_state_attributes_error": "Erreur lors de la récupération des attributs de l'état de la piscine: {error}",
-  "ph_difference_error": "Erreur lors du calcul de la différence de pH pour {name}: {error}",
-  "ph_treatment_error": "Erreur lors de la détermination du traitement pH pour {name}: {error}",
-  "chlore_treatment_error": "Erreur lors de la détermination du traitement chlore pour {name}: {error}",
-  "chlore_state_error": "Erreur calcul état chlore pour {name}: {error}",
-  "ph_state_error": "Erreur calcul état pH pour {name}: {error}",
-  "temperature_state_error": "Erreur calcul état température pour {name}: {error}",
+  "input_number_missing": "Entité input_number manquante : {entity_id}",
+  "input_select_missing": "Entité input_select manquante : {entity_id}",
+  "input_number_read_error": "Erreur lors de la lecture de l'input_number pour {type} : {error}",
+  "default_value_read_error": "Erreur lors de la lecture de la valeur par défaut pour {type} : {error}",
+  "ph_plus_dose_error": "Erreur lors du calcul de la dose de pH+ pour {name} : {error}",
+  "ph_plus_unit_error": "Erreur lors de la détermination de l'unité pour pH+ : {error}",
+  "ph_attributes_error": "Erreur lors de la récupération des attributs pour pH : {error}",
+  "ph_minus_dose_error": "Erreur lors du calcul de la dose de pH- pour {name} : {error}",
+  "ph_minus_unit_error": "Erreur lors de la détermination de l'unité pour pH- : {error}",
+  "ph_minus_attributes_error": "Erreur lors de la récupération des attributs pour pH- : {error}",
+  "chlore_dose_error": "Erreur lors du calcul de la dose de chlore pour {name} : {error}",
+  "chlore_unit_error": "Erreur lors de la détermination de l'unité pour le chlore : {error}",
+  "chlore_attributes_error": "Erreur lors de la récupération des attributs pour le chlore : {error}",
+  "remove_chlorine_message": "Trop de chlore, veuillez retirer une partie de l'eau ou attendre.",
+  "calculation_error_message": "Erreur lors du calcul de la dose.",
+  "chlore_difference_error": "Erreur lors du calcul de la différence de chlore pour {name} : {error}",
+  "power_sensor_read_error": "Erreur lors de la lecture du capteur de puissance : {error}",
+  "pool_state_error": "Erreur lors de l'évaluation de l'état de la piscine pour {name} : {error}",
+  "pool_state_attributes_error": "Erreur lors de la récupération des attributs de l'état de la piscine : {error}",
+  "ph_difference_error": "Erreur lors du calcul de la différence de pH pour {name} : {error}",
+  "ph_treatment_error": "Erreur lors de la détermination du traitement pH pour {name} : {error}",
+  "chlore_treatment_error": "Erreur lors de la détermination du traitement chlore pour {name} : {error}",
+  "chlore_state_error": "Erreur lors du calcul de l'état du chlore pour {name} : {error}",
+  "ph_state_error": "Erreur lors du calcul de l'état du pH pour {name} : {error}",
+  "temperature_state_error": "Erreur lors du calcul de l'état de la température pour {name} : {error}",
   "temperature_unavailable": "Température indisponible",
   "temperature_too_cold": "Température trop froide",
   "temperature_too_hot": "Température trop chaude",
   "temperature_ideal": "Température idéale",
+  "temperature_state_wait": "Attendre un peu",
+  "temperature_state_good": "Ça vient bon",
+  "temperature_state_relax": "Vous pouvez vous détendre",
   "chlore_unavailable": "Chlore indisponible",
   "chlore_too_low": "Chlore trop bas",
-  "chlore_too_high": "Chlore trop haut",
+  "chlore_too_high": "Chlore trop élevé",
   "chlore_ideal": "Chlore idéal",
   "ph_unavailable": "pH indisponible",
   "ph_too_low": "pH trop bas",
-  "ph_too_high": "pH trop haut",
+  "ph_too_high": "pH trop élevé",
   "ph_ideal": "pH idéal",
   "filtration_unavailable": "Filtration indisponible",
   "filtration_insufficient": "Filtration insuffisante",
   "filtration_ideal": "Filtration idéale",
   "swimming_allowed": "Baignade autorisée",
-  "evaluation_error": "Erreur d'évaluation",
+  "evaluation_error": "Erreur lors de l'évaluation de l'état de la piscine",
   "chlore_state_ok": "OK",
-  "chlore_state_adjust": "Veuillez réajuster le chlore",
+  "chlore_state_adjust": "Veuillez ajuster le chlore",
   "ph_state_ok": "OK",
-  "ph_state_adjust": "Veuillez réajuster le pH",
+  "ph_state_adjust": "Veuillez ajuster le pH",
   "no_treatment_needed": "Aucun traitement nécessaire",
-  "no_action": "Aucune action enregistrée",
-  "test_calcul_called": "Service test_calcul appelé pour la piscine {name}"
+  "square_pool": "Carrée",
+  "round_pool": "Ronde",
+  "invalid_pool_type": "Type de piscine invalide : {pool_type}",
+  "unknown_pool_type": "Inconnu",
+  "pool_type_read_error": "Erreur lors de la lecture du type de piscine pour {name} : {error}",
+  "square_pool_installation": "Instructions pour piscines carrées : 1. Vérifier l'alignement des angles. 2. Installer des supports rigides. 3. Suivre les étapes du fabricant.",
+  "round_pool_installation": "Instructions pour piscines rondes : 1. Choisir un emplacement plat. 2. Installer une base sableuse. 3. Monter la structure selon le manuel.",
+  "unknown_installation_info": "Informations d'installation non disponibles.",
+  "error_installation_info": "Erreur lors de la récupération des informations d'installation.",
+  "pool_type_attributes_error": "Erreur lors de la récupération des attributs du type de piscine pour {name} : {error}"
 }
