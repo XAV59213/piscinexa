@@ -7,7 +7,7 @@
 [![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](./LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/XAV59213/piscinexa/total.svg)](https://github.com/XAV59213/piscinexa/releases)
 
-# Intégration Piscinexa pour Home Assistant (version 1.0.11) 💧
+# Intégration Piscinexa pour Home Assistant (version 1.0.14) 💧
 Ce composant personnalisé Home Assistant vous permet de gérer la qualité de l’eau de votre piscine (pH, chlore, température, volume) ainsi que la filtration, les recommandations de traitement, et d'ajouter des automatisations personnalisées.
 ## Langues supportées 🌍
 L'intégration Piscinexa prend en charge plusieurs langues : français et anglais. Les chaînes visibles dans l'interface utilisateur sont traduites en fonction de la langue configurée dans Home Assistant.
