@@ -1,3 +1,8 @@
+### [Non publié]
+
+#### Changed
+- Publication / HACS : chaque release GitHub joint désormais l'archive **`piscinexa.zip`** (contenu de `custom_components/piscinexa`, sans `__pycache__` ni `.pyc`). `hacs.json` passe en `"zip_release": true` / `"filename": "piscinexa.zip"` : HACS installe depuis ce zip et affiche un **compteur de téléchargements**. Nouveau workflow `release-zip.yaml` (release publiée à la main, lancement manuel, ou appelé par les workflows de release existants) qui vérifie que le tag correspond à la version de `manifest.json`. Aucun code de l'intégration modifié
+
 ### [1.0.14] - 2025-05-14 19:29 CEST
 
 #### Fixed
