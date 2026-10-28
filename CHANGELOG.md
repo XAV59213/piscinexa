@@ -1,3 +1,17 @@
+### [Non publié]
+
+#### Fixed
+- **Actions enfin enregistrées** : `piscinexa.test_calcul`, `piscinexa.reset_valeurs` et `piscinexa.apply_treatment` étaient déclarées dans `services.yaml` mais jamais enregistrées ; les boutons « Tester » et « Réinitialiser » échouaient. Nouveau `services.py`, enregistré une seule fois au démarrage (`async_setup`) :
+  - piscine visée par son nom (`name`, insensible à la casse) ; facultatif s'il n'y a qu'une piscine ;
+  - `test_calcul` : relance tous les calculs de la piscine ;
+  - `reset_valeurs` : remet le pH et le chlore actuels aux valeurs saisies à la configuration (sauf s'ils viennent d'un capteur) et la température à celle de la configuration, puis recalcule ;
+  - `apply_treatment` : estime le nouveau pH ou chlore après un ajout de produit (formules historiques de Piscinexa), met à jour `input_number.<nom>_ph_current` / `_chlore_current` puis recalcule ; refusé si la valeur vient d'un capteur ;
+  - erreurs traduites (piscine introuvable, nom requis, volume indisponible, valeur mesurée par un capteur) ;
+  - les boutons attendent la fin de l'action et affichent l'erreur éventuelle.
+- `services.yaml` : sélecteurs pour les champs (texte, liste pH+/pH-/Chlore, formes de produit, quantité).
+- **Messages anglais manquants** ajoutés dans `messages/en.json` (type de piscine, état de la température, instructions d'installation, erreurs) et 3 messages français manquants dans `messages/fr.json`. En anglais, les capteurs « Type de piscine » et « État de la température » affichent désormais « Square » / « Round » et « Wait a bit » / « It's getting good » / « You can relax » au lieu du texte français.
+- **Démarrage sans erreur** : les capteurs s'abonnaient aux changements d'état dès leur création, avant d'être ajoutés à Home Assistant, d'où des erreurs `'NoneType' object has no attribute 'async_create_task'` au démarrage. Les abonnements sont désormais créés dans `async_added_to_hass` et libérés automatiquement (`async_on_remove`) au retrait ou au rechargement de l'intégration (19 capteurs concernés, mises à jour inchangées).
+
 ### [1.0.16] - 2026-10-28
 
 #### Fixed

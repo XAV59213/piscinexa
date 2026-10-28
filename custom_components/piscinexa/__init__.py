@@ -9,6 +9,8 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 
+from .services import async_setup_services
+
 DOMAIN = "piscinexa"
 VERSION = "1.0.0"
 
@@ -23,6 +25,7 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Configure l'intégration Piscinexa."""
     hass.data.setdefault(DOMAIN, {})
+    async_setup_services(hass)
 
     # Charger les textes de l'intégration (messages, noms des capteurs, choix du
     # flux de configuration) depuis messages/<langue>.json. Les fichiers de

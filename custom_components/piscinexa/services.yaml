@@ -2,17 +2,47 @@ test_calcul:
   fields:
     name:
       example: "papa"
+      selector:
+        text:
 reset_valeurs:
   fields:
     name:
       example: "papa"
+      selector:
+        text:
 apply_treatment:
   fields:
     name:
       example: "papa"
+      selector:
+        text:
     treatment_type:
+      required: true
       example: "Chlore"
+      selector:
+        select:
+          options:
+            - "pH+"
+            - "pH-"
+            - "Chlore"
     treatment_form:
+      required: true
       example: "Liquide"
+      selector:
+        select:
+          custom_value: true
+          options:
+            - "Liquide"
+            - "Granulés"
+            - "Poudre"
+            - "Pastille lente"
+            - "Chlore choc (poudre)"
     quantity:
+      required: true
       example: 5.0
+      selector:
+        number:
+          min: 0
+          max: 10000
+          step: 0.1
+          mode: box

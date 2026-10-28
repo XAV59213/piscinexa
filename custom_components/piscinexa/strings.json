@@ -216,5 +216,25 @@
         }
       }
     }
+  },
+  "exceptions": {
+    "pool_not_found": {
+      "message": "No Piscinexa pool named “{name}”."
+    },
+    "pool_name_required": {
+      "message": "Several Piscinexa pools are configured: specify the pool name."
+    },
+    "no_pool": {
+      "message": "No Piscinexa pool is configured."
+    },
+    "invalid_pool_name": {
+      "message": "The pool name “{name}” cannot be used to build an input_number entity ID."
+    },
+    "volume_unavailable": {
+      "message": "The water volume of pool {name} is unavailable."
+    },
+    "value_measured_by_sensor": {
+      "message": "This value is measured by the sensor {sensor}: the treatment is not simulated."
+    }
   }
 }

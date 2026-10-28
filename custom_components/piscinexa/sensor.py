@@ -35,6 +35,27 @@ def get_translation(hass: HomeAssistant, key: str, placeholders: dict = None, de
         _LOGGER.warning("Erreur lors de la récupération de la traduction pour la clé %s: %s", key, e)
         return default or key
 
+class PiscinexaTrackMixin:
+    """Abonnements aux changements d'état créés une fois l'entité ajoutée à HA.
+
+    Les capteurs déclarent leurs sources dans __init__ via self._track(...) ;
+    l'abonnement réel est fait dans async_added_to_hass et libéré
+    automatiquement (async_on_remove) quand l'entité est retirée.
+    """
+
+    def _track(self, entity_ids, action):
+        if not hasattr(self, "_pending_tracks"):
+            self._pending_tracks = []
+        self._pending_tracks.append((list(entity_ids), action))
+
+    async def async_added_to_hass(self):
+        await super().async_added_to_hass()
+        for entity_ids, action in getattr(self, "_pending_tracks", []):
+            self.async_on_remove(
+                async_track_state_change_event(self.hass, entity_ids, action)
+            )
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -202,7 +223,7 @@ class PiscinexaVolumeSensor(SensorEntity):
             )
             return 30.0
 
-class PiscinexaTempsFiltrationRecommandeSensor(SensorEntity):
+class PiscinexaTempsFiltrationRecommandeSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -219,20 +240,11 @@ class PiscinexaTempsFiltrationRecommandeSensor(SensorEntity):
         )
         self._attr_icon = "mdi:clock"
         self._attr_native_unit_of_measurement = UNIT_HOURS
-        self._subscriptions = []
         self._last_state = None
         sensor_id = self._entry.data.get("temperature_sensor")
         if sensor_id:
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [sensor_id], self._async_update_from_sensor
-                )
-            )
+            self._track([sensor_id], self._async_update_from_sensor)
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_sensor(self, event):
@@ -305,7 +317,7 @@ class PiscinexaTempsFiltrationRecommandeSensor(SensorEntity):
             )
             return None
 
-class PiscinexaTempsFiltrationEffectueSensor(SensorEntity):
+class PiscinexaTempsFiltrationEffectueSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -323,22 +335,13 @@ class PiscinexaTempsFiltrationEffectueSensor(SensorEntity):
         self._attr_icon = "mdi:clock-check"
         self._attr_native_unit_of_measurement = UNIT_HOURS
         self._attr_state_class = "total_increasing"
-        self._subscriptions = []
         self._filtration_time = 0.0
         self._last_active_time = None
         self._last_state = None
         sensor_id = self._entry.data.get("power_sensor_entity_id")
         if sensor_id:
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [sensor_id], self._async_update_from_power_sensor
-                )
-            )
+            self._track([sensor_id], self._async_update_from_power_sensor)
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_power_sensor(self, event):
@@ -417,7 +420,7 @@ class PiscinexaTempsFiltrationEffectueSensor(SensorEntity):
             )
         return attributes
 
-class PiscinexaTemperatureSensor(SensorEntity):
+class PiscinexaTemperatureSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -434,20 +437,11 @@ class PiscinexaTemperatureSensor(SensorEntity):
         )
         self._attr_icon = "mdi:thermometer"
         self._attr_native_unit_of_measurement = "°C"
-        self._subscriptions = []
         self._last_state = None
         sensor_id = self._entry.data.get("temperature_sensor")
         if sensor_id:
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [sensor_id], self._async_update_from_sensor
-                )
-            )
+            self._track([sensor_id], self._async_update_from_sensor)
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_sensor(self, event):
@@ -562,7 +556,7 @@ class PiscinexaTemperatureSensor(SensorEntity):
             )
             return None
 
-class PiscinexaPhSensor(SensorEntity):
+class PiscinexaPhSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._entry = entry
         self._name = name
@@ -579,22 +573,13 @@ class PiscinexaPhSensor(SensorEntity):
         )
         self._attr_icon = "mdi:water"
         self._attr_native_unit_of_measurement = None
-        self._subscriptions = []
         self._last_state = None
         sensor_id = self._entry.data.get("ph_sensor")
         if sensor_id:
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [sensor_id], self._async_update_from_sensor
-                )
-            )
+            self._track([sensor_id], self._async_update_from_sensor)
         input_id = f"input_number.{name}_ph_current"
         if hass.states.get(input_id):
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [input_id], self._async_update_from_input
-                )
-            )
+            self._track([input_id], self._async_update_from_input)
         else:
             _LOGGER.warning(
                 get_translation(
@@ -604,10 +589,6 @@ class PiscinexaPhSensor(SensorEntity):
                 )
             )
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_sensor(self, event):
@@ -723,7 +704,7 @@ class PiscinexaPhSensor(SensorEntity):
             )
             return None
 
-class PiscinexaPhPlusAjouterSensor(SensorEntity):
+class PiscinexaPhPlusAjouterSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -739,25 +720,12 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
             sw_version=VERSION,
         )
         self._attr_icon = "mdi:bottle-tonic-plus"
-        self._subscriptions = []
         self._last_state = None
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, [f"sensor.{name}_ph"], self._async_update_from_ph
-            )
-        )
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, [f"sensor.{name}_volume_eau"], self._async_update_from_volume
-            )
-        )
+        self._track([f"sensor.{name}_ph"], self._async_update_from_ph)
+        self._track([f"sensor.{name}_volume_eau"], self._async_update_from_volume)
         self._input_select_id = f"input_select.{name}_ph_plus_treatment"
         if hass.states.get(self._input_select_id):
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [self._input_select_id], self._async_update_from_select
-                )
-            )
+            self._track([self._input_select_id], self._async_update_from_select)
         else:
             _LOGGER.warning(
                 get_translation(
@@ -767,10 +735,6 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
                 )
             )
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_ph(self, event):
@@ -902,7 +866,7 @@ class PiscinexaPhPlusAjouterSensor(SensorEntity):
             )
         return attributes
 
-class PiscinexaPhMinusAjouterSensor(SensorEntity):
+class PiscinexaPhMinusAjouterSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -918,25 +882,12 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
             sw_version=VERSION,
         )
         self._attr_icon = "mdi:water-minus"
-        self._subscriptions = []
         self._last_state = None
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, [f"sensor.{name}_ph"], self._async_update_from_ph
-            )
-        )
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, [f"sensor.{name}_volume_eau"], self._async_update_from_volume
-            )
-        )
+        self._track([f"sensor.{name}_ph"], self._async_update_from_ph)
+        self._track([f"sensor.{name}_volume_eau"], self._async_update_from_volume)
         self._input_select_id = f"input_select.{name}_ph_minus_treatment"
         if hass.states.get(self._input_select_id):
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [self._input_select_id], self._async_update_from_select
-                )
-            )
+            self._track([self._input_select_id], self._async_update_from_select)
         else:
             _LOGGER.warning(
                 get_translation(
@@ -946,10 +897,6 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
                 )
             )
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_ph(self, event):
@@ -1045,7 +992,7 @@ class PiscinexaPhMinusAjouterSensor(SensorEntity):
             )
         return attributes
 
-class PiscinexaPhTargetSensor(SensorEntity):
+class PiscinexaPhTargetSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._entry = entry
         self._name = name
@@ -1062,15 +1009,10 @@ class PiscinexaPhTargetSensor(SensorEntity):
         )
         self._attr_icon = "mdi:target"
         self._attr_native_unit_of_measurement = None
-        self._subscriptions = []
         self._last_state = None
         input_id = f"input_number.{name}_ph_target"
         if hass.states.get(input_id):
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [input_id], self._async_update_from_input
-                )
-            )
+            self._track([input_id], self._async_update_from_input)
         else:
             _LOGGER.warning(
                 get_translation(
@@ -1080,10 +1022,6 @@ class PiscinexaPhTargetSensor(SensorEntity):
                 )
             )
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_input(self, event):
@@ -1119,7 +1057,7 @@ class PiscinexaPhTargetSensor(SensorEntity):
             )
             return None
 
-class PiscinexaChloreSensor(SensorEntity):
+class PiscinexaChloreSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._entry = entry
         self._name = name
@@ -1136,22 +1074,13 @@ class PiscinexaChloreSensor(SensorEntity):
         )
         self._attr_icon = "mdi:water-check"
         self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
-        self._subscriptions = []
         self._last_state = None
         sensor_id = self._entry.data.get("chlore_sensor")
         if sensor_id:
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [sensor_id], self._async_update_from_sensor
-                )
-            )
+            self._track([sensor_id], self._async_update_from_sensor)
         input_id = f"input_number.{name}_chlore_current"
         if hass.states.get(input_id):
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [input_id], self._async_update_from_input
-                )
-            )
+            self._track([input_id], self._async_update_from_input)
         else:
             _LOGGER.warning(
                 get_translation(
@@ -1161,10 +1090,6 @@ class PiscinexaChloreSensor(SensorEntity):
                 )
             )
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_sensor(self, event):
@@ -1271,7 +1196,7 @@ class PiscinexaChloreSensor(SensorEntity):
             )
             return None
 
-class PiscinexaChloreTargetSensor(SensorEntity):
+class PiscinexaChloreTargetSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._entry = entry
         self._name = name
@@ -1288,15 +1213,10 @@ class PiscinexaChloreTargetSensor(SensorEntity):
         )
         self._attr_icon = "mdi:target"
         self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
-        self._subscriptions = []
         self._last_state = None
         input_id = f"input_number.{name}_chlore_target"
         if hass.states.get(input_id):
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [input_id], self._async_update_from_input
-                )
-            )
+            self._track([input_id], self._async_update_from_input)
         else:
             _LOGGER.warning(
                 get_translation(
@@ -1306,10 +1226,6 @@ class PiscinexaChloreTargetSensor(SensorEntity):
                 )
             )
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_input(self, event):
@@ -1345,7 +1261,7 @@ class PiscinexaChloreTargetSensor(SensorEntity):
             )
             return None
 
-class PiscinexaChloreAjouterSensor(SensorEntity):
+class PiscinexaChloreAjouterSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -1362,25 +1278,12 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
         )
         self._attr_icon = "mdi:bottle-tonic-plus"
         self._message = None
-        self._subscriptions = []
         self._last_state = None
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, [f"sensor.{name}_chlore"], self._async_update_from_chlore
-            )
-        )
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, [f"sensor.{name}_volume_eau"], self._async_update_from_volume
-            )
-        )
+        self._track([f"sensor.{name}_chlore"], self._async_update_from_chlore)
+        self._track([f"sensor.{name}_volume_eau"], self._async_update_from_volume)
         self._input_select_id = f"input_select.{name}_chlore_treatment"
         if hass.states.get(self._input_select_id):
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [self._input_select_id], self._async_update_from_select
-                )
-            )
+            self._track([self._input_select_id], self._async_update_from_select)
         else:
             _LOGGER.warning(
                 get_translation(
@@ -1390,10 +1293,6 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
                 )
             )
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_chlore(self, event):
@@ -1535,7 +1434,7 @@ class PiscinexaChloreAjouterSensor(SensorEntity):
             )
         return attributes
 
-class PiscinexaChloreDifferenceSensor(SensorEntity):
+class PiscinexaChloreDifferenceSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -1552,18 +1451,9 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
         )
         self._attr_icon = "mdi:delta"
         self._attr_native_unit_of_measurement = UNIT_MG_PER_LITER
-        self._subscriptions = []
         self._last_state = None
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, [f"sensor.{name}_chlore"], self._async_update_from_chlore
-            )
-        )
+        self._track([f"sensor.{name}_chlore"], self._async_update_from_chlore)
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_chlore(self, event):
@@ -1604,7 +1494,7 @@ class PiscinexaChloreDifferenceSensor(SensorEntity):
             )
             return None
 
-class PiscinexaPowerSensor(SensorEntity):
+class PiscinexaPowerSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -1621,20 +1511,11 @@ class PiscinexaPowerSensor(SensorEntity):
         )
         self._attr_icon = "mdi:flash"
         self._attr_native_unit_of_measurement = "W"
-        self._subscriptions = []
         self._last_state = None
         sensor_id = self._entry.data.get("power_sensor_entity_id")
         if sensor_id:
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [sensor_id], self._async_update_from_sensor
-                )
-            )
+            self._track([sensor_id], self._async_update_from_sensor)
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_sensor(self, event):
@@ -1679,7 +1560,7 @@ class PiscinexaPowerSensor(SensorEntity):
             )
             return None
 
-class PiscinexaPoolStateSensor(SensorEntity):
+class PiscinexaPoolStateSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -1696,7 +1577,6 @@ class PiscinexaPoolStateSensor(SensorEntity):
         )
         self._attr_icon = "mdi:pool"
         self._attr_native_unit_of_measurement = None
-        self._subscriptions = []
         self._last_state = None
         entities_to_track = [
             f"sensor.{name}_temperature",
@@ -1704,16 +1584,8 @@ class PiscinexaPoolStateSensor(SensorEntity):
             f"sensor.{name}_ph",
             f"sensor.{name}_tempsfiltration_recommande",
         ]
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, entities_to_track, self._async_update_from_sensors
-            )
-        )
+        self._track(entities_to_track, self._async_update_from_sensors)
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_sensors(self, event):
@@ -1841,7 +1713,7 @@ class PiscinexaPoolStateSensor(SensorEntity):
             )
         return attributes
 
-class PiscinexaPhDifferenceSensor(SensorEntity):
+class PiscinexaPhDifferenceSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -1858,19 +1730,10 @@ class PiscinexaPhDifferenceSensor(SensorEntity):
         )
         self._attr_icon = "mdi:delta"
         self._attr_native_unit_of_measurement = None
-        self._subscriptions = []
         self._last_state = None
-        self._subscriptions.append(
-            async_track_state_change_event(self._hass, [f"sensor.{name}_ph"], self._async_update_from_ph)
-        )
-        self._subscriptions.append(
-            async_track_state_change_event(self._hass, [f"sensor.{name}_ph_target"], self._async_update_from_ph_target)
-        )
+        self._track([f"sensor.{name}_ph"], self._async_update_from_ph)
+        self._track([f"sensor.{name}_ph_target"], self._async_update_from_ph_target)
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_ph(self, event):
@@ -1915,7 +1778,7 @@ class PiscinexaPhDifferenceSensor(SensorEntity):
             )
             return None
 
-class PiscinexaPhTreatmentSensor(SensorEntity):
+class PiscinexaPhTreatmentSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -1932,26 +1795,13 @@ class PiscinexaPhTreatmentSensor(SensorEntity):
         )
         self._attr_icon = "mdi:water-pump"
         self._attr_native_unit_of_measurement = None
-        self._subscriptions = []
         self._last_state = None
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, [f"sensor.{name}_ph"], self._async_update_from_ph
-            )
-        )
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, [f"sensor.{name}_ph_target"], self._async_update_from_ph_target
-            )
-        )
+        self._track([f"sensor.{name}_ph"], self._async_update_from_ph)
+        self._track([f"sensor.{name}_ph_target"], self._async_update_from_ph_target)
         self._input_select_ph_plus = f"input_select.{name}_ph_plus_treatment"
         self._input_select_ph_minus = f"input_select.{name}_ph_minus_treatment"
         if hass.states.get(self._input_select_ph_plus):
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [self._input_select_ph_plus], self._async_update_from_select
-                )
-            )
+            self._track([self._input_select_ph_plus], self._async_update_from_select)
         else:
             _LOGGER.warning(
                 get_translation(
@@ -1961,11 +1811,7 @@ class PiscinexaPhTreatmentSensor(SensorEntity):
                 )
             )
         if hass.states.get(self._input_select_ph_minus):
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [self._input_select_ph_minus], self._async_update_from_select
-                )
-            )
+            self._track([self._input_select_ph_minus], self._async_update_from_select)
         else:
             _LOGGER.warning(
                 get_translation(
@@ -1975,10 +1821,6 @@ class PiscinexaPhTreatmentSensor(SensorEntity):
                 )
             )
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_ph(self, event):
@@ -2033,7 +1875,7 @@ class PiscinexaPhTreatmentSensor(SensorEntity):
             )
             return None
 
-class PiscinexaChloreTreatmentSensor(SensorEntity):
+class PiscinexaChloreTreatmentSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -2050,25 +1892,12 @@ class PiscinexaChloreTreatmentSensor(SensorEntity):
         )
         self._attr_icon = "mdi:water-check"
         self._attr_native_unit_of_measurement = None
-        self._subscriptions = []
         self._last_state = None
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, [f"sensor.{name}_chlore"], self._async_update_from_chlore
-            )
-        )
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, [f"sensor.{name}_chlore_target"], self._async_update_from_chlore_target
-            )
-        )
+        self._track([f"sensor.{name}_chlore"], self._async_update_from_chlore)
+        self._track([f"sensor.{name}_chlore_target"], self._async_update_from_chlore_target)
         self._input_select_id = f"input_select.{name}_chlore_treatment"
         if hass.states.get(self._input_select_id):
-            self._subscriptions.append(
-                async_track_state_change_event(
-                    hass, [self._input_select_id], self._async_update_from_select
-                )
-            )
+            self._track([self._input_select_id], self._async_update_from_select)
         else:
             _LOGGER.warning(
                 get_translation(
@@ -2078,10 +1907,6 @@ class PiscinexaChloreTreatmentSensor(SensorEntity):
                 )
             )
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_chlore(self, event):
@@ -2133,7 +1958,7 @@ class PiscinexaChloreTreatmentSensor(SensorEntity):
             )
             return None
 
-class PiscinexaChloreStateSensor(SensorEntity):
+class PiscinexaChloreStateSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -2150,22 +1975,13 @@ class PiscinexaChloreStateSensor(SensorEntity):
         )
         self._attr_icon = "mdi:water-check"
         self._attr_native_unit_of_measurement = None
-        self._subscriptions = []
         self._last_state = None
         entities_to_track = [
             f"sensor.{name}_chlore",
             f"sensor.{name}_chlore_target",
         ]
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, entities_to_track, self._async_update_from_sensors
-            )
-        )
+        self._track(entities_to_track, self._async_update_from_sensors)
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_sensors(self, event):
@@ -2206,7 +2022,7 @@ class PiscinexaChloreStateSensor(SensorEntity):
             )
             return None
 
-class PiscinexaPhStateSensor(SensorEntity):
+class PiscinexaPhStateSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -2223,22 +2039,13 @@ class PiscinexaPhStateSensor(SensorEntity):
         )
         self._attr_icon = "mdi:water"
         self._attr_native_unit_of_measurement = None
-        self._subscriptions = []
         self._last_state = None
         entities_to_track = [
             f"sensor.{name}_ph",
             f"sensor.{name}_ph_target",
         ]
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, entities_to_track, self._async_update_from_sensors
-            )
-        )
+        self._track(entities_to_track, self._async_update_from_sensors)
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_sensors(self, event):
@@ -2279,7 +2086,7 @@ class PiscinexaPhStateSensor(SensorEntity):
             )
             return None
 
-class PiscinexaTemperatureStateSensor(SensorEntity):
+class PiscinexaTemperatureStateSensor(PiscinexaTrackMixin, SensorEntity):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, name: str):
         self._hass = hass
         self._entry = entry
@@ -2296,21 +2103,12 @@ class PiscinexaTemperatureStateSensor(SensorEntity):
         )
         self._attr_icon = "mdi:thermometer"
         self._attr_native_unit_of_measurement = None
-        self._subscriptions = []
         self._last_state = None
         entities_to_track = [
             f"sensor.{name}_temperature",
         ]
-        self._subscriptions.append(
-            async_track_state_change_event(
-                hass, entities_to_track, self._async_update_from_sensors
-            )
-        )
+        self._track(entities_to_track, self._async_update_from_sensors)
 
-    async def async_will_remove_from_hass(self):
-        for subscription in self._subscriptions:
-            subscription()
-        self._subscriptions.clear()
 
     @callback
     def _async_update_from_sensors(self, event):

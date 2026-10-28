@@ -326,5 +326,8 @@
   "round_pool_installation": "Instructions pour piscines rondes : 1. Choisir un emplacement plat. 2. Installer une base sableuse. 3. Monter la structure selon le manuel.",
   "unknown_installation_info": "Informations d'installation non disponibles.",
   "error_installation_info": "Erreur lors de la récupération des informations d'installation.",
-  "pool_type_attributes_error": "Erreur lors de la récupération des attributs du type de piscine pour {name} : {error}"
+  "pool_type_attributes_error": "Erreur lors de la récupération des attributs du type de piscine pour {name} : {error}",
+  "volume_unavailable_message": "Volume d'eau indisponible",
+  "no_action": "Aucune action enregistrée",
+  "test_calcul_called": "Action test_calcul appelée pour la piscine {name}"
 }
