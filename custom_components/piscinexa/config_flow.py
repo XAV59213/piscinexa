@@ -52,7 +52,6 @@ class PiscinexaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Gérer le flux de configuration pour Piscinexa."""
 
     VERSION = 1
-    CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     def __init__(self):
         self._data: Dict[str, Any] = {}

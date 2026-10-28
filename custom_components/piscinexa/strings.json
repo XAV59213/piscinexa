@@ -1,0 +1,220 @@
+{
+  "title": "Piscinexa",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Piscinexa Configuration",
+        "description": "Enter the details to configure your pool.",
+        "data": {
+          "name": "Pool Name",
+          "pool_type": "Pool Type",
+          "length": "Length (meters)",
+          "width": "Width (meters)",
+          "diameter": "Diameter (meters)",
+          "depth": "Depth (meters)",
+          "temperature": "Water Temperature (°C)",
+          "temperature_sensor": "Temperature Sensor (optional)",
+          "ph_current": "Current pH",
+          "ph_sensor": "pH Sensor (optional)",
+          "ph_target": "Target pH",
+          "chlore_current": "Current Chlorine (mg/L)",
+          "chlore_sensor": "Chlorine Sensor (optional)",
+          "chlore_target": "Target Chlorine (mg/L)",
+          "power_sensor_entity_id": "Power Sensor (optional)"
+        }
+      },
+      "dimensions": {
+        "description": "Enter the dimensions of your pool.",
+        "data": {
+          "depth": "Depth (meters)",
+          "diameter": "Diameter (meters)",
+          "length": "Length (meters)",
+          "width": "Width (meters)"
+        }
+      },
+      "ph_config": {
+        "description": "Choose the pH configuration mode.",
+        "data": {
+          "ph_config_choice": "pH Configuration Mode"
+        }
+      },
+      "ph_manual": {
+        "description": "Enter the pH values manually.",
+        "data": {
+          "ph_current": "Current pH",
+          "ph_target": "Target pH"
+        }
+      },
+      "ph_sensor": {
+        "description": "Select a sensor for pH or enter a target value.",
+        "data": {
+          "ph_sensor": "pH Sensor (optional)",
+          "ph_target": "Target pH"
+        }
+      },
+      "confirm_ph_sensor": {
+        "description": "No pH sensor selected. What would you like to do?",
+        "data": {
+          "confirm_choice": "Choice"
+        }
+      },
+      "chlore_config": {
+        "description": "Choose the chlorine configuration mode.",
+        "data": {
+          "chlore_config_choice": "Chlorine Configuration Mode"
+        }
+      },
+      "chlore_manual": {
+        "description": "Enter the chlorine values manually.",
+        "data": {
+          "chlore_current": "Current Chlorine (mg/L)",
+          "chlore_target": "Target Chlorine (mg/L)"
+        }
+      },
+      "chlore_sensor": {
+        "description": "Select a sensor for chlorine or enter a target value.",
+        "data": {
+          "chlore_sensor": "Chlorine Sensor (optional)",
+          "chlore_target": "Target Chlorine (mg/L)"
+        }
+      },
+      "confirm_chlore_sensor": {
+        "description": "No chlorine sensor selected. What would you like to do?",
+        "data": {
+          "confirm_choice": "Choice"
+        }
+      },
+      "temperature_config": {
+        "description": "Choose the temperature configuration mode.",
+        "data": {
+          "temperature_config_choice": "Temperature Configuration Mode"
+        }
+      },
+      "temperature_manual": {
+        "description": "Enter the temperature manually.",
+        "data": {
+          "temperature": "Water Temperature (°C)"
+        }
+      },
+      "temperature_sensor": {
+        "description": "Select a sensor for temperature.",
+        "data": {
+          "temperature_sensor": "Temperature Sensor (optional)"
+        }
+      },
+      "confirm_temperature_sensor": {
+        "description": "No temperature sensor selected. What would you like to do?",
+        "data": {
+          "confirm_choice": "Choice"
+        }
+      },
+      "power_config": {
+        "description": "Choose the power sensor configuration mode.",
+        "data": {
+          "power_config_choice": "Power Sensor Configuration Mode"
+        }
+      },
+      "power_manual": {
+        "description": "No power sensor selected. Click next to continue."
+      },
+      "power_sensor": {
+        "description": "Select a power sensor.",
+        "data": {
+          "power_sensor_entity_id": "Power Sensor (optional)"
+        }
+      },
+      "confirm_power_sensor": {
+        "description": "No power sensor selected. What would you like to do?",
+        "data": {
+          "confirm_choice": "Choice"
+        }
+      },
+      "treatment_config": {
+        "description": "Select the treatment types for pH and chlorine.",
+        "data": {
+          "ph_plus_treatment": "pH+ Treatment Type",
+          "ph_minus_treatment": "pH- Treatment Type",
+          "chlore_treatment": "Chlorine Treatment Type"
+        }
+      },
+      "summary": {
+        "description": "Review your pool configuration details:\n{summary}"
+      }
+    },
+    "error": {
+      "name_invalid": "The pool name must not be empty.",
+      "name_duplicate": "A pool with this name already exists.",
+      "dimensions_invalid": "Dimensions must be positive numbers.",
+      "temperature_invalid": "Temperature must be a number between 0 and 40°C.",
+      "ph_invalid": "pH must be a number between 0 and 14.",
+      "chlore_invalid": "Chlorine must be a number between 0 and 10 mg/L."
+    },
+    "abort": {
+      "already_configured": "This pool is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Piscinexa options",
+        "description": "Adjust the targets and sensors of your pool.",
+        "data": {
+          "ph_target": "Target pH",
+          "chlore_target": "Target Chlorine (mg/L)",
+          "temperature_sensor": "Temperature Sensor (optional)",
+          "chlore_sensor": "Chlorine Sensor (optional)",
+          "ph_sensor": "pH Sensor (optional)",
+          "power_sensor_entity_id": "Power Sensor (optional)"
+        }
+      }
+    },
+    "error": {
+      "ph_invalid": "pH must be a number between 0 and 14.",
+      "chlore_invalid": "Chlorine must be a number between 0 and 10 mg/L."
+    }
+  },
+  "services": {
+    "test_calcul": {
+      "name": "Test Calculations",
+      "description": "Performs a test of the calculations for the given pool.",
+      "fields": {
+        "name": {
+          "name": "Pool name",
+          "description": "Name of the pool as configured in Piscinexa."
+        }
+      }
+    },
+    "reset_valeurs": {
+      "name": "Reset Values",
+      "description": "Resets the values of the given pool to the initial settings.",
+      "fields": {
+        "name": {
+          "name": "Pool name",
+          "description": "Name of the pool as configured in Piscinexa."
+        }
+      }
+    },
+    "apply_treatment": {
+      "name": "Apply Treatment",
+      "description": "Applies the recommended treatment for the given pool.",
+      "fields": {
+        "name": {
+          "name": "Pool name",
+          "description": "Name of the pool as configured in Piscinexa."
+        },
+        "treatment_type": {
+          "name": "Treatment type",
+          "description": "Type of treatment (e.g. Chlore, pH+, pH-)."
+        },
+        "treatment_form": {
+          "name": "Treatment form",
+          "description": "Form of the product (e.g. Liquide, Granulés)."
+        },
+        "quantity": {
+          "name": "Quantity",
+          "description": "Quantity of product added."
+        }
+      }
+    }
+  }
+}
