@@ -10,6 +10,7 @@
   - les boutons attendent la fin de l'action et affichent l'erreur éventuelle.
 - `services.yaml` : sélecteurs pour les champs (texte, liste pH+/pH-/Chlore, formes de produit, quantité).
 - **Messages anglais manquants** ajoutés dans `messages/en.json` (type de piscine, état de la température, instructions d'installation, erreurs) et 3 messages français manquants dans `messages/fr.json`. En anglais, les capteurs « Type de piscine » et « État de la température » affichent désormais « Square » / « Round » et « Wait a bit » / « It's getting good » / « You can relax » au lieu du texte français.
+- **Démarrage sans erreur** : les capteurs s'abonnaient aux changements d'état dès leur création, avant d'être ajoutés à Home Assistant, d'où des erreurs `'NoneType' object has no attribute 'async_create_task'` au démarrage. Les abonnements sont désormais créés dans `async_added_to_hass` et libérés automatiquement (`async_on_remove`) au retrait ou au rechargement de l'intégration (19 capteurs concernés, mises à jour inchangées).
 
 ### [1.0.16] - 2026-10-28
 
