@@ -7,6 +7,7 @@ from functools import partial
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
 
 DOMAIN = "piscinexa"
 VERSION = "1.0.0"
@@ -15,17 +16,22 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = [Platform.SENSOR, Platform.BUTTON]
 
+# Configuration uniquement via l'interface (pas de YAML)
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Configure l'intégration Piscinexa."""
     hass.data.setdefault(DOMAIN, {})
 
-    # Charger les traductions de manière asynchrone
+    # Charger les textes de l'intégration (messages, noms des capteurs, choix du
+    # flux de configuration) depuis messages/<langue>.json. Les fichiers de
+    # translations/ suivent le format Home Assistant et sont lus par HA lui-même.
     lang = hass.config.language
-    translation_file = os.path.join(os.path.dirname(__file__), "translations", f"{lang}.json")
+    translation_file = os.path.join(os.path.dirname(__file__), "messages", f"{lang}.json")
     if not os.path.exists(translation_file):
         # Fallback sur l'anglais si le fichier de langue n'existe pas
-        translation_file = os.path.join(os.path.dirname(__file__), "translations", "en.json")
+        translation_file = os.path.join(os.path.dirname(__file__), "messages", "en.json")
         _LOGGER.warning(f"Fichier de traduction pour la langue {lang} non trouvé, utilisation de en.json")
 
     try:

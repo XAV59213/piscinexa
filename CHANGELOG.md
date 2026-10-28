@@ -1,3 +1,18 @@
+### [Non publié]
+
+#### Fixed
+- **Compatibilité Home Assistant 2027.5** : suppression de `CONNECTION_CLASS = CONN_CLASS_LOCAL_POLL` dans `config_flow.py` (constante dépréciée, supprimée en 2027.5 : l'intégration ne se serait plus chargée).
+- **Traductions au format Home Assistant** (`translations/en.json`, `translations/fr.json`, nouveau `strings.json`), validées par hassfest :
+  - les messages internes, les noms des capteurs et les choix proposés dans le flux de configuration sont déplacés tels quels dans `messages/en.json` et `messages/fr.json`, lus par l'intégration : textes, noms et identifiants des entités inchangés ;
+  - erreurs du flux de configuration alignées sur les clés réellement utilisées (`name_invalid`, `name_duplicate`, `dimensions_invalid`, `ph_invalid`, `chlore_invalid`, `temperature_invalid`) : les messages d'erreur s'affichent enfin au lieu de la clé brute ;
+  - libellés des champs ajoutés aux étapes qui n'en avaient pas (dimensions, pH, chlore, température, puissance, confirmations) et au flux d'options ;
+  - `service` → `services` avec noms, descriptions et champs : les actions n'affichent plus `services.test_calcul.description` (clés retirées de `services.yaml`).
+- `CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)` : configuration uniquement via l'interface.
+- `manifest.json` : clés dans l'ordre attendu par hassfest (`domain`, `name`, puis ordre alphabétique), version inchangée.
+
+#### Added
+- CI : workflows hassfest et validation HACS sur chaque push et pull request.
+
 ### [1.0.15] - 2026-10-28
 
 #### Changed
