@@ -1,4 +1,4 @@
-### [Non publié]
+### [1.0.16] - 2026-10-28
 
 #### Fixed
 - **Compatibilité Home Assistant 2027.5** : suppression de `CONNECTION_CLASS = CONN_CLASS_LOCAL_POLL` dans `config_flow.py` (constante dépréciée, supprimée en 2027.5 : l'intégration ne se serait plus chargée).
