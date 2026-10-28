@@ -1,4 +1,4 @@
-### [Non publié]
+### [1.0.17] - 2026-10-28
 
 #### Fixed
 - **Actions enfin enregistrées** : `piscinexa.test_calcul`, `piscinexa.reset_valeurs` et `piscinexa.apply_treatment` étaient déclarées dans `services.yaml` mais jamais enregistrées ; les boutons « Tester » et « Réinitialiser » échouaient. Nouveau `services.py`, enregistré une seule fois au démarrage (`async_setup`) :
