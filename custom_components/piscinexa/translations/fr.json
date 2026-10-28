@@ -216,5 +216,25 @@
         }
       }
     }
+  },
+  "exceptions": {
+    "pool_not_found": {
+      "message": "Aucune piscine Piscinexa nommée « {name} »."
+    },
+    "pool_name_required": {
+      "message": "Plusieurs piscines Piscinexa sont configurées : indiquez le nom de la piscine."
+    },
+    "no_pool": {
+      "message": "Aucune piscine Piscinexa n'est configurée."
+    },
+    "invalid_pool_name": {
+      "message": "Le nom de piscine « {name} » ne permet pas de construire un identifiant d'entité input_number."
+    },
+    "volume_unavailable": {
+      "message": "Le volume d'eau de la piscine {name} est indisponible."
+    },
+    "value_measured_by_sensor": {
+      "message": "Cette valeur est mesurée par le capteur {sensor} : le traitement n'est pas simulé."
+    }
   }
 }

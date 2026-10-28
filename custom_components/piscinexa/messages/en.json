@@ -311,5 +311,19 @@
   "ph_state_adjust": "Please adjust pH",
   "no_treatment_needed": "No treatment needed",
   "no_action": "No action recorded",
-  "test_calcul_called": "Service test_calcul called for pool {name}"
+  "test_calcul_called": "Service test_calcul called for pool {name}",
+  "invalid_dimension": "Invalid dimension for {key}: {value}, error: {error}",
+  "temperature_state_wait": "Wait a bit",
+  "temperature_state_good": "It's getting good",
+  "temperature_state_relax": "You can relax",
+  "square_pool": "Square",
+  "round_pool": "Round",
+  "invalid_pool_type": "Invalid pool type: {pool_type}",
+  "unknown_pool_type": "Unknown",
+  "pool_type_read_error": "Error reading the pool type for {name}: {error}",
+  "square_pool_installation": "Instructions for square pools: 1. Check that the corners are aligned. 2. Install rigid supports. 3. Follow the manufacturer's steps.",
+  "round_pool_installation": "Instructions for round pools: 1. Choose a flat location. 2. Install a sand base. 3. Assemble the structure according to the manual.",
+  "unknown_installation_info": "Installation information unavailable.",
+  "error_installation_info": "Error retrieving the installation information.",
+  "pool_type_attributes_error": "Error retrieving the pool type attributes for {name}: {error}"
 }

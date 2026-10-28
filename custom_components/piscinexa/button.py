@@ -75,4 +75,5 @@ class PiscinexaButton(ButtonEntity):
             DOMAIN,
             service_name,
             {"name": self._name},
+            blocking=True,
         )
