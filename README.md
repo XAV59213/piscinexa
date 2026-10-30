@@ -1,5 +1,5 @@
 
-![Logo](./images/logo.png)
+![Logo](https://raw.githubusercontent.com/XAV59213/piscinexa/main/images/logo.png)
 
 
 [![GitHub release](https://img.shields.io/github/v/release/XAV59213/piscinexa)](https://github.com/XAV59213/piscinexa/releases)
@@ -34,7 +34,7 @@ Si vous installez manuellement, remplacez simplement le dossier custom_component
 ## Exemple de tableau de bord 📊
 Un fichier YAML est fourni ici : [piscine_dashboard_custom_component.yaml](https://github.com/XAV59213/piscinexa/blob/main/custom_components/piscinexa/piscine_dashboard_advanced.yaml)
 
-![Logo](./images/Capture%20d%E2%80%99%C3%A9cran%20du%202025-05-18%2012-17-32.png)
+![Logo](https://raw.githubusercontent.com/XAV59213/piscinexa/main/images/Capture%20d%E2%80%99%C3%A9cran%20du%202025-05-18%2012-17-32.png)
 ## Changelog 📜
 Consultez le fichier CHANGELOG.md pour voir l'historique des versions et des modifications de l'intégration Piscinexa.
 ## Licence 📄
