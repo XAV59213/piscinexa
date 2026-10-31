@@ -1,3 +1,16 @@
+### [1.0.19] - 2026-10-31
+
+#### Changed
+- **Dashboard avancé** (`piscine_dashboard_advanced.yaml`) remplacé par la carte « sections » utilisateur : caméra extérieure, graphes pH/chlore sur `sensor.piscine_chlore_actuel` / `sensor.spa_ph_actuel`, énergie des pompes, entité de mise à jour `update.piscinexa_update`, badges éclairage / pompe / puissance, thème `transparentblue`. Les `entity_id` personnels (`camera.exterieur02`, `sensor.spa_ph_actuel`, `sensor.bermerain_temperature_2`, image de fond…) sont à adapter à chaque installation.
+
+#### Fixed
+- README : numéro de version du titre mis à jour et libellé du lien vers le dashboard avancé corrigé.
+
+### [1.0.18] - 2026-10-30
+
+#### Fixed
+- README : images en URLs absolues pour un affichage correct dans HACS.
+
 ### [1.0.17] - 2026-10-28
 
 #### Fixed
