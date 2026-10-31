@@ -1,13 +1,10 @@
 
 ![Logo](https://raw.githubusercontent.com/XAV59213/piscinexa/main/images/logo.png)
 
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz) [![Release](https://img.shields.io/github/v/release/XAV59213/piscinexa?label=release)](https://github.com/XAV59213/piscinexa/releases/latest) [![Hassfest](https://img.shields.io/github/actions/workflow/status/XAV59213/piscinexa/hassfest.yaml?branch=main&label=Hassfest&logo=github)](https://github.com/XAV59213/piscinexa/actions/workflows/hassfest.yaml) [![HACS validation](https://img.shields.io/github/actions/workflow/status/XAV59213/piscinexa/validate.yaml?branch=main&label=HACS%20validation&logo=github)](https://github.com/XAV59213/piscinexa/actions/workflows/validate.yaml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Downloads](https://img.shields.io/github/downloads/XAV59213/piscinexa/total.svg?label=Downloads)](https://github.com/XAV59213/piscinexa/releases) [![Version](https://img.shields.io/github/v/release/XAV59213/piscinexa?label=VERSION&color=blue)](https://github.com/XAV59213/piscinexa/releases/latest) [![Home Assistant](https://img.shields.io/badge/HOME%20ASSISTANT-%3E%3D2025.4.0-41BDF5.svg)](https://www.home-assistant.io)
 
-[![GitHub release](https://img.shields.io/github/v/release/XAV59213/piscinexa)](https://github.com/XAV59213/piscinexa/releases)
-[![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg?logo=home-assistant)](https://hacs.xyz/)
-[![License: LGPL v2.1](https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg)](./LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/XAV59213/piscinexa/total.svg)](https://github.com/XAV59213/piscinexa/releases)
+[![Buy Me A Coffee](https://img.buymeacoffee.com/button-api/?text=xav59213&emoji=&slug=xav59213&button_colour=5F7FFF&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00)](https://www.buymeacoffee.com/xav59213)
 
-<a href="https://www.buymeacoffee.com/xav59213"> <img src="https://img.buymeacoffee.com/button-api/?text=xav59213&emoji=&slug=xav59213&button_colour=5F7FFF&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00" /> 
 # Intégration Piscinexa pour Home Assistant (version 1.0.19) 💧
 Ce composant personnalisé Home Assistant vous permet de gérer la qualité de l’eau de votre piscine (pH, chlore, température, volume) ainsi que la filtration, les recommandations de traitement, et d'ajouter des automatisations personnalisées.
 ## Langues supportées 🌍
