@@ -1,7 +1,7 @@
 type: sections
 max_columns: 4
 title: Piscine
-path: pisine
+path: piscine
 sections:
   - type: grid
     cards:
@@ -25,6 +25,11 @@ sections:
         show_icon: true
         type: button
         entity: input_number.piscine_ph_current
+      - show_name: true
+        show_icon: true
+        type: button
+        entity: camera.exterieur02
+        show_state: true
       - type: heading
         heading: 💧Gestion de piscine
         heading_style: title
@@ -34,7 +39,7 @@ sections:
       - type: vertical-stack
         cards:
           - type: entities
-            title: 🧪 Informations principales Clhore 🧪
+            title: 🧪 Informations principales Chlore 🧪
             show_header_toggle: false
             entities:
               - entity: input_number.piscine_chlore_target
@@ -43,7 +48,7 @@ sections:
                 icon: mdi:clock
             state_color: true
           - type: entities
-            title: 🧪 Qualité de l'eau Clhore
+            title: 🧪 Qualité de l'eau Chlore
             show_header_toggle: false
             entities:
               - entity: sensor.piscine_chlore_actuel
@@ -57,16 +62,16 @@ sections:
             hours_to_show: 48
             refresh_interval: 300
             entities:
-              - entity: sensor.piscinexa_piscine_chlore
+              - entity: sensor.piscine_chlore_actuel
                 name: Chlore
             logarithmic_scale: true
           - type: history-graph
-            title: " 💊 Historique pH et Chlore (48h)"
+            title: ' 💊 Historique pH et Chlore (48h)'
             hours_to_show: 48
             refresh_interval: 300
             entities:
-              - entity: sensor.piscinexa_piscine_ph
-              - entity: sensor.piscinexa_piscine_chlore
+              - entity: sensor.spa_ph_actuel
+              - entity: sensor.piscine_chlore_actuel
             logarithmic_scale: true
       - type: vertical-stack
         cards:
@@ -89,11 +94,11 @@ sections:
               - entity: sensor.piscine_ph_a_ajouter_2
               - entity: sensor.piscine_ph_a_ajouter
           - type: history-graph
-            title: 📊  Historique Ph (48h)
+            title: 📊 Historique pH (48h)
             hours_to_show: 48
             refresh_interval: 300
             entities:
-              - entity: sensor.piscinexa_piscine_ph
+              - entity: sensor.spa_ph_actuel
             logarithmic_scale: true
           - type: history-graph
             title: 🌡️ Historique Température (48h)
@@ -101,7 +106,7 @@ sections:
             refresh_interval: 300
             entities:
               - entity: sensor.temperature_piscine_temperature
-              - entity: sensor.bermerain_temperature
+              - entity: sensor.bermerain_temperature_2
             logarithmic_scale: true
           - graph: line
             type: sensor
@@ -110,7 +115,7 @@ sections:
       - type: vertical-stack
         cards:
           - type: entities
-            title: "🏊 Contrôle Qualité Piscine 🏊 "
+            title: '🏊 Contrôle Qualité Piscine 🏊 '
             show_header_toggle: false
             entities:
               - entity: sensor.piscine_volume_d_eau
@@ -122,7 +127,7 @@ sections:
               - entity: sensor.piscine_temps_de_filtration_effectue
               - entity: sensor.temperature_piscine_temperature
                 name: Piscine Température
-              - entity: sensor.bermerain_temperature
+              - entity: sensor.bermerain_temperature_2
             state_color: true
           - type: entities
             title: 💧Qualité de l'eau 💧
@@ -135,14 +140,16 @@ sections:
                 name: Chlore actuel
                 icon: mdi:water-check
               - entity: sensor.piscine_etat_temperature
+            state_color: true
           - type: entities
             title: ⚡ Consommation
             show_header_toggle: false
             entities:
-              - entity: sensor.piscine_consommation_puissance
+              - entity: sensor.pompes_piscine_energy
                 name: Consommation de puissance
                 icon: mdi:flash
-              - entity: switch.pompe_piscine
+              - entity: switch.pompes_piscine
+            state_color: true
           - type: entities
             title: Journal des actions
             show_header_toggle: false
@@ -150,7 +157,8 @@ sections:
               - entity: update.piscinexa_update
                 name: Journal
                 icon: mdi:notebook
-              - entity: switch.piscinexa_pre_release
+              - entity: update.piscinexa_update
+            state_color: true
           - type: horizontal-stack
             cards:
               - show_name: true
@@ -188,11 +196,6 @@ badges:
     show_name: false
     show_state: true
     show_icon: true
-    entity: sensor.piscine_consommation_puissance
-  - type: entity
-    show_name: false
-    show_state: true
-    show_icon: true
     entity: sensor.piscine_etat_de_la_piscine
   - type: entity
     show_name: false
@@ -203,14 +206,31 @@ badges:
     show_name: false
     show_state: true
     show_icon: true
-    entity: sensor.piscine_pool_type
+    entity: sensor.piscine_type_de_piscine
     show_entity_picture: true
+  - type: entity
+    show_name: false
+    show_state: true
+    show_icon: true
+    entity: switch.eclairage_piscine
+  - type: entity
+    show_name: false
+    show_state: true
+    show_icon: true
+    entity: switch.pompe_piscine
+    icon: mdi:engine
+  - type: entity
+    show_name: false
+    show_state: true
+    show_icon: true
+    entity: sensor.pompe_piscine_power
 icon: mdi:pool-thermometer
 cards: []
 background:
-  opacity: 33
+  opacity: 50
   alignment: center
   size: cover
   repeat: repeat
   attachment: fixed
-  image: /api/image/serve/ee19a3b80b5723ffc28a5140eb6a77e9/original
+  image: /api/image/serve/9354d54085a19b2faef4a8c79b360c16/original
+theme: transparentblue

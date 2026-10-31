@@ -8,7 +8,7 @@
 [![Downloads](https://img.shields.io/github/downloads/XAV59213/piscinexa/total.svg)](https://github.com/XAV59213/piscinexa/releases)
 
 <a href="https://www.buymeacoffee.com/xav59213"> <img src="https://img.buymeacoffee.com/button-api/?text=xav59213&emoji=&slug=xav59213&button_colour=5F7FFF&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00" /> 
-# Intégration Piscinexa pour Home Assistant (version 1.0.17) 💧
+# Intégration Piscinexa pour Home Assistant (version 1.0.19) 💧
 Ce composant personnalisé Home Assistant vous permet de gérer la qualité de l’eau de votre piscine (pH, chlore, température, volume) ainsi que la filtration, les recommandations de traitement, et d'ajouter des automatisations personnalisées.
 ## Langues supportées 🌍
 L'intégration Piscinexa prend en charge plusieurs langues : français et anglais. Les chaînes visibles dans l'interface utilisateur sont traduites en fonction de la langue configurée dans Home Assistant.
@@ -32,7 +32,7 @@ Shortcut:
 ## Mise à jour 🔄
 Si vous installez manuellement, remplacez simplement le dossier custom_components/piscinexa par la nouvelle version, puis redémarrez Home Assistant.
 ## Exemple de tableau de bord 📊
-Un fichier YAML est fourni ici : [piscine_dashboard_custom_component.yaml](https://github.com/XAV59213/piscinexa/blob/main/custom_components/piscinexa/piscine_dashboard_advanced.yaml)
+Un fichier YAML est fourni ici : [piscine_dashboard_advanced.yaml](https://github.com/XAV59213/piscinexa/blob/main/custom_components/piscinexa/piscine_dashboard_advanced.yaml)
 
 ![Logo](https://raw.githubusercontent.com/XAV59213/piscinexa/main/images/Capture%20d%E2%80%99%C3%A9cran%20du%202025-05-18%2012-17-32.png)
 ## Changelog 📜
