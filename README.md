@@ -23,7 +23,6 @@ L'intégration Piscinexa prend en charge plusieurs langues : français et anglai
 ## ⚙️ Setup
 
 Shortcut:  
-[![](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=piscinexa)  
 
 - Allez dans **Paramètres -> Intégrations -> Ajouter une intégration**  
 - Cherchez **"Piscinexa** et suivez les instructions dans le **config flow**.  
