@@ -237,6 +237,10 @@
     "etat_ph": {
       "name": "pH State",
       "unit_of_measurement": ""
+    },
+    "pool_type": {
+      "name": "Pool Type",
+      "unit_of_measurement": ""
     }
   },
   "service": {

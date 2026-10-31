@@ -1,7 +1,7 @@
 type: sections
 max_columns: 4
 title: Piscine
-path: pisine
+path: piscine
 sections:
   - type: grid
     cards:
@@ -39,7 +39,7 @@ sections:
       - type: vertical-stack
         cards:
           - type: entities
-            title: 🧪 Informations principales Clhore 🧪
+            title: 🧪 Informations principales Chlore 🧪
             show_header_toggle: false
             entities:
               - entity: input_number.piscine_chlore_target
@@ -48,7 +48,7 @@ sections:
                 icon: mdi:clock
             state_color: true
           - type: entities
-            title: 🧪 Qualité de l'eau Clhore
+            title: 🧪 Qualité de l'eau Chlore
             show_header_toggle: false
             entities:
               - entity: sensor.piscine_chlore_actuel
@@ -94,7 +94,7 @@ sections:
               - entity: sensor.piscine_ph_a_ajouter_2
               - entity: sensor.piscine_ph_a_ajouter
           - type: history-graph
-            title: 📊  Historique Ph (48h)
+            title: 📊 Historique pH (48h)
             hours_to_show: 48
             refresh_interval: 300
             entities:
