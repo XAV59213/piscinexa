@@ -1,3 +1,15 @@
+### [1.0.21] - 2026-11-20
+
+#### Changed
+- **README** : ajout du bouton cliquable « Discuter sur Forum Domotique » (40 px, `docs/badges/forum-domotique-badge-40.svg`) sous les badges, vers le sujet piscine du forum.
+- Numéro de version du README aligné sur `manifest.json`.
+
+### [1.0.20] - 2026-10-31
+
+#### Changed
+- **README** : badges HACS / CI alignés en tête, bouton Buy Me a Coffee en dessous, boutons My Home Assistant (HACS / config flow) sans doublon.
+- `manifest.json` aligné en 1.0.20.
+
 ### [1.0.19] - 2026-10-31
 
 #### Changed
