@@ -14,7 +14,7 @@
 [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=piscinexa)
 
 
-# Intégration Piscinexa pour Home Assistant (version 1.0.19) 💧
+# Intégration Piscinexa pour Home Assistant (version 1.0.21) 💧
 Ce composant personnalisé Home Assistant vous permet de gérer la qualité de l’eau de votre piscine (pH, chlore, température, volume) ainsi que la filtration, les recommandations de traitement, et d'ajouter des automatisations personnalisées.
 ## Langues supportées 🌍
 L'intégration Piscinexa prend en charge plusieurs langues : français et anglais. Les chaînes visibles dans l'interface utilisateur sont traduites en fonction de la langue configurée dans Home Assistant.
