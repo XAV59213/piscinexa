@@ -1,3 +1,9 @@
+### [1.0.22] - 2026-11-20
+
+#### Changed
+- **README** : ajout d'un badge cliquable « GitHub Stars » dans la ligne des badges, vers la page des stargazers.
+- Version alignée en 1.0.22 (`manifest.json`, README, CHANGELOG).
+
 ### [1.0.21] - 2026-11-20
 
 #### Changed
